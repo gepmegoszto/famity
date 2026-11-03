@@ -26,6 +26,7 @@ import {
   ShieldAlert,
   History
 } from 'lucide-react';
+import { notifyNewChore, notifyRewardRedeemed } from '@/lib/emailNotify';
 
 export default function ChoreTracker({ familyId, userId }) {
   const [activeSubTab, setActiveSubTab] = useState('chores'); // 'chores' | 'rewards' | 'history'
@@ -118,6 +119,17 @@ export default function ChoreTracker({ familyId, userId }) {
       createdAt: serverTimestamp()
     });
 
+    // E-mail értesítés küldése, ha a feladat egy konkrét családtagnak szól
+    if (assigneeId !== 'anyone' && assignedMember) {
+      await notifyNewChore({
+        familyId,
+        assignedUserId: assigneeId,
+        assignedUserName: assignedMember.name || 'Családtag',
+        choreTitle: title.trim(),
+        points: Number(points) || 10
+      });
+    }
+
     setTitle('');
     setPoints(10);
     setAssigneeId('anyone');
@@ -195,7 +207,20 @@ export default function ChoreTracker({ familyId, userId }) {
       createdAt: serverTimestamp()
     });
 
-    alert('Sikeres beváltás! Értesítsd a családfőt a beváltott jutalomról.');
+    // 3. E-mail értesítés küldése annak, aki a jutalmat létrehozta
+    if (reward.createdBy) {
+      const creatorMember = members.find(m => m.id === reward.createdBy);
+      await notifyRewardRedeemed({
+        familyId,
+        creatorUserId: reward.createdBy,
+        creatorName: creatorMember?.name || 'Családfő',
+        redeemerName: currentUser?.name || 'Családtag',
+        rewardTitle: reward.title,
+        pointsCost: reward.pointsRequired
+      });
+    }
+
+    alert('Sikeres beváltás! Értesítést küldtünk a létrehozónak.');
   };
 
   // Jutalom törlése (Admin)
