@@ -6,7 +6,8 @@ import ShoppingList from '@/components/ShoppingList';
 import Calendar from '@/components/Calendar';
 import NoticeBoard from '@/components/NoticeBoard';
 import WeeklyMenu from '@/components/WeeklyMenu';
-import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote } from 'lucide-react';
+import ChoreTracker from '@/components/ChoreTracker';
+import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote, Award } from 'lucide-react';
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
@@ -68,6 +69,15 @@ export default function HomePage() {
         </button>
 
         <button
+          onClick={() => setActiveTab('chores')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'chores' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Award className="w-4 h-4" /> Házimunka
+        </button>
+
+        <button
           onClick={() => setActiveTab('menu')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
             activeTab === 'menu' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
@@ -109,10 +119,14 @@ export default function HomePage() {
         <div className="space-y-6">
           <NoticeBoard familyId={familyData.id} userId={user.uid} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ChoreTracker familyId={familyData.id} userId={user.uid} />
             <Calendar familyId={familyData.id} userId={user.uid} />
-            <ShoppingList familyId={familyData.id} userId={user.uid} />
           </div>
         </div>
+      )}
+
+      {activeTab === 'chores' && (
+        <ChoreTracker familyId={familyData.id} userId={user.uid} />
       )}
 
       {activeTab === 'menu' && (
