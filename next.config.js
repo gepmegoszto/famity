@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['undici', '@firebase/auth'],
   webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
+    if (isServer) {
+      // Szerveroldali build során figyelmen kívül hagyjuk az undici modult
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        undici: false,
       };
     }
     return config;
