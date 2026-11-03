@@ -24,6 +24,7 @@ import {
   Edit3, 
   X
 } from 'lucide-react';
+import { notifyNewCalendarEvent } from '@/lib/emailNotify';
 
 export default function Calendar({ familyId, userId }) {
   const [events, setEvents] = useState([]);
@@ -112,6 +113,16 @@ export default function Calendar({ familyId, userId }) {
         createdByName: creatorName,
         creatorColor: creatorColor,
         createdAt: serverTimestamp()
+      });
+
+      // E-mail értesítés küldése minden családtagnak az új eseményről
+      await notifyNewCalendarEvent({
+        familyId,
+        senderId: userId,
+        senderName: creatorName,
+        eventTitle: title.trim(),
+        eventDate: date,
+        eventTime: time || ''
       });
     }
 
