@@ -9,9 +9,11 @@ import {
   onSnapshot, 
   query, 
   orderBy,
-  serverTimestamp 
+  serverTimestamp,
+  getDoc 
 } from 'firebase/firestore';
 import { StickyNote, Plus, Trash2, Pin } from 'lucide-react';
+import { notifyNewNotice } from '@/lib/emailNotify';
 
 const NOTE_COLORS = [
   { name: 'Sárga', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-900', badge: 'bg-amber-200' },
@@ -60,6 +62,25 @@ export default function NoticeBoard({ familyId, userId }) {
         pinned: isPinned,
         addedBy: userId,
         createdAt: serverTimestamp()
+      });
+
+      // Felhasználó nevének lekérése az e-mail küldéshez
+      let senderName = 'Családtag';
+      try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (userDoc.exists() && userDoc.data().name) {
+          senderName = userDoc.data().name;
+        }
+      } catch (e) {
+        // Alapértelmezett név marad
+      }
+
+      // E-mail küldése minden családtagnak az új hűtőmágnesről
+      await notifyNewNotice({
+        familyId,
+        senderId: userId,
+        senderName,
+        title: content.trim()
       });
 
       setContent('');
