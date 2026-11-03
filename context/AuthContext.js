@@ -20,14 +20,19 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // Felhasználó profiljának és családjának betöltése
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const familyDoc = await getDoc(doc(db, 'families', userData.familyId));
-          if (familyDoc.exists()) {
-            setFamilyData({ id: familyDoc.id, ...familyDoc.data() });
+        try {
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData?.familyId) {
+              const familyDoc = await getDoc(doc(db, 'families', userData.familyId));
+              if (familyDoc.exists()) {
+                setFamilyData({ id: familyDoc.id, ...familyDoc.data() });
+              }
+            }
           }
+        } catch (err) {
+          console.error('Hiba az adatok lekérésekor:', err);
         }
       } else {
         setUser(null);
@@ -39,8 +44,7 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Család létrehozása
-  const createFamily = async (familyName, userName, color) => {
+  const createFamily = async (familyName) => {
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const familyRef = doc(collection(db, 'families'));
     
@@ -53,7 +57,6 @@ export const AuthProvider = ({ children }) => {
     return familyRef.id;
   };
 
-  // Családhoz csatlakozás kód alapján
   const joinFamilyByCode = async (code) => {
     const q = query(collection(db, 'families'), where('inviteCode', '==', code.toUpperCase()));
     const querySnapshot = await getDocs(q);
@@ -63,19 +66,17 @@ export const AuthProvider = ({ children }) => {
     return querySnapshot.docs[0].id;
   };
 
-  // Regisztráció (Új család vagy Csatlakozás)
   const register = async (email, password, userName, familyOption, familyNameOrCode, color = '#3B82F6') => {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const userId = res.user.uid;
     let familyId = '';
 
     if (familyOption === 'create') {
-      familyId = await createFamily(familyNameOrCode, userName, color);
+      familyId = await createFamily(familyNameOrCode);
     } else {
       familyId = await joinFamilyByCode(familyNameOrCode);
     }
 
-    // Családtag hozzáadása a családhoz
     await setDoc(doc(db, 'families', familyId, 'members', userId), {
       name: userName,
       role: familyOption === 'create' ? 'admin' : 'member',
@@ -83,12 +84,16 @@ export const AuthProvider = ({ children }) => {
       email: email
     });
 
-    // Felhasználó alaprekordja
     await setDoc(doc(db, 'users', userId), {
       name: userName,
       email: email,
       familyId: familyId
     });
+
+    const familyDoc = await getDoc(doc(db, 'families', familyId));
+    if (familyDoc.exists()) {
+      setFamilyData({ id: familyDoc.id, ...familyDoc.data() });
+    }
   };
 
   const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
