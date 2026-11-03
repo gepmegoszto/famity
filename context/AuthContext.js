@@ -1,12 +1,20 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { 
-  onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut 
+  signOut, 
+  onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { 
+  doc, 
+  getDoc, 
+  setDoc, 
+  collection, 
+  query, 
+  where, 
+  getDocs 
+} from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
 const AuthContext = createContext({});
@@ -21,18 +29,21 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         setUser(currentUser);
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            if (userData?.familyId) {
-              const familyDoc = await getDoc(doc(db, 'families', userData.familyId));
-              if (familyDoc.exists()) {
-                setFamilyData({ id: familyDoc.id, ...familyDoc.data() });
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            if (userData.familyId) {
+              const familyDocRef = doc(db, 'families', userData.familyId);
+              const familyDocSnap = await getDoc(familyDocRef);
+              if (familyDocSnap.exists()) {
+                setFamilyData({ id: familyDocSnap.id, ...familyDocSnap.data() });
               }
             }
           }
         } catch (err) {
-          console.error('Hiba az adatok lekérésekor:', err);
+          console.error('Hiba az adatok betöltésekor:', err);
         }
       } else {
         setUser(null);
@@ -44,60 +55,73 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const createFamily = async (familyName) => {
-    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const familyRef = doc(collection(db, 'families'));
-    
-    await setDoc(familyRef, {
-      name: familyName,
-      inviteCode: inviteCode,
-      createdAt: new Date().toISOString()
-    });
-
-    return familyRef.id;
+  // Bejelentkezés
+  const login = async (email, password) => {
+    return await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const joinFamilyByCode = async (code) => {
-    const q = query(collection(db, 'families'), where('inviteCode', '==', code.toUpperCase()));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-      throw new Error('Érvénytelen családi meghívókód!');
-    }
-    return querySnapshot.docs[0].id;
-  };
-
-  const register = async (email, password, userName, familyOption, familyNameOrCode, color = '#3B82F6') => {
+  // Regisztráció (Új család vagy csatlakozás)
+  const register = async (email, password, userName, familyOption, familyNameOrCode, color) => {
     const res = await createUserWithEmailAndPassword(auth, email, password);
-    const userId = res.user.uid;
-    let familyId = '';
+    const newUser = res.user;
+
+    let targetFamilyId = '';
 
     if (familyOption === 'create') {
-      familyId = await createFamily(familyNameOrCode);
+      const newInviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const newFamilyRef = doc(collection(db, 'families'));
+      targetFamilyId = newFamilyRef.id;
+
+      await setDoc(newFamilyRef, {
+        name: familyNameOrCode || 'Család',
+        inviteCode: newInviteCode,
+        createdBy: newUser.uid,
+        createdAt: new Date().toISOString()
+      });
     } else {
-      familyId = await joinFamilyByCode(familyNameOrCode);
+      const q = query(
+        collection(db, 'families'), 
+        where('inviteCode', '==', familyNameOrCode.trim().toUpperCase())
+      );
+      const querySnap = await getDocs(q);
+
+      if (querySnap.empty) {
+        throw new Error('Érvénytelen családi meghívókód!');
+      }
+
+      targetFamilyId = querySnap.docs[0].id;
     }
 
-    await setDoc(doc(db, 'families', familyId, 'members', userId), {
-      name: userName,
-      role: familyOption === 'create' ? 'admin' : 'member',
-      color: color,
-      email: email
-    });
-
-    await setDoc(doc(db, 'users', userId), {
-      name: userName,
+    await setDoc(doc(db, 'users', newUser.uid), {
       email: email,
-      familyId: familyId
+      name: userName,
+      familyId: targetFamilyId,
+      color: color || '#3B82F6',
+      role: familyOption === 'create' ? 'admin' : 'member'
     });
 
-    const familyDoc = await getDoc(doc(db, 'families', familyId));
-    if (familyDoc.exists()) {
-      setFamilyData({ id: familyDoc.id, ...familyDoc.data() });
+    await setDoc(doc(db, 'families', targetFamilyId, 'members', newUser.uid), {
+      email: email,
+      name: userName,
+      color: color || '#3B82F6',
+      role: familyOption === 'create' ? 'admin' : 'member',
+      pointsBalance: 0
+    });
+
+    const familySnap = await getDoc(doc(db, 'families', targetFamilyId));
+    if (familySnap.exists()) {
+      setFamilyData({ id: familySnap.id, ...familySnap.data() });
     }
+
+    return newUser;
   };
 
-  const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
-  const logout = () => signOut(auth);
+  // Kijelentkezés
+  const logout = async () => {
+    await signOut(auth);
+    setUser(null);
+    setFamilyData(null);
+  };
 
   return (
     <AuthContext.Provider value={{ user, familyData, loading, login, register, logout }}>
