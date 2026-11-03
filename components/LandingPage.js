@@ -72,7 +72,7 @@ export default function LandingPage() {
           {/* Nagy logókép a címsor felett */}
           <div className="flex justify-center">
             <img 
-              src="/logo.jpg" 
+              src="/Gemini_Generated_Image_dn5mf6dn5mf6dn5m.jpeg" 
               alt="famity.hu" 
               className="h-28 sm:h-36 w-auto object-contain rounded-2xl shadow-sm" 
             />
