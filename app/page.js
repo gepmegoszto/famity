@@ -1,14 +1,17 @@
 'use client';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ShoppingList from '@/components/ShoppingList';
 import Calendar from '@/components/Calendar';
 import NoticeBoard from '@/components/NoticeBoard';
+import WeeklyMenu from '@/components/WeeklyMenu';
+import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote } from 'lucide-react';
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -53,14 +56,80 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Hirdetőtábla (Kiemelt helyen felül) */}
-      <NoticeBoard familyId={familyData.id} userId={user.uid} />
+      {/* Tab Navigáció */}
+      <div className="flex gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <LayoutDashboard className="w-4 h-4" /> Áttekintés
+        </button>
 
-      {/* Fő logisztikai modulok */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Calendar familyId={familyData.id} userId={user.uid} />
-        <ShoppingList familyId={familyData.id} userId={user.uid} />
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'menu' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Utensils className="w-4 h-4" /> Menüterv
+        </button>
+
+        <button
+          onClick={() => setActiveTab('calendar')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'calendar' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <CalendarIcon className="w-4 h-4" /> Naptár
+        </button>
+
+        <button
+          onClick={() => setActiveTab('shopping')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'shopping' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <ShoppingBag className="w-4 h-4" /> Bevásárlás
+        </button>
+
+        <button
+          onClick={() => setActiveTab('notices')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'notices' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <StickyNote className="w-4 h-4" /> Hirdetőtábla
+        </button>
       </div>
+
+      {/* Aktív Tab Tartalma */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-6">
+          <NoticeBoard familyId={familyData.id} userId={user.uid} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Calendar familyId={familyData.id} userId={user.uid} />
+            <ShoppingList familyId={familyData.id} userId={user.uid} />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'menu' && (
+        <WeeklyMenu familyId={familyData.id} userId={user.uid} />
+      )}
+
+      {activeTab === 'calendar' && (
+        <Calendar familyId={familyData.id} userId={user.uid} />
+      )}
+
+      {activeTab === 'shopping' && (
+        <ShoppingList familyId={familyData.id} userId={user.uid} />
+      )}
+
+      {activeTab === 'notices' && (
+        <NoticeBoard familyId={familyData.id} userId={user.uid} />
+      )}
     </main>
   );
 }
