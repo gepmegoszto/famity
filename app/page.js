@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import ShoppingList from '@/components/ShoppingList';
 import Calendar from '@/components/Calendar';
+import NoticeBoard from '@/components/NoticeBoard';
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
@@ -26,7 +27,7 @@ export default function HomePage() {
   if (!user || !familyData) return null;
 
   return (
-    <main className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+    <main className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
       {/* Fejléc */}
       <header className="flex justify-between items-center pb-4 border-b border-slate-200">
         <div>
@@ -52,7 +53,10 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Fő funkcionális modulok */}
+      {/* Hirdetőtábla (Kiemelt helyen felül) */}
+      <NoticeBoard familyId={familyData.id} userId={user.uid} />
+
+      {/* Fő logisztikai modulok */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Calendar familyId={familyData.id} userId={user.uid} />
         <ShoppingList familyId={familyData.id} userId={user.uid} />
