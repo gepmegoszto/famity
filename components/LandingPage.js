@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   Clock,
   Pin,
-  Heart,
   Smartphone,
   Mail
 } from 'lucide-react';
@@ -39,11 +38,11 @@ export default function LandingPage() {
       {/* Fejléc */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <img 
-              src="/logo.jpg" 
-              alt="famity.hu logó" 
-              className="h-10 w-auto object-contain rounded-xl" 
+              src="/icon.png" 
+              alt="famity.hu" 
+              className="h-9 w-9 object-contain rounded-xl" 
             />
             <span className="text-xl font-black tracking-tight text-slate-900">famity<span className="text-blue-600">.hu</span></span>
           </div>
@@ -68,10 +67,15 @@ export default function LandingPage() {
       {/* Hero Section */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-12 w-full space-y-10 sm:space-y-12">
         
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-bold shadow-sm">
-            <Heart className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-            <span>Az otthoni logisztika legkedvesebb segítője</span>
+        <div className="text-center max-w-2xl mx-auto space-y-6">
+          
+          {/* Nagy logókép a címsor felett */}
+          <div className="flex justify-center">
+            <img 
+              src="/logo.jpg" 
+              alt="famity.hu" 
+              className="h-28 sm:h-36 w-auto object-contain rounded-2xl shadow-sm" 
+            />
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
@@ -336,13 +340,13 @@ export default function LandingPage() {
 
       </main>
 
-      {/* Lábléc Kapcsolat résszel */}
+      {/* Lábléc */}
       <footer className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <img 
-            src="/logo.jpg" 
+            src="/icon.png" 
             alt="famity.hu" 
-            className="h-7 w-auto object-contain rounded-lg" 
+            className="h-7 w-7 object-contain rounded-lg" 
           />
           <span className="font-bold text-slate-700">famity.hu — Családi Vezérlőpult</span>
         </div>
