@@ -86,7 +86,7 @@ export default function LandingPage() {
               href="/login?mode=register"
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98]"
             >
-              Új család indítása <ArrowRight className="w-4 h-4" />
+              Családi fiók létrehozása <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/login?mode=register"
