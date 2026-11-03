@@ -230,8 +230,8 @@ export default function LandingPage() {
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
               <CheckCircle2 className="w-4 h-4 text-blue-400" />
-              <h4 className="font-bold text-slate-200">Zéró Reklám & Adatértékesítés</h4>
-              <p className="text-slate-400 leading-relaxed">Soha nem adjuk el a családi adataitokat, és nem jelenítünk meg semmilyen reklámot.</p>
+              <h4 className="font-bold text-slate-200">Zéró adatértékesítés</h4>
+              <p className="text-slate-400 leading-relaxed">Soha nem adjuk tovább a családi adataitokat, csak a családhoz tartozó felhasználók láthatják azokat.</p>
             </div>
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
