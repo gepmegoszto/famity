@@ -16,7 +16,9 @@ import {
   Lock,
   Smile,
   CheckCircle2,
-  Mail
+  Mail,
+  Sparkles,
+  Check
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -130,6 +132,48 @@ export default function LandingPage() {
               <h3 className="font-bold text-xs text-slate-900">Házimunka & Pontok</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed">Elvégzett teendők, pontgyűjtés és beváltás megbeszélt jutalmakra.</p>
             </div>
+          </div>
+        </div>
+
+        {/* PRÉMIUM CSOMAG BEMUTATÁS A FŐOLDALON */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
+          <div className="text-center max-w-lg mx-auto space-y-2">
+            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
+              <Sparkles className="w-3.5 h-3.5" /> Rugalmas Modell
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Ingyenes vagy Családi Prémium?</h2>
+            <p className="text-xs text-slate-500">Használjátok ingyen hirdetésekkel, vagy váltsatok prémiumra a teljes reklámmentességért.</p>
+          </div>
+
+          <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-3xl shadow-xl space-y-6">
+            <div className="flex justify-between items-baseline">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300">Egész családnak</span>
+                <h3 className="text-xl font-black">Famity Prémium</h3>
+              </div>
+              <div className="text-right">
+                <span className="text-3xl font-black">1 990 Ft</span>
+                <span className="text-[11px] text-slate-300 block">/ hó</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs border-t border-slate-800 pt-4">
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span><strong>Teljes reklámmentesség</strong> az admin és minden családtag számára</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Minden modul és korlátlan családi szinkronizáció</span>
+              </div>
+            </div>
+
+            <Link
+              href="/login?mode=register"
+              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 text-center"
+            >
+              Próbáljátok ki ingyen <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
 
