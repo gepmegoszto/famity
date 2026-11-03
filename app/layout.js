@@ -1,31 +1,28 @@
+import { Inter } from 'next/font/google';
+import Script from 'next/script'; // Importáld a Script komponenst
 import './globals.css';
-import { AuthProvider } from '@/context/AuthContext';
-import Script from 'next/script';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'famity.hu — Családi Vezérlőpult',
-  description: 'Közös családi naptár, élő bevásárlólista, heti menüterv és teendők egy helyen.',
-  icons: {
-    icon: '/icon.png',
-  },
+  description: 'A család közös élete együtt, egyetlen helyen.',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="hu" className="light" style={{ colorScheme: 'light' }}>
+    <html lang="hu">
       <head>
-        {/* Google AdSense Globális Szkript */}
+        {/* Google AdSense Kód */}
         <Script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2881984231378190"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
       </head>
-      <body className="bg-[#FAF8F4] text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className={inter.className}>
+        {children}
       </body>
     </html>
   );
