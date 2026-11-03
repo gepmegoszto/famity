@@ -34,7 +34,7 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF8F4]">
         <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-100">
           <div className="w-4 h-4 rounded-full bg-blue-600 animate-ping" />
           <span className="text-sm font-semibold text-slate-600">Betöltés...</span>
@@ -58,25 +58,24 @@ export default function HomePage() {
   };
 
   const navItems = [
-    { id: 'dashboard', label: 'Áttekintés', icon: LayoutDashboard },
-    { id: 'chores', label: 'Házimunka', icon: Award },
-    { id: 'menu', label: 'Menü', icon: Utensils },
-    { id: 'calendar', label: 'Naptár', icon: CalendarIcon },
-    { id: 'shopping', label: 'Bevásárlás', icon: ShoppingBag },
-    { id: 'notices', label: 'Üzenőfal', icon: StickyNote },
-    { id: 'settings', label: 'Család', icon: Users },
+    { id: 'dashboard', label: 'Áttekintés', icon: LayoutDashboard, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { id: 'chores', label: 'Házimunka', icon: Award, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { id: 'menu', label: 'Menü', icon: Utensils, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { id: 'calendar', label: 'Naptár', icon: CalendarIcon, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { id: 'shopping', label: 'Bevásárlás', icon: ShoppingBag, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { id: 'notices', label: 'Üzenőfal', icon: StickyNote, color: 'text-amber-600', bg: 'bg-amber-50' },
+    { id: 'settings', label: 'Család', icon: Users, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 
-  // Aktuális felhasználó színének lekérése a tagok listájából, ha létezik
-  // Ha nem található, fallback egy alap kék színre
+  // Aktuális felhasználó színének lekérése
   const currentUserMember = familyData?.members?.find?.(m => m.id === user.uid);
   const userBubbleColor = currentUserMember?.color || '#3B82F6';
 
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-800 pb-28 md:pb-12 font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-[#FAF8F4] text-slate-800 pb-28 md:pb-12 font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Fejléc */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
+      <header className="sticky top-0 z-40 bg-[#FAF8F4]/90 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           
           <div className="flex items-center gap-3 min-w-0">
@@ -98,7 +97,7 @@ export default function HomePage() {
             {familyData?.inviteCode && (
               <button
                 onClick={handleCopyCode}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/70 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200/60"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200/80 shadow-sm"
                 title="Meghívókód másolása"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
@@ -108,7 +107,7 @@ export default function HomePage() {
 
             <button
               onClick={logout}
-              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
+              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-white rounded-xl transition border border-transparent hover:border-slate-200 shadow-sm"
               title="Kijelentkezés"
             >
               <LogOut className="w-4 h-4" />
@@ -130,8 +129,8 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Asztali Navigáció */}
-        <div className="hidden md:flex items-center gap-1.5 p-1.5 bg-slate-200/50 rounded-2xl border border-slate-200/60">
+        {/* Asztali Navigáció - Magasabb, nagyobb, vizuálisabb, szebb ikonokkal */}
+        <div className="hidden md:grid grid-cols-7 gap-3 p-3 bg-white/85 backdrop-blur-md rounded-3xl border border-slate-200/80 shadow-md">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -139,14 +138,16 @@ export default function HomePage() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition ${
+                className={`flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl text-xs font-bold transition cursor-pointer ${
                   isActive
-                    ? 'bg-white text-blue-600 shadow-sm border border-slate-200/50'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10 scale-[1.02]'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-100'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
-                <span>{item.label}</span>
+                <div className={`p-2.5 rounded-xl transition ${isActive ? 'bg-white/10 text-white' : `${item.bg} ${item.color}`}`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                <span className="tracking-tight text-xs">{item.label}</span>
               </button>
             );
           })}
@@ -191,7 +192,7 @@ export default function HomePage() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition shrink-0 ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3.5 rounded-xl transition shrink-0 cursor-pointer ${
                 isActive ? 'text-blue-600 font-bold bg-blue-50/80' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
