@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PrivacyModal from '@/components/PrivacyModal';
+import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 import { ShieldCheck } from 'lucide-react';
 
 function LoginForm() {
@@ -19,6 +20,7 @@ function LoginForm() {
   const [color, setColor] = useState('#3B82F6');
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [error, setError] = useState('');
 
   const { login, register } = useAuth();
@@ -155,6 +157,17 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {!isRegister && (
+            <div className="text-right pt-1">
+              <button
+                type="button"
+                onClick={() => setIsForgotOpen(true)}
+                className="text-xs text-blue-600 hover:underline font-semibold cursor-pointer"
+              >
+                Elfelejtetted a jelszavad?
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Adatkezelési Nyilatkozat Elfogadása Regisztrációnál */}
@@ -208,6 +221,7 @@ function LoginForm() {
       </div>
 
       <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
+      <ForgotPasswordModal isOpen={isForgotOpen} onClose={() => setIsForgotOpen(false)} />
     </div>
   );
 }
