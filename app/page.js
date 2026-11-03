@@ -1,36 +1,35 @@
 'use client';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ShoppingList from '@/components/ShoppingList';
 import Calendar from '@/components/Calendar';
 import NoticeBoard from '@/components/NoticeBoard';
 import WeeklyMenu from '@/components/WeeklyMenu';
 import ChoreTracker from '@/components/ChoreTracker';
 import FamilySettings from '@/components/FamilySettings';
+import LandingPage from '@/components/LandingPage';
 import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote, Award, Users } from 'lucide-react';
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <p className="text-slate-500 font-medium">Betöltés...</p>
       </div>
     );
   }
 
-  if (!user || !familyData) return null;
+  // Ha nincs bejelentkezve a látogató -> Kezdőlap (Landing Page)
+  if (!user) {
+    return <LandingPage />;
+  }
 
+  if (!familyData) return null;
+
+  // Bejelentkezett családtag vezérlőpultja
   return (
     <main className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
       {/* Fejléc */}
