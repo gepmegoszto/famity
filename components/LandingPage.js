@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   Clock,
   Pin,
-  Zap,
+  Heart,
   Smartphone,
   ShieldCheck
 } from 'lucide-react';
@@ -21,7 +21,6 @@ import {
 export default function LandingPage() {
   const [activeDemoTab, setActiveDemoTab] = useState('calendar');
 
-  // Interaktív demó állapotok
   const [demoShoppingItems, setDemoShoppingItems] = useState([
     { id: 1, name: 'Tej 2.8%', cat: 'Élelmiszer', done: true },
     { id: 2, name: 'Kovászos kenyér', cat: 'Élelmiszer', done: false },
@@ -35,13 +34,13 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-500 selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-50/80 text-slate-800 font-sans flex flex-col justify-between">
       
       {/* Fejléc */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/15">
               F
             </div>
             <span className="text-xl font-black tracking-tight text-slate-900">famity<span className="text-blue-600">.hu</span></span>
@@ -50,13 +49,13 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link 
               href="/login" 
-              className="px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition"
+              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition rounded-xl hover:bg-slate-100"
             >
               Belépés
             </Link>
             <Link 
               href="/login?mode=register" 
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-blue-500/20 transition hover:scale-[1.02] active:scale-[0.98]"
+              className="px-4.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-2xl shadow-md shadow-blue-500/20 transition hover:scale-[1.02] active:scale-[0.98]"
             >
               Kipróbálom
             </Link>
@@ -65,36 +64,35 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-14 pb-12 w-full space-y-10 sm:space-y-12">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-12 w-full space-y-10 sm:space-y-12">
         
-        {/* Címsor & Tömör Bevezető */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-            <span>Valós idejű családi szinkronizáció</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-bold shadow-sm">
+            <Heart className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+            <span>Az otthoni logisztika legkedvesebb segítője</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             A család közös élete, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              egyetlen vezérlőpulton.
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-600">
+              együtt, egyetlen helyen.
             </span>
           </h1>
 
-          <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed max-w-xl mx-auto">
-            Naptár, élő bevásárlólista, heti menüterv és teendők. Nincs több elfelejtett program vagy elveszett információ.
+          <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-xl mx-auto">
+            Összhangban a mindennapokban. Közös naptár, élő bevásárlólista, heti menüterv és teendők a család minden tagjának.
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/login?mode=register"
-              className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98]"
             >
               Új család indítása <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/login?mode=register"
-              className="w-full sm:w-auto px-8 py-3.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-bold rounded-xl transition flex items-center justify-center text-sm sm:text-base"
+              className="w-full sm:w-auto px-8 py-3.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-bold rounded-2xl shadow-sm transition flex items-center justify-center text-sm sm:text-base"
             >
               Csatlakozás kóddal
             </Link>
@@ -102,24 +100,23 @@ export default function LandingPage() {
         </div>
 
         {/* Interaktív Élő Demó Kijelző */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/40 p-3 sm:p-6 space-y-4">
+        <div className="bg-white rounded-3xl border border-slate-200/70 shadow-xl shadow-slate-200/50 p-4 sm:p-6 space-y-4">
           
-          <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100">
+          <div className="flex items-center justify-between px-1 pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Próbáld ki élőben!</span>
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Próbáld ki interaktívan!</span>
             </div>
-            <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
+            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
               ● Élő demó
             </span>
           </div>
 
-          {/* Demó Tab Váltó */}
           <div className="flex gap-1.5 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveDemoTab('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                activeDemoTab === 'calendar' ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                activeDemoTab === 'calendar' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" /> Naptár
@@ -127,8 +124,8 @@ export default function LandingPage() {
 
             <button
               onClick={() => setActiveDemoTab('shopping')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                activeDemoTab === 'shopping' ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                activeDemoTab === 'shopping' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
               }`}
             >
               <ShoppingBag className="w-3.5 h-3.5" /> Bevásárlás
@@ -136,8 +133,8 @@ export default function LandingPage() {
 
             <button
               onClick={() => setActiveDemoTab('menu')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                activeDemoTab === 'menu' ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                activeDemoTab === 'menu' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
               }`}
             >
               <Utensils className="w-3.5 h-3.5" /> Menüterv
@@ -145,8 +142,8 @@ export default function LandingPage() {
 
             <button
               onClick={() => setActiveDemoTab('chores')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                activeDemoTab === 'chores' ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                activeDemoTab === 'chores' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
               }`}
             >
               <Award className="w-3.5 h-3.5" /> Házimunka
@@ -154,22 +151,21 @@ export default function LandingPage() {
 
             <button
               onClick={() => setActiveDemoTab('notices')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                activeDemoTab === 'notices' ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                activeDemoTab === 'notices' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
               }`}
             >
               <StickyNote className="w-3.5 h-3.5" /> Hirdetőtábla
             </button>
           </div>
 
-          {/* Demó Tartalom Ablak */}
-          <div className="bg-slate-50/70 rounded-2xl p-4 sm:p-6 border border-slate-100 min-h-[220px] flex flex-col justify-center transition-all">
+          <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-6 border border-slate-100 min-h-[220px] flex flex-col justify-center">
             
             {activeDemoTab === 'calendar' && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
                   <span>Mai Családi Események</span>
-                  <span className="text-blue-600">Szerda, Nov. 15.</span>
+                  <span className="text-blue-600">Szerda</span>
                 </div>
                 <div className="space-y-2">
                   <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
@@ -204,8 +200,8 @@ export default function LandingPage() {
             {activeDemoTab === 'shopping' && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500">
-                  <span>Valós Idejű Lista (Kattints a kipipáláshoz!)</span>
-                  <span className="text-emerald-600 font-semibold">{demoShoppingItems.filter(i => i.done).length} / {demoShoppingItems.length} kész</span>
+                  <span>Élő Lista (Kattints rá a kipipáláshoz!)</span>
+                  <span className="text-emerald-600 font-bold">{demoShoppingItems.filter(i => i.done).length} / {demoShoppingItems.length} kész</span>
                 </div>
                 <div className="space-y-2">
                   {demoShoppingItems.map(item => (
@@ -218,15 +214,15 @@ export default function LandingPage() {
                     >
                       <div className="flex items-center gap-2.5">
                         <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition ${
-                          item.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'
+                          item.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'
                         }`}>
                           {item.done && <CheckCircle2 className="w-3.5 h-3.5" />}
                         </div>
-                        <span className={`text-xs font-medium ${item.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                        <span className={`text-xs font-semibold ${item.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                           {item.name}
                         </span>
                       </div>
-                      <span className="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
                         {item.cat}
                       </span>
                     </div>
@@ -239,7 +235,7 @@ export default function LandingPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
                   <span>Heti Menüterv</span>
-                  <span className="text-orange-600 font-semibold">Mai nap: Szerda</span>
+                  <span className="text-orange-600 font-bold">Mai nap: Szerda</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm space-y-1">
@@ -258,24 +254,24 @@ export default function LandingPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500">
                   <span>Házimunka & Zsebpénz Pontok</span>
-                  <span className="text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full">+40 pont gyűjtve</span>
+                  <span className="text-indigo-600 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full">+40 pont gyűjtve</span>
                 </div>
                 <div className="space-y-2">
                   <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
                     <div>
                       <p className="text-xs font-bold text-slate-800">Szelektív hulladék levitele</p>
-                      <span className="text-[10px] font-medium text-slate-400">Felelős: Peti</span>
+                      <span className="text-[10px] font-semibold text-slate-400">Felelős: Peti</span>
                     </div>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
+                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl">
                       +10 pont
                     </span>
                   </div>
                   <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
                     <div>
                       <p className="text-xs font-bold text-slate-800">Kertöntözés & Fűnyírás</p>
-                      <span className="text-[10px] font-medium text-slate-400">Felelős: Apa</span>
+                      <span className="text-[10px] font-semibold text-slate-400">Felelős: Apa</span>
                     </div>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
+                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl">
                       +30 pont
                     </span>
                   </div>
@@ -305,37 +301,35 @@ export default function LandingPage() {
 
         {/* 3 Gyors Előny Kártya */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-          
-          <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4" />
+          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">Azonnali Szinkron</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Ami a boltban törlődik, az otthon is azonnal eltűnik.</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Ami a boltban törlődik, az otthon is azonnal eltűnik.</p>
             </div>
           </div>
 
-          <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Smartphone className="w-4 h-4" />
+          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Smartphone className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">Letöltés Nélkül</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Bármilyen mobilról és böngészőből azonnal működik.</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Bármilyen mobilról és böngészőből azonnal működik.</p>
             </div>
           </div>
 
-          <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <Users className="w-4 h-4" />
+          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5 text-purple-600" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">Egyszerű Csatlakozás</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Egyetlen 6-jegyű kóddal beléphet az egész család.</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Egyetlen 6-jegyű kóddal beléphet az egész család.</p>
             </div>
           </div>
-
         </div>
 
       </main>
