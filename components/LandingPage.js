@@ -15,7 +15,7 @@ import {
   Pin,
   Heart,
   Smartphone,
-  ShieldCheck
+  Mail
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -39,10 +39,12 @@ export default function LandingPage() {
       {/* Fejléc */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/15">
-              F
-            </div>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/logo.jpg" 
+              alt="famity.hu logó" 
+              className="h-10 w-auto object-contain rounded-xl" 
+            />
             <span className="text-xl font-black tracking-tight text-slate-900">famity<span className="text-blue-600">.hu</span></span>
           </div>
 
@@ -334,9 +336,27 @@ export default function LandingPage() {
 
       </main>
 
-      {/* Lábléc */}
-      <footer className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 text-center text-xs text-slate-400 border-t border-slate-200/60">
-        famity.hu — Családi Vezérlőpult
+      {/* Lábléc Kapcsolat résszel */}
+      <footer className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="flex items-center gap-2">
+          <img 
+            src="/logo.jpg" 
+            alt="famity.hu" 
+            className="h-7 w-auto object-contain rounded-lg" 
+          />
+          <span className="font-bold text-slate-700">famity.hu — Családi Vezérlőpult</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-sm">
+          <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+          <span className="font-medium">Kapcsolat:</span>
+          <a 
+            href="mailto:info@famity.hu" 
+            className="font-bold text-blue-600 hover:underline"
+          >
+            info@famity.hu
+          </a>
+        </div>
       </footer>
 
     </div>
