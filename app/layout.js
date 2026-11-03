@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
         {/* Google AdSense Globális Szkript */}
         <Script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2881984231378190"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
