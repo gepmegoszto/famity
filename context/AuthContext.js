@@ -1,6 +1,12 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
   doc, 
   getDoc, 
   setDoc, 
@@ -26,55 +32,41 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe = () => {};
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
 
-    const initAuth = async () => {
-      try {
-        const { onAuthStateChanged } = await import('firebase/auth');
-        unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-          if (currentUser) {
-            setUser(currentUser);
-            try {
-              const userDocRef = doc(db, 'users', currentUser.uid);
-              const userDocSnap = await getDoc(userDocRef);
-
-              if (userDocSnap.exists()) {
-                const userData = userDocSnap.data();
-                if (userData.familyId) {
-                  const familyDocRef = doc(db, 'families', userData.familyId);
-                  const familyDocSnap = await getDoc(familyDocRef);
-                  if (familyDocSnap.exists()) {
-                    setFamilyData({ id: familyDocSnap.id, ...familyDocSnap.data() });
-                  }
-                }
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            if (userData.familyId) {
+              const familyDocRef = doc(db, 'families', userData.familyId);
+              const familyDocSnap = await getDoc(familyDocRef);
+              if (familyDocSnap.exists()) {
+                setFamilyData({ id: familyDocSnap.id, ...familyDocSnap.data() });
               }
-            } catch (err) {
-              console.error('Hiba az adatok betöltésekor:', err);
             }
-          } else {
-            setUser(null);
-            setFamilyData(null);
           }
-          setLoading(false);
-        });
-      } catch (err) {
-        console.error('Auth inicializálási hiba:', err);
-        setLoading(false);
+        } catch (err) {
+          console.error('Hiba az adatok betöltésekor:', err);
+        }
+      } else {
+        setUser(null);
+        setFamilyData(null);
       }
-    };
-
-    initAuth();
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, []);
 
   const login = async (email, password) => {
-    const { signInWithEmailAndPassword } = await import('firebase/auth');
     return await signInWithEmailAndPassword(auth, email, password);
   };
 
   const register = async (email, password, userName, familyOption, familyNameOrCode, color) => {
-    const { createUserWithEmailAndPassword } = await import('firebase/auth');
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const newUser = res.user;
 
@@ -130,7 +122,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const { signOut } = await import('firebase/auth');
     await signOut(auth);
     setUser(null);
     setFamilyData(null);
