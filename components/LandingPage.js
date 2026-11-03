@@ -138,9 +138,12 @@ export default function LandingPage() {
         {/* PRÉMIUM CSOMAG BEMUTATÁS A FŐOLDALON */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
           <div className="text-center max-w-lg mx-auto space-y-2">
+            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
+              <Sparkles className="w-3.5 h-3.5" /> Rugalmas Modell
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Ingyenes vagy Családi Prémium?</h2>
-            </div>
+           
+          </div>
 
           <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-3xl shadow-xl space-y-6">
             <div className="flex justify-between items-baseline">
@@ -157,9 +160,11 @@ export default function LandingPage() {
             <div className="space-y-3 text-xs border-t border-slate-800 pt-4">
               <div className="flex items-center gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span><strong>Teljes reklámmentesség</strong>minden családtag számára</span>
+                <span><strong>Teljes reklámmentesség</strong> minden családtag számára</span>
               </div>
-             
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                </div>
             </div>
 
             <Link
