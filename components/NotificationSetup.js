@@ -1,46 +1,55 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getMessaging, getToken } from 'firebase/messaging';
-import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import app from '@/lib/firebase';
-import { Bell, BellCheck, AlertCircle } from 'lucide-react';
+import { doc, setDoc } from 'firebase/firestore';
+import { Bell, BellCheck } from 'lucide-react';
 
 export default function NotificationSetup({ familyId, userId }) {
   const [permission, setPermission] = useState('default');
   const [loading, setLoading] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator) {
       setPermission(Notification.permission);
+      setIsSupported(true);
     }
   }, []);
 
   const requestNotificationPermission = async () => {
-    if (!('Notification' in window)) {
+    if (!isSupported) {
       alert('Ez a böngésző nem támogatja a push értesítéseket.');
       return;
     }
 
     setLoading(true);
     try {
-      const result = await Notification.requestPermission();
-      setPermission(result);
+      const { getMessaging, getToken, isSupported: checkMessagingSupported } = await import('firebase/messaging');
+      const supported = await checkMessagingSupported();
 
-      if (result === 'granted') {
+      if (!supported) {
+        alert('A push értesítések nem támogatottak ebben a környezetben.');
+        setLoading(false);
+        return;
+      }
+
+      const resPermission = await Notification.requestPermission();
+      setPermission(resPermission);
+
+      if (resPermission === 'granted') {
+        const { default: app } = await import('@/lib/firebase');
         const messaging = getMessaging(app);
-        
-        // Service Worker regisztrálása
+
         const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
 
-        // FCM Token kérése
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+
         const currentToken = await getToken(messaging, {
-          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+          vapidKey: vapidKey || undefined,
           serviceWorkerRegistration: registration
         });
 
         if (currentToken) {
-          // Token elmentése a Firestore-ba a családtag alá
           await setDoc(doc(db, 'families', familyId, 'members', userId), {
             fcmToken: currentToken,
             notificationsEnabled: true
@@ -51,10 +60,13 @@ export default function NotificationSetup({ familyId, userId }) {
       }
     } catch (error) {
       console.error('Hiba az értesítések beállításakor:', error);
+      alert('Nem sikerült bekapcsolni az értesítéseket.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isSupported) return null;
 
   if (permission === 'granted') {
     return (
