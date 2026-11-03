@@ -2,7 +2,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: "process.env.NEXT_PUBLIC_FIREBASE_API_KEY",
+  apiKey: "AIzaSyA4q1uX5NcBQy-xKlUSxL1l-LR3RNqS3l8",
   authDomain: "famity-16802.firebaseapp.com",
   projectId: "famity-16802",
   storageBucket: "famity-16802.firebasestorage.app",
@@ -12,12 +12,11 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Háttérben érkező értesítések kezelése
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification.title || 'Famity értesítés';
+  const notificationTitle = payload.notification?.title || 'Famity értesítés';
   const notificationOptions = {
-    body: payload.notification.body,
-    icon: '/icon.png', // Opcionális ikon
+    body: payload.notification?.body || '',
+    icon: '/icon.png',
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
