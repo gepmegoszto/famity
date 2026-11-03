@@ -35,17 +35,15 @@ export default function NotificationSetup({ familyId, userId }) {
         return;
       }
 
-      // Firebase messaging dinamikus betöltése
       const { getMessaging, getToken, isSupported: checkMessagingSupported } = await import('firebase/messaging');
       
       const messagingSupported = await checkMessagingSupported().catch(() => false);
       if (!messagingSupported) {
-        setErrorMessage('A push értesítések nem támogatottak ebben a böngészőben.');
+        setErrorMessage('A push értesítések nem támogatottak ebben a környezetben.');
         setLoading(false);
         return;
       }
 
-      // Service Worker regisztráció
       let registration;
       try {
         registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
@@ -65,7 +63,6 @@ export default function NotificationSetup({ familyId, userId }) {
         return;
       }
 
-      // Token lekérése kezeletlen kivétel nélkül
       const currentToken = await getToken(messaging, {
         vapidKey: vapidKey,
         serviceWorkerRegistration: registration,
@@ -87,7 +84,7 @@ export default function NotificationSetup({ familyId, userId }) {
     } catch (error) {
       console.error('Értesítés beállítási hiba:', error);
       setErrorMessage('Nem sikerült bekapcsolni az értesítéseket.');
-    } fonto {
+    } finally {
       setLoading(false);
     }
   };
@@ -108,7 +105,7 @@ export default function NotificationSetup({ familyId, userId }) {
       <button
         onClick={requestNotificationPermission}
         disabled={loading}
-        className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-xl border border-blue-100 text-xs font-bold transition"
+        className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-xl border border-blue-100 text-xs font-bold transition cursor-pointer"
       >
         <Bell className="w-4 h-4 text-blue-600" />
         {loading ? 'Kérés folyamatban...' : 'Értesítések bekapcsolása'}
