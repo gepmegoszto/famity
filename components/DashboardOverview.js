@@ -4,11 +4,13 @@ import { db } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import NoticeBoard from '@/components/NoticeBoard';
 import AdBanner from '@/components/AdBanner';
-import { Calendar as CalendarIcon, Users, Clock, Shield } from 'lucide-react';
+import SubscriptionModal from '@/components/SubscriptionModal';
+import { Calendar as CalendarIcon, Users, Clock, Shield, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function DashboardOverview({ familyId, userId, familyData }) {
   const [members, setMembers] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   useEffect(() => {
     if (!familyId) return;
@@ -37,8 +39,36 @@ export default function DashboardOverview({ familyId, userId, familyData }) {
     };
   }, [familyId]);
 
+  const isPremium = familyData?.isPremium === true;
+
   return (
     <div className="space-y-6">
+
+      {/* Prémium Státusz / Előfizetés Banner a Dashboard tetején */}
+      <div className={`p-4 rounded-3xl border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 ${isPremium ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-gradient-to-r from-blue-900 to-indigo-900 text-white'}`}>
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${isPremium ? 'bg-emerald-100 text-emerald-700' : 'bg-white/10 text-blue-300'}`}>
+            {isPremium ? <CheckCircle2 className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+          </div>
+          <div>
+            <h3 className="text-sm font-black">
+              {isPremium ? 'Családi Prémium Aktív ✨' : 'Váltsatok Családi Prémiumra!'}
+            </h3>
+            <p className={`text-xs ${isPremium ? 'text-emerald-700' : 'text-slate-300'}`}>
+              {isPremium ? 'A család minden tagja reklámmentes élvezetet kap.' : 'Tüntessétek el a hirdetéseket az egész család számára.'}
+            </p>
+          </div>
+        </div>
+
+        {!isPremium && (
+          <button
+            onClick={() => setIsSubModalOpen(true)}
+            className="w-full sm:w-auto px-5 py-2.5 bg-white text-blue-900 hover:bg-blue-50 font-bold text-xs rounded-2xl shadow-sm transition shrink-0 cursor-pointer"
+          >
+            Prémium csomag (1 990 Ft/hó)
+          </button>
+        )}
+      </div>
       
       {/* 1. Családi Üzenőfal (Felül) */}
       <div className="bg-slate-100/90 p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
@@ -121,6 +151,14 @@ export default function DashboardOverview({ familyId, userId, familyData }) {
           ))}
         </div>
       </div>
+
+      {/* Előfizetési Modal */}
+      <SubscriptionModal 
+        isOpen={isSubModalOpen} 
+        onClose={() => setIsSubModalOpen(false)} 
+        familyId={familyId} 
+        userId={userId} 
+      />
 
     </div>
   );
