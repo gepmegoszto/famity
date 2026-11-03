@@ -8,18 +8,18 @@
 
 html, body {
   color-scheme: light !important;
-  background-color: #f8fafc !important; /* slate-50 */
-  color: #0f172a !important; /* slate-900 */
+  background-color: #FAF8F4 !important;
+  color: #0f172a !important;
 }
 
-/* Beviteli mezők, gombok és kiválasztók sötét mód elleni védelme */
+/* Beviteli mezők, gombok sötét mód elleni felülbírálása */
 input, select, textarea, button {
   color-scheme: light !important;
   background-color: #ffffff;
   color: #0f172a;
 }
 
-/* Finom egyedi görgetősáv */
+/* Finom görgetősáv */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
