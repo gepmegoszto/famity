@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import PrivacyModal from '@/components/PrivacyModal';
 import CookieBanner from '@/components/CookieBanner';
+import AdBanner from '@/components/AdBanner';
 import { 
   Calendar, 
   ShoppingBag, 
@@ -94,6 +95,9 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
+
+        {/* Hirdetés a főoldalon */}
+        <AdBanner />
 
         {/* CSALÁDI DINAMIKA SZEKCIÓ */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6">
