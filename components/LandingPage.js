@@ -162,9 +162,6 @@ export default function LandingPage() {
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span><strong>Teljes reklámmentesség</strong> minden családtag számára</span>
               </div>
-              <div className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                </div>
             </div>
 
             <Link
