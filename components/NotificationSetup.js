@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import { db, app } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { Bell, BellCheck, AlertCircle } from 'lucide-react';
+import { Bell, Check, AlertCircle } from 'lucide-react';
 
 export default function NotificationSetup({ familyId, userId }) {
   const [mounted, setMounted] = useState(false);
@@ -10,7 +10,6 @@ export default function NotificationSetup({ familyId, userId }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // 1. Garantáljuk, hogy a kód KIZÁRÓLAG a böngészőben, a hydration után fusson
   useEffect(() => {
     setMounted(true);
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -18,8 +17,7 @@ export default function NotificationSetup({ familyId, userId }) {
     }
   }, []);
 
-  // Szerver oldalon és az első böngészős pillanatban nem renderelünk semmit (így nincs összeomlás)
-  if (!mounted) return null;
+  if (!mounted || !familyId || !userId) return null;
 
   const requestNotificationPermission = async () => {
     setLoading(true);
@@ -32,7 +30,6 @@ export default function NotificationSetup({ familyId, userId }) {
         return;
       }
 
-      // 2. Engedély bekérése
       const resPermission = await Notification.requestPermission();
       setPermission(resPermission);
 
@@ -41,7 +38,6 @@ export default function NotificationSetup({ familyId, userId }) {
         return;
       }
 
-      // 3. Firebase Messaging dinamikus betöltése csak a gombnyomás pillanatában
       const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
       const messagingSupported = await isSupported().catch(() => false);
 
@@ -51,19 +47,17 @@ export default function NotificationSetup({ familyId, userId }) {
         return;
       }
 
-      // 4. Service Worker regisztráció
       const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js').catch((err) => {
         console.error('Service Worker hiba:', err);
         return null;
       });
 
       if (!registration) {
-        setErrorMessage('Nem sikerült regisztrálni a /firebase-messaging-sw.js fájlt.');
+        setErrorMessage('A /firebase-messaging-sw.js nem található a public mappában.');
         setLoading(false);
         return;
       }
 
-      const { app } = await import('@/lib/firebase');
       const messaging = getMessaging(app);
       const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
@@ -101,8 +95,8 @@ export default function NotificationSetup({ familyId, userId }) {
 
   if (permission === 'granted' && !errorMessage) {
     return (
-      <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-100 text-xs font-semibold">
-        <BellCheck className="w-4 h-4 text-emerald-600" />
+      <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-100 text-xs font-semibold">
+        <Check className="w-4 h-4 text-emerald-600" />
         Értesítések aktívak
       </div>
     );
