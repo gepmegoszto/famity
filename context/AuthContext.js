@@ -17,7 +17,14 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
-const AuthContext = createContext({});
+const AuthContext = createContext({
+  user: null,
+  familyData: null,
+  loading: true,
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {}
+});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -55,12 +62,10 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Bejelentkezés
   const login = async (email, password) => {
     return await signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Regisztráció (Új család vagy csatlakozás)
   const register = async (email, password, userName, familyOption, familyNameOrCode, color) => {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const newUser = res.user;
@@ -116,7 +121,6 @@ export const AuthProvider = ({ children }) => {
     return newUser;
   };
 
-  // Kijelentkezés
   const logout = async () => {
     await signOut(auth);
     setUser(null);
