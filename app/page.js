@@ -67,22 +67,30 @@ export default function HomePage() {
     { id: 'settings', label: 'Család', icon: Users },
   ];
 
+  // Aktuális felhasználó színének lekérése a tagok listájából, ha létezik
+  // Ha nem található, fallback egy alap kék színre
+  const currentUserMember = familyData?.members?.find?.(m => m.id === user.uid);
+  const userBubbleColor = currentUserMember?.color || '#3B82F6';
+
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-800 pb-24 md:pb-12 font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50/70 text-slate-800 pb-28 md:pb-12 font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Fejléc */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20 shrink-0">
+            <div 
+              className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md shrink-0"
+              style={{ backgroundColor: userBubbleColor }}
+            >
               {familyData?.name ? familyData.name.charAt(0).toUpperCase() : 'F'}
             </div>
             <div className="min-w-0">
               <h1 className="text-base sm:text-lg font-black text-slate-900 truncate tracking-tight">
                 {familyData?.name || 'Családi Vezérlőpult'}
               </h1>
-              <p className="text-xs text-slate-400 truncate">{user.email}</p>
+              <p className="text-xs text-slate-400 font-semibold">Család</p>
             </div>
           </div>
 
@@ -98,8 +106,6 @@ export default function HomePage() {
               </button>
             )}
 
-            <NotificationSetup familyId={familyData.id} userId={user.uid} />
-
             <button
               onClick={logout}
               className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
@@ -114,6 +120,15 @@ export default function HomePage() {
 
       {/* Fő tartalom */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+        {/* Főoldali nagy kép a fejléc alatt */}
+        <div className="flex justify-center w-full">
+          <img 
+            src="/Gemini_Generated_Image_dn5mf6dn5mf6dn5m.jpeg" 
+            alt="famity.hu" 
+            className="w-full max-w-xl h-auto object-cover rounded-3xl shadow-md border border-slate-200/60" 
+          />
+        </div>
 
         {/* Asztali Navigáció */}
         <div className="hidden md:flex items-center gap-1.5 p-1.5 bg-slate-200/50 rounded-2xl border border-slate-200/60">
@@ -167,8 +182,8 @@ export default function HomePage() {
 
       </main>
 
-      {/* Mobil Alsó Navigációs Sáv */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-lg">
+      {/* Mobil Alsó Görgethető Navigációs Sáv */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 px-3 py-2 flex items-center gap-3 overflow-x-auto shadow-xl scrollbar-none">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -176,12 +191,12 @@ export default function HomePage() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
-                isActive ? 'text-blue-600 font-bold' : 'text-slate-400 hover:text-slate-600'
+              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition shrink-0 ${
+                isActive ? 'text-blue-600 font-bold bg-blue-50/80' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
-              <span className="text-[10px] mt-0.5 tracking-tight">{item.label}</span>
+              <span className="text-[10px] mt-0.5 tracking-tight whitespace-nowrap">{item.label}</span>
             </button>
           );
         })}
