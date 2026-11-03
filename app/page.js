@@ -1,6 +1,7 @@
 'use client';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import ShoppingList from '@/components/ShoppingList';
 import Calendar from '@/components/Calendar';
 import NoticeBoard from '@/components/NoticeBoard';
@@ -8,8 +9,12 @@ import WeeklyMenu from '@/components/WeeklyMenu';
 import ChoreTracker from '@/components/ChoreTracker';
 import FamilySettings from '@/components/FamilySettings';
 import LandingPage from '@/components/LandingPage';
-import NotificationSetup from '@/components/NotificationSetup';
 import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote, Award, Users } from 'lucide-react';
+
+// Dinamikus betöltés szerveroldali előrenderelés nélkül
+const NotificationSetup = dynamic(() => import('@/components/NotificationSetup'), {
+  ssr: false,
+});
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
