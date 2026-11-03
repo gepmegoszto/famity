@@ -1,4 +1,5 @@
 import './globals.css';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata = {
   title: 'famity.hu — Családi Vezérlőpult',
@@ -9,7 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="hu" className="light" style={{ colorScheme: 'light' }}>
       <body className="bg-slate-50 text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
