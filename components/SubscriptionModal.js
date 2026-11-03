@@ -65,13 +65,9 @@ export default function SubscriptionModal({ isOpen, onClose, familyId, userId })
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Adminisztrátor fizet — <strong>minden családtag mentesül</strong></span>
+              <span>Bárki fizet — <strong>minden családtag mentesül</strong></span>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Korlátlan adattárolás és prioritás támogatás</span>
             </div>
-          </div>
         </div>
 
         <button
