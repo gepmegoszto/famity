@@ -8,6 +8,7 @@ import NoticeBoard from '@/components/NoticeBoard';
 import WeeklyMenu from '@/components/WeeklyMenu';
 import ChoreTracker from '@/components/ChoreTracker';
 import FamilySettings from '@/components/FamilySettings';
+import DashboardOverview from '@/components/DashboardOverview';
 import LandingPage from '@/components/LandingPage';
 import { 
   LayoutDashboard, 
@@ -73,9 +74,8 @@ export default function HomePage() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           
-          {/* Családnév & User infó */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20 shrink-0">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20 shrink-0">
               {familyData?.name ? familyData.name.charAt(0).toUpperCase() : 'F'}
             </div>
             <div className="min-w-0">
@@ -86,10 +86,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Jobb oldali opciók */}
           <div className="flex items-center gap-2 shrink-0">
-            
-            {/* Meghívókód gomb */}
             {familyData?.inviteCode && (
               <button
                 onClick={handleCopyCode}
@@ -101,10 +98,8 @@ export default function HomePage() {
               </button>
             )}
 
-            {/* Értesítések gomb */}
             <NotificationSetup familyId={familyData.id} userId={user.uid} />
 
-            {/* Kijelentkezés */}
             <button
               onClick={logout}
               className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
@@ -112,16 +107,15 @@ export default function HomePage() {
             >
               <LogOut className="w-4 h-4" />
             </button>
-
           </div>
 
         </div>
       </header>
 
-      {/* Fő tartalom konténer */}
+      {/* Fő tartalom */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
-        {/* Asztali Tab Navigáció */}
+        {/* Asztali Navigáció */}
         <div className="hidden md:flex items-center gap-1.5 p-1.5 bg-slate-200/50 rounded-2xl border border-slate-200/60">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -160,13 +154,7 @@ export default function HomePage() {
         {/* Nézetek */}
         <div className="transition-all duration-150">
           {activeTab === 'dashboard' && (
-            <div className="space-y-6">
-              <NoticeBoard familyId={familyData.id} userId={user.uid} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ChoreTracker familyId={familyData.id} userId={user.uid} />
-                <Calendar familyId={familyData.id} userId={user.uid} />
-              </div>
-            </div>
+            <DashboardOverview familyId={familyData.id} userId={user.uid} familyData={familyData} />
           )}
 
           {activeTab === 'chores' && <ChoreTracker familyId={familyData.id} userId={user.uid} />}
@@ -179,7 +167,7 @@ export default function HomePage() {
 
       </main>
 
-      {/* Mobil Alsó Navigációs Sáv (Fixed Bottom Nav) */}
+      {/* Mobil Alsó Navigációs Sáv */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-lg">
         {navItems.map((item) => {
           const Icon = item.icon;
