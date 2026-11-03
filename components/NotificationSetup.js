@@ -1,13 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import { db, app } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { Bell, BellCheck } from 'lucide-react';
+import { Bell, BellCheck, AlertCircle } from 'lucide-react';
 
 export default function NotificationSetup({ familyId, userId }) {
   const [permission, setPermission] = useState('default');
   const [loading, setLoading] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator) {
@@ -23,52 +24,77 @@ export default function NotificationSetup({ familyId, userId }) {
     }
 
     setLoading(true);
-    try {
-      const { getMessaging, getToken, isSupported: checkMessagingSupported } = await import('firebase/messaging');
-      const supported = await checkMessagingSupported();
+    setErrorMessage('');
 
-      if (!supported) {
-        alert('A push értesítések nem támogatottak ebben a környezetben.');
+    try {
+      const resPermission = await Notification.requestPermission();
+      setPermission(resPermission);
+
+      if (resPermission !== 'granted') {
         setLoading(false);
         return;
       }
 
-      const resPermission = await Notification.requestPermission();
-      setPermission(resPermission);
+      // Firebase messaging dinamikus betöltése
+      const { getMessaging, getToken, isSupported: checkMessagingSupported } = await import('firebase/messaging');
+      
+      const messagingSupported = await checkMessagingSupported().catch(() => false);
+      if (!messagingSupported) {
+        setErrorMessage('A push értesítések nem támogatottak ebben a böngészőben.');
+        setLoading(false);
+        return;
+      }
 
-      if (resPermission === 'granted') {
-        const { default: app } = await import('@/lib/firebase');
-        const messaging = getMessaging(app);
+      // Service Worker regisztráció
+      let registration;
+      try {
+        registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      } catch (swErr) {
+        console.error('Service Worker hiba:', swErr);
+        setErrorMessage('A /firebase-messaging-sw.js nem található a public mappában.');
+        setLoading(false);
+        return;
+      }
 
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      const messaging = getMessaging(app);
+      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
-        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+      if (!vapidKey) {
+        setErrorMessage('Hiányzik a NEXT_PUBLIC_FIREBASE_VAPID_KEY a Vercel-ben!');
+        setLoading(false);
+        return;
+      }
 
-        const currentToken = await getToken(messaging, {
-          vapidKey: vapidKey || undefined,
-          serviceWorkerRegistration: registration
-        });
+      // Token lekérése kezeletlen kivétel nélkül
+      const currentToken = await getToken(messaging, {
+        vapidKey: vapidKey,
+        serviceWorkerRegistration: registration,
+      }).catch((tokenErr) => {
+        console.error('FCM Token hiba:', tokenErr);
+        return null;
+      });
 
-        if (currentToken) {
-          await setDoc(doc(db, 'families', familyId, 'members', userId), {
-            fcmToken: currentToken,
-            notificationsEnabled: true
-          }, { merge: true });
+      if (currentToken) {
+        await setDoc(doc(db, 'families', familyId, 'members', userId), {
+          fcmToken: currentToken,
+          notificationsEnabled: true
+        }, { merge: true });
 
-          alert('Értesítések sikeresen bekapcsolva!');
-        }
+        alert('Értesítések sikeresen bekapcsolva!');
+      } else {
+        setErrorMessage('Érvénytelen VAPID kulcs vagy letiltott értesítési token.');
       }
     } catch (error) {
-      console.error('Hiba az értesítések beállításakor:', error);
-      alert('Nem sikerült bekapcsolni az értesítéseket.');
-    } finally {
+      console.error('Értesítés beállítási hiba:', error);
+      setErrorMessage('Nem sikerült bekapcsolni az értesítéseket.');
+    } fonto {
       setLoading(false);
     }
   };
 
   if (!isSupported) return null;
 
-  if (permission === 'granted') {
+  if (permission === 'granted' && !errorMessage) {
     return (
       <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-100 text-xs font-semibold">
         <BellCheck className="w-4 h-4 text-emerald-600" />
@@ -78,13 +104,20 @@ export default function NotificationSetup({ familyId, userId }) {
   }
 
   return (
-    <button
-      onClick={requestNotificationPermission}
-      disabled={loading}
-      className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-xl border border-blue-100 text-xs font-bold transition"
-    >
-      <Bell className="w-4 h-4 text-blue-600" />
-      {loading ? 'Bekapcsolás...' : 'Értesítések bekapcsolása'}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={requestNotificationPermission}
+        disabled={loading}
+        className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-xl border border-blue-100 text-xs font-bold transition"
+      >
+        <Bell className="w-4 h-4 text-blue-600" />
+        {loading ? 'Kérés folyamatban...' : 'Értesítések bekapcsolása'}
+      </button>
+      {errorMessage && (
+        <span className="text-[10px] text-red-600 font-medium flex items-center gap-1 bg-red-50 px-2 py-0.5 rounded border border-red-100">
+          <AlertCircle className="w-3 h-3 shrink-0" /> {errorMessage}
+        </span>
+      )}
+    </div>
   );
 }
