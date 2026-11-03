@@ -139,7 +139,7 @@ export default function LandingPage() {
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
           <div className="text-center max-w-lg mx-auto space-y-2">
             <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
-              <Sparkles className="w-3.5 h-3.5" /> Rugalmas Modell
+              <Sparkles className="w-3.5 h-3.5" /> Előfizetési rendszer
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Ingyenes vagy Családi Prémium?</h2>
            
