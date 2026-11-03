@@ -8,11 +8,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
-  const [familyOption, setFamilyOption] = useState('create'); // 'create' | 'join'
+  const [familyOption, setFamilyOption] = useState('create');
   const [familyNameOrCode, setFamilyNameOrCode] = useState('');
   const [color, setColor] = useState('#3B82F6');
   const [error, setError] = useState('');
-  
+
   const { login, register } = useAuth();
   const router = useRouter();
 
