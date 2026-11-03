@@ -142,8 +142,7 @@ export default function LandingPage() {
               <Sparkles className="w-3.5 h-3.5" /> Rugalmas Modell
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Ingyenes vagy Családi Prémium?</h2>
-            <p className="text-xs text-slate-500">Használjátok ingyen hirdetésekkel, vagy váltsatok prémiumra a teljes reklámmentességért.</p>
-          </div>
+            </div>
 
           <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-3xl shadow-xl space-y-6">
             <div className="flex justify-between items-baseline">
@@ -160,7 +159,7 @@ export default function LandingPage() {
             <div className="space-y-3 text-xs border-t border-slate-800 pt-4">
               <div className="flex items-center gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span><strong>Teljes reklámmentesség</strong> az admin és minden családtag számára</span>
+                <span><strong>Teljes reklámmentesség</strong>minden családtag számára</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
