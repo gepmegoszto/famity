@@ -3,6 +3,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import PrivacyModal from '@/components/PrivacyModal';
+import { ShieldCheck } from 'lucide-react';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -15,6 +17,8 @@ function LoginForm() {
   const [familyOption, setFamilyOption] = useState('create');
   const [familyNameOrCode, setFamilyNameOrCode] = useState('');
   const [color, setColor] = useState('#3B82F6');
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [error, setError] = useState('');
 
   const { login, register } = useAuth();
@@ -29,6 +33,12 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (isRegister && !acceptedPrivacy) {
+      setError('A regisztrációhoz el kell fogadnod az Adatkezelési Tájékoztatót!');
+      return;
+    }
+
     try {
       if (isRegister) {
         await register(email, password, userName, familyOption, familyNameOrCode, color);
@@ -44,10 +54,8 @@ function LoginForm() {
   return (
     <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 w-full max-w-md border border-slate-100">
       <div className="text-center mb-6">
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-3">
-          <div className="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
-            F
-          </div>
+        <Link href="/" className="inline-flex items-center gap-2 mb-3">
+          <img src="/icon.png" alt="famity.hu" className="h-9 w-9 object-contain rounded-xl" />
           <span className="text-xl font-black text-slate-900">famity<span className="text-blue-600">.hu</span></span>
         </Link>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
@@ -72,8 +80,8 @@ function LoginForm() {
               <input
                 type="text"
                 required
-                placeholder="pl. Sándor"
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="pl. Anya, Apa, Peti..."
+                className="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
               />
@@ -119,7 +127,7 @@ function LoginForm() {
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
                 />
-                <span className="text-xs text-slate-500 font-medium">Ezzel lépsz fel a közös naptárban.</span>
+                <span className="text-xs text-slate-500 font-medium">Ezzel jelensz meg a közös naptárban.</span>
               </div>
             </div>
           </>
@@ -149,9 +157,35 @@ function LoginForm() {
           />
         </div>
 
+        {/* Adatkezelési Nyilatkozat Elfogadása Regisztrációnál */}
+        {isRegister && (
+          <div className="pt-2">
+            <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                required
+                checked={acceptedPrivacy}
+                onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 shrink-0"
+              />
+              <span>
+                Elfogadom az{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyOpen(true)}
+                  className="text-blue-600 font-bold underline hover:text-blue-700 cursor-pointer inline-flex items-center gap-0.5"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" /> Adatkezelési Tájékoztatót
+                </button>
+                .
+              </span>
+            </label>
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-blue-500/20 transition cursor-pointer"
+          className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-blue-500/20 transition cursor-pointer mt-2"
         >
           {isRegister ? 'Regisztráció és belépés' : 'Bejelentkezés'}
         </button>
@@ -172,13 +206,15 @@ function LoginForm() {
           </Link>
         </div>
       </div>
+
+      <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#FAF8F4]">
       <Suspense fallback={<div className="text-slate-500 text-sm font-medium">Betöltés...</div>}>
         <LoginForm />
       </Suspense>
