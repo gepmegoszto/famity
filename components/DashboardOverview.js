@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import NoticeBoard from '@/components/NoticeBoard';
+import AdBanner from '@/components/AdBanner';
 import { Calendar as CalendarIcon, Users, Clock, Shield } from 'lucide-react';
 
 export default function DashboardOverview({ familyId, userId, familyData }) {
@@ -43,6 +44,9 @@ export default function DashboardOverview({ familyId, userId, familyData }) {
       <div className="bg-slate-100/90 p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <NoticeBoard familyId={familyId} userId={userId} />
       </div>
+
+      {/* Hirdetés a dashboardon (Ha a család nem prémium) */}
+      <AdBanner familyId={familyId} />
 
       {/* 2. Közelgő programok (Középen) */}
       <div className="bg-slate-100/90 p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
