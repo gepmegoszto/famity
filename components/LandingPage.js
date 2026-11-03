@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import PrivacyModal from '@/components/PrivacyModal';
+import CookieBanner from '@/components/CookieBanner';
 import { 
   Calendar, 
   ShoppingBag, 
@@ -9,34 +11,23 @@ import {
   StickyNote, 
   Users, 
   ArrowRight,
-  Sparkles,
+  ShieldCheck,
+  Lock,
+  Heart,
+  Smile,
   CheckCircle2,
-  Clock,
-  Pin,
-  Smartphone,
-  Mail
+  Mail,
+  Gift
 } from 'lucide-react';
 
 export default function LandingPage() {
-  const [activeDemoTab, setActiveDemoTab] = useState('calendar');
-
-  const [demoShoppingItems, setDemoShoppingItems] = useState([
-    { id: 1, name: 'Tej 2.8%', cat: 'Élelmiszer', done: true },
-    { id: 2, name: 'Kovászos kenyér', cat: 'Élelmiszer', done: false },
-    { id: 3, name: 'Mosógél', cat: 'Háztartás', done: false },
-  ]);
-
-  const toggleDemoShopping = (id) => {
-    setDemoShoppingItems(items => items.map(item => 
-      item.id === id ? { ...item, done: !item.done } : item
-    ));
-  };
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50/80 text-slate-800 font-sans flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF8F4] text-slate-800 font-sans flex flex-col justify-between selection:bg-blue-500 selection:text-white">
       
       {/* Fejléc */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
+      <header className="sticky top-0 z-40 bg-[#FAF8F4]/90 backdrop-blur-md border-b border-amber-900/5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img 
@@ -50,7 +41,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link 
               href="/login" 
-              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition rounded-xl hover:bg-slate-100"
+              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition rounded-xl hover:bg-white/60"
             >
               Belépés
             </Link>
@@ -64,17 +55,18 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-12 w-full space-y-10 sm:space-y-12">
+      {/* Fő tartalom */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 w-full space-y-16">
         
+        {/* HERO SZEKCIÓ */}
         <div className="text-center max-w-2xl mx-auto space-y-6">
           
-          {/* Nagy logókép a címsor felett */}
+          {/* Központi Logó Kép */}
           <div className="flex justify-center">
             <img 
               src="/Gemini_Generated_Image_dn5mf6dn5mf6dn5m.jpeg" 
               alt="famity.hu" 
-              className="h-28 sm:h-36 w-auto object-contain rounded-2xl shadow-sm" 
+              className="h-28 sm:h-36 w-auto object-contain rounded-2xl" 
             />
           </div>
 
@@ -86,7 +78,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-xl mx-auto">
-            Összhangban a mindennapokban. Közös naptár, élő bevásárlólista, heti menüterv és teendők a család minden tagjának.
+            Anya, apa, a nagyszülők és a gyerekek — a <strong>famity.hu</strong> felületén mindenkinek megvan a maga szerepe. Egy átlátható, meleg hangulatú digitális otthon, amely összetartja a család mindennapi dinamikáját.
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -105,235 +97,147 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Interaktív Élő Demó Kijelző */}
-        <div className="bg-white rounded-3xl border border-slate-200/70 shadow-xl shadow-slate-200/50 p-4 sm:p-6 space-y-4">
-          
-          <div className="flex items-center justify-between px-1 pb-2 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Próbáld ki interaktívan!</span>
+        {/* CSALÁDI DINAMIKA SZEKCIÓ */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6">
+          <div className="text-center max-w-lg mx-auto space-y-2">
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Minden generációnak megvan a maga helye</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Együtt működik a család</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-pink-100 text-pink-700 font-bold flex items-center justify-center text-xs">Anya</div>
+              <h3 className="font-bold text-xs text-slate-900">Menüterv & Áttekintés</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Heti étkezések és közös naptári időpontok átlátható koordinációja.</p>
             </div>
-            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-              ● Élő demó
-            </span>
+
+            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">Apa</div>
+              <h3 className="font-bold text-xs text-slate-900">Bevásárlás & Szervezés</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Élő bevásárlólisták kezelése és adminisztratív feladatok átlátása.</p>
+            </div>
+
+            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-xs">Mama</div>
+              <h3 className="font-bold text-xs text-slate-900">Üzenőfal & Programok</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Fontos családi információk, kapukódok és unokázós időpontok.</p>
+            </div>
+
+            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">Gyerekek</div>
+              <h3 className="font-bold text-xs text-slate-900">Házimunka & Pontok</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Elvégzett teendők, pontgyűjtés és beváltás megbeszélt jutalmakra.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* FUNKCIONÁLIS MODUL KÁRTYÁK */}
+        <div className="space-y-6">
+          <div className="text-center max-w-lg mx-auto space-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Minden modul egy célt szolgál</h2>
+            <p className="text-xs text-slate-500">Egyszerű, átlátható és zűrzavarmentes funkciók.</p>
           </div>
 
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            <button
-              onClick={() => setActiveDemoTab('calendar')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                activeDemoTab === 'calendar' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" /> Naptár
-            </button>
-
-            <button
-              onClick={() => setActiveDemoTab('shopping')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                activeDemoTab === 'shopping' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" /> Bevásárlás
-            </button>
-
-            <button
-              onClick={() => setActiveDemoTab('menu')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                activeDemoTab === 'menu' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
-            >
-              <Utensils className="w-3.5 h-3.5" /> Menüterv
-            </button>
-
-            <button
-              onClick={() => setActiveDemoTab('chores')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                activeDemoTab === 'chores' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
-            >
-              <Award className="w-3.5 h-3.5" /> Házimunka
-            </button>
-
-            <button
-              onClick={() => setActiveDemoTab('notices')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                activeDemoTab === 'notices' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
-            >
-              <StickyNote className="w-3.5 h-3.5" /> Hirdetőtábla
-            </button>
-          </div>
-
-          <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-6 border border-slate-100 min-h-[220px] flex flex-col justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            {activeDemoTab === 'calendar' && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
-                  <span>Mai Családi Események</span>
-                  <span className="text-blue-600">Szerda</span>
-                </div>
-                <div className="space-y-2">
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 shrink-0" />
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">Fogorvos (Peti)</p>
-                        <p className="text-[10px] text-slate-400">Dr. Szabó Károly rendelője</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> 16:30
-                    </span>
-                  </div>
-
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-amber-500 shrink-0" />
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">Szülői Értekezlet</p>
-                        <p className="text-[10px] text-slate-400">Gimnázium 2/B terem</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> 18:00
-                    </span>
-                  </div>
-                </div>
+            {/* 1. Naptár */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Calendar className="w-5 h-5" />
               </div>
-            )}
+              <h3 className="font-bold text-sm text-slate-900">Közös Családi Naptár</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Időrendi sorrendben áttekinthető események családtagok szerinti színkóddal. Az adminok külön csak-admin bejegyzéseket is létrehozhatnak.
+              </p>
+            </div>
 
-            {activeDemoTab === 'shopping' && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-500">
-                  <span>Élő Lista (Kattints rá a kipipáláshoz!)</span>
-                  <span className="text-emerald-600 font-bold">{demoShoppingItems.filter(i => i.done).length} / {demoShoppingItems.length} kész</span>
-                </div>
-                <div className="space-y-2">
-                  {demoShoppingItems.map(item => (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleDemoShopping(item.id)}
-                      className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${
-                        item.done ? 'bg-slate-100/80 border-slate-200 opacity-60' : 'bg-white border-slate-100 shadow-sm hover:border-blue-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition ${
-                          item.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'
-                        }`}>
-                          {item.done && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        </div>
-                        <span className={`text-xs font-semibold ${item.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                          {item.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
-                        {item.cat}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+            {/* 2. Bevásárlás */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5" />
               </div>
-            )}
+              <h3 className="font-bold text-sm text-slate-900">Több-listás Bevásárlás</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Hozz létre külön listát a zöldségesnek vagy a hétvégi nagybevásárlásnak. Élőben frissül a boltban tartózkodó családtag kezében.
+              </p>
+            </div>
 
-            {activeDemoTab === 'menu' && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
-                  <span>Heti Menüterv</span>
-                  <span className="text-orange-600 font-bold">Mai nap: Szerda</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Ebéd</span>
-                    <p className="text-xs font-bold text-slate-800">Húsleves & Rántott csirkemell</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Vacsora</span>
-                    <p className="text-xs font-bold text-slate-800">Sajtos-sonkás melegszendvics</p>
-                  </div>
-                </div>
+            {/* 3. Menüterv */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                <Utensils className="w-5 h-5" />
               </div>
-            )}
+              <h3 className="font-bold text-sm text-slate-900">Heti Menüterv</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Tervezzétek meg az ebédet és a vacsorát. Az hiányzó alapanyagok egyetlen kattintással átemelhetők a kiválasztott bevásárlólistára.
+              </p>
+            </div>
 
-            {activeDemoTab === 'chores' && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-500">
-                  <span>Házimunka & Zsebpénz Pontok</span>
-                  <span className="text-indigo-600 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full">+40 pont gyűjtve</span>
-                </div>
-                <div className="space-y-2">
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">Szelektív hulladék levitele</p>
-                      <span className="text-[10px] font-semibold text-slate-400">Felelős: Peti</span>
-                    </div>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl">
-                      +10 pont
-                    </span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">Kertöntözés & Fűnyírás</p>
-                      <span className="text-[10px] font-semibold text-slate-400">Felelős: Apa</span>
-                    </div>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl">
-                      +30 pont
-                    </span>
-                  </div>
-                </div>
+            {/* 4. Házimunka */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Award className="w-5 h-5" />
               </div>
-            )}
+              <h3 className="font-bold text-sm text-slate-900">Házimunka & Pontgyűjtő</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Kijelölhető felelősök, határidők és pontos elvégzési időbélyegek. A gyűjtött pontok megbeszélt családi jutalmakra válthatók be.
+              </p>
+            </div>
 
-            {activeDemoTab === 'notices' && (
-              <div className="space-y-3">
-                <div className="text-xs font-bold text-slate-500 uppercase">Kitűzött Hűtőmágnesek</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1 relative">
-                    <Pin className="w-3.5 h-3.5 text-amber-600 absolute top-2.5 right-2.5 fill-amber-500" />
-                    <span className="text-[10px] font-bold text-amber-800 uppercase">Wi-Fi Kód</span>
-                    <p className="text-xs font-bold text-amber-950 font-mono">OtthoniNet_2026</p>
-                  </div>
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
-                    <span className="text-[10px] font-bold text-blue-800 uppercase">Garázskapu kód</span>
-                    <p className="text-xs font-bold text-blue-950 font-mono">#4829</p>
-                  </div>
-                </div>
+            {/* 5. Üzenőfal */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <StickyNote className="w-5 h-5" />
               </div>
-            )}
+              <h3 className="font-bold text-sm text-slate-900">Digitális Hűtőmágnesek</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Wi-Fi jelszavak, kapukódok és fontos emlékeztetők kitűzése színes jegyzeteken, amiket minden belépő családtag azonnal lát.
+              </p>
+            </div>
+
+            {/* 6. Meghívókód */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
+              <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Zárt Családi Meghívás</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Egyetlen 6-jegyű kóddal csatlakozhat minden családtag. Nincsenek bonyolult beállítások vagy nyilvános profilok.
+              </p>
+            </div>
 
           </div>
         </div>
 
-        {/* 3 Gyors Előny Kártya */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-blue-600" />
+        {/* ADATBIZTONSÁG SZEKCIÓ */}
+        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-10 space-y-6 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Azonnali Szinkron</h3>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Ami a boltban törlődik, az otthon is azonnal eltűnik.</p>
+              <h3 className="text-lg font-black tracking-tight">Adatbiztonság és Magánélet</h3>
+              <p className="text-xs text-slate-400">Az ti családi életetek kizárólag a tiétek marad.</p>
             </div>
           </div>
 
-          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Smartphone className="w-5 h-5 text-emerald-600" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
+            <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+              <Lock className="w-4 h-4 text-emerald-400" />
+              <h4 className="font-bold text-slate-200">Titkosított Adattárolás</h4>
+              <p className="text-slate-400 leading-relaxed">Minden adatátvitel SSL/TLS titkosítással védett, európai Firebase szerverkörnyezetben.</p>
             </div>
-            <div>
-              <h3 className="font-bold text-slate-900 text-sm">Letöltés Nélkül</h3>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Bármilyen mobilról és böngészőből azonnal működik.</p>
-            </div>
-          </div>
 
-          <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <Users className="w-5 h-5 text-purple-600" />
+            <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+              <h4 className="font-bold text-slate-200">Zéró Reklám & Adatértékesítés</h4>
+              <p className="text-slate-400 leading-relaxed">Soha nem adjuk el a családi adataitokat, és nem jelenítünk meg semmilyen reklámot.</p>
             </div>
-            <div>
-              <h3 className="font-bold text-slate-900 text-sm">Egyszerű Csatlakozás</h3>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Egyetlen 6-jegyű kóddal beléphet az egész család.</p>
+
+            <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+              <Smile className="w-4 h-4 text-amber-400" />
+              <h4 className="font-bold text-slate-200">Teljes Adatkezelési Kontroll</h4>
+              <p className="text-slate-400 leading-relaxed">Bármikor lekérhető vagy törölhető a teljes családi fiók és az összes előzmény.</p>
             </div>
           </div>
         </div>
@@ -341,7 +245,7 @@ export default function LandingPage() {
       </main>
 
       {/* Lábléc */}
-      <footer className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <footer className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 border-t border-amber-900/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <img 
             src="/icon.png" 
@@ -351,17 +255,30 @@ export default function LandingPage() {
           <span className="font-bold text-slate-700">famity.hu — Családi Vezérlőpult</span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-sm">
-          <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-          <span className="font-medium">Kapcsolat:</span>
-          <a 
-            href="mailto:info@famity.hu" 
-            className="font-bold text-blue-600 hover:underline"
+        <div className="flex items-center gap-4 flex-wrap">
+          <button 
+            onClick={() => setIsPrivacyOpen(true)}
+            className="text-slate-600 hover:text-slate-900 font-semibold cursor-pointer underline"
           >
-            info@famity.hu
-          </a>
+            Adatkezelési Tájékoztató
+          </button>
+
+          <div className="flex items-center gap-1.5 text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-sm">
+            <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="font-medium">Kapcsolat:</span>
+            <a 
+              href="mailto:info@famity.hu" 
+              className="font-bold text-blue-600 hover:underline"
+            >
+              info@famity.hu
+            </a>
+          </div>
         </div>
       </footer>
+
+      {/* Modalok & Bannerek */}
+      <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
+      <CookieBanner onOpenPrivacy={() => setIsPrivacyOpen(true)} />
 
     </div>
   );
