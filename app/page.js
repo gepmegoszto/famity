@@ -7,7 +7,8 @@ import Calendar from '@/components/Calendar';
 import NoticeBoard from '@/components/NoticeBoard';
 import WeeklyMenu from '@/components/WeeklyMenu';
 import ChoreTracker from '@/components/ChoreTracker';
-import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote, Award } from 'lucide-react';
+import FamilySettings from '@/components/FamilySettings';
+import { LayoutDashboard, Calendar as CalendarIcon, ShoppingBag, Utensils, StickyNote, Award, Users } from 'lucide-react';
 
 export default function HomePage() {
   const { user, familyData, loading, logout } = useAuth();
@@ -112,6 +113,15 @@ export default function HomePage() {
         >
           <StickyNote className="w-4 h-4" /> Hirdetőtábla
         </button>
+
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition shrink-0 ${
+            activeTab === 'settings' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Users className="w-4 h-4" /> Családtagok
+        </button>
       </div>
 
       {/* Aktív Tab Tartalma */}
@@ -143,6 +153,10 @@ export default function HomePage() {
 
       {activeTab === 'notices' && (
         <NoticeBoard familyId={familyData.id} userId={user.uid} />
+      )}
+
+      {activeTab === 'settings' && (
+        <FamilySettings familyId={familyData.id} currentUserId={user.uid} />
       )}
     </main>
   );
