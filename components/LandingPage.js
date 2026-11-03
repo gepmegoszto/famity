@@ -13,11 +13,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Lock,
-  Heart,
   Smile,
   CheckCircle2,
-  Mail,
-  Gift
+  Mail
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -86,7 +84,7 @@ export default function LandingPage() {
               href="/login?mode=register"
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98]"
             >
-              Családi fiók létrehozása <ArrowRight className="w-4 h-4" />
+              Új család indítása <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/login?mode=register"
@@ -209,6 +207,24 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* VIDEÓ BEMUTATÓ SZEKCIÓ */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4 text-center">
+          <div className="max-w-md mx-auto space-y-1">
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Ismerd meg a platformot</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Így működik a famity.hu</h2>
+          </div>
+          <div className="flex justify-center pt-2">
+            <video 
+              src="/bemutato.mp4" 
+              controls 
+              autoPlay 
+              loop 
+              muted 
+              className="w-full max-w-2xl rounded-2xl shadow-lg border border-slate-200"
+            />
+          </div>
+        </div>
+
         {/* ADATBIZTONSÁG SZEKCIÓ */}
         <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-10 space-y-6 shadow-xl">
           <div className="flex items-center gap-3">
@@ -230,8 +246,8 @@ export default function LandingPage() {
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
               <CheckCircle2 className="w-4 h-4 text-blue-400" />
-              <h4 className="font-bold text-slate-200">Zéró adatértékesítés</h4>
-              <p className="text-slate-400 leading-relaxed">Soha nem adjuk tovább a családi adataitokat, csak a családhoz tartozó felhasználók láthatják azokat.</p>
+              <h4 className="font-bold text-slate-200">Zéró Reklám & Adatértékesítés</h4>
+              <p className="text-slate-400 leading-relaxed">Soha nem adjuk el a családi adataitokat, és nem jelenítünk meg semmilyen reklámot.</p>
             </div>
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
