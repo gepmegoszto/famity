@@ -158,9 +158,9 @@ export default function HomePage() {
           )}
 
           {activeTab === 'chores' && <ChoreTracker familyId={familyData.id} userId={user.uid} />}
-          {activeTab === 'menu' && <WeeklyMenu familyId={familyData.id} userId={user.uid} />}
+          {activeTab === 'menu' && <WeeklyMenu familyId={familyData.id} userId={user.uid} familyData={familyData} />}
           {activeTab === 'calendar' && <Calendar familyId={familyData.id} userId={user.uid} />}
-          {activeTab === 'shopping' && <ShoppingList familyId={familyData.id} userId={user.uid} />}
+          {activeTab === 'shopping' && <ShoppingList familyId={familyData.id} userId={user.uid} familyData={familyData} />}
           {activeTab === 'notices' && <NoticeBoard familyId={familyData.id} userId={user.uid} />}
           {activeTab === 'settings' && <FamilySettings familyId={familyData.id} currentUserId={user.uid} />}
         </div>
