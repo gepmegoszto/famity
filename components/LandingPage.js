@@ -257,7 +257,7 @@ return (
       </div>
     </div>
 
-    {/* ÚJ: RÉSZLETES BLOG ÉS CIKKEK SZEKCIÓ (A javasolt témák teljes beépítése az AdSense jóváhagyáshoz) */}
+    {/* Családszervezési Tippek & Tudástár */}
     <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -270,7 +270,6 @@ return (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-xs text-slate-600">
-        
         <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100 flex flex-col justify-between">
           <div className="space-y-2">
             <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Életmód & Menüterv</span>
@@ -287,7 +286,7 @@ return (
             <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Szervezés & Időpontok</span>
             <h3 className="font-bold text-slate-900 text-sm">A közös családi naptár előnyei: Így ne felejtsetek el semmit</h3>
             <p className="leading-relaxed text-slate-500">
-              Orvosi időpontok, szülői értekezzek és edzések — ha mindez egyetlen színkódolt naptárban fut össze, elkerülhetők a „elfelejtettem” típusú kellemetlen szituációk.
+              Orvosi időpontok, szülői értekezlek és edzések — ha mindez egyetlen színkódolt naptárban fut össze, elkerülhetők a „elfelejtettem” típusú kellemetlen szituációk.
             </p>
           </div>
           <div className="pt-2 text-[11px] font-bold text-emerald-600">Olvass tovább →</div>
@@ -303,7 +302,6 @@ return (
           </div>
           <div className="pt-2 text-[11px] font-bold text-indigo-600">Olvass tovább →</div>
         </div>
-
       </div>
     </div>
 
