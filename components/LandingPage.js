@@ -19,11 +19,9 @@ import {
   Mail,
   Sparkles,
   Check,
-  HelpCircle,
   BookOpen,
   Heart,
-  Clock,
-  CheckSquare
+  Clock
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -45,6 +43,12 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link 
+              href="/blog" 
+              className="px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition rounded-xl hover:bg-white/60 flex items-center gap-1.5"
+            >
+              <BookOpen className="w-4 h-4 text-blue-600" /> Tudástár & Blog
+            </Link>
             <Link 
               href="/login" 
               className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition rounded-xl hover:bg-white/60"
@@ -263,61 +267,23 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* TUDNÁSTÁR / GYIK & BLOG SZEKCIÓ (Részletes tartalmak az AdSense jóváhagyáshoz) */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-8">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <BookOpen className="w-5 h-5" />
+        {/* BIZTATÁS A BLOG MEGTEKINTÉSÉRE (CTA) */}
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center sm:text-left max-w-xl">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 text-blue-200 px-3 py-1 rounded-full text-xs font-bold">
+              <BookOpen className="w-3.5 h-3.5" /> Szakmai útmutatók
             </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-900">Családi Szervezési Tudástár & Blog</h2>
-              <p className="text-xs text-slate-500">Szakmai tippek, útmutatók és módszertanok a harmonikusabb mindennapokért.</p>
-            </div>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight">Olvasd el részletes cikkeinket!</h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Látogass el különálló Tudástár & Blog oldalunkra, ahol mélyreható, részletes cikkeket találsz a menütervezésről, a családi naptárról, a házimunka gamifikációról és az adatvédelemről.
+            </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-600">
-            
-            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
-              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
-                <Clock className="w-3.5 h-3.5" /> 4 perces olvasmány
-              </div>
-              <h3 className="font-black text-slate-900 text-sm leading-snug">Hogyan szervezzük meg a család heti menüjét stressz nélkül?</h3>
-              <p className="leading-relaxed">
-                A tudatos étkezéstervezés nemcsak pénztárcabarát megoldás, hanem óriási időmegtakarítás is a hétköznapokban. Ha előre tudjuk, mit főzünk, a bevásárlás célzottabbá válik, és elkerülhető a felesleges élelmiszer-pazarlás. A famity.hu heti menütervezője segít abban, hogy a hiányzó hozzávalók egy kattintással átkerüljenek a közös bevásárlólistára.
-              </p>
-            </article>
-
-            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
-              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
-                <Clock className="w-3.5 h-3.5" /> 5 perces olvasmány
-              </div>
-              <h3 className="font-black text-slate-900 text-sm leading-snug">A közös családi naptár előnyei: Így ne felejtsetek el semmit</h3>
-              <p className="leading-relaxed">
-                A digitális szinkronizáció segít abban, hogy az iskolai szünetek, az orvosi időpontok és a délutáni különórák egyetlen helyen látszódjanak. Anya, apa és a nagyszülők is azonnal értesülnek a változásokról, így soha többé nem fordul elő, hogy valaki ugyanarra az időpontra szervez két programot.
-              </p>
-            </article>
-
-            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
-              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
-                <Clock className="w-3.5 h-3.5" /> 4 perces olvasmány
-              </div>
-              <h3 className="font-black text-slate-900 text-sm leading-snug">Házimunka gyerekeknek: Hogyan tegyük játékká a teendőket?</h3>
-              <p className="leading-relaxed">
-                A pontgyűjtő rendszer csodákra képes a motiváció terén. Ha a gyerekek látják a célokat és a jutalmakat, a kötelességek teljesítése sokkal gördülékenyebbé és örömtelibbé válik a családban. A felelősségvállalás játékosan is tanítható.
-              </p>
-            </article>
-
-            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
-              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
-                <Clock className="w-3.5 h-3.5" /> 3 perces olvasmány
-              </div>
-              <h3 className="font-black text-slate-900 text-sm leading-snug">Biztonság és adatok védelme a famity.hu-n</h3>
-              <p className="leading-relaxed">
-                A legkorszerűbb titkosítási eljárásokat alkalmazzuk, és a családi adatok teljesen zártak. Kizárólag a meghívókóddal csatlakozott tagok láthatják a belső tartalmakat, így biztosítva a teljes magánszférát és a biztonságos digitális teret.
-              </p>
-            </article>
-
-          </div>
+          <Link
+            href="/blog"
+            className="px-8 py-4 bg-white text-blue-900 hover:bg-blue-50 font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition flex items-center gap-2 shrink-0 hover:scale-105"
+          >
+            Ugrás a Blogra <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* VIDEÓ BEMUTATÓ SZEKCIÓ */}
@@ -380,12 +346,15 @@ export default function LandingPage() {
           <img 
             src="/icon.png" 
             alt="famity.hu" 
-            className="h-7 w-7 object-contain rounded-lg" 
+            className="h-7 w-7 object-contain rounded-lg shadow-sm" 
           />
           <span className="font-bold text-slate-700">famity.hu — Családi Vezérlőpult</span>
         </div>
 
         <div className="flex items-center gap-4 flex-wrap">
+          <Link href="/blog" className="text-slate-600 hover:text-slate-900 font-semibold transition">
+            Tudástár & Blog
+          </Link>
           <button 
             onClick={() => setIsPrivacyOpen(true)}
             className="text-slate-600 hover:text-slate-900 font-semibold cursor-pointer underline"
