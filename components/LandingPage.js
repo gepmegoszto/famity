@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   Mail,
   Sparkles,
-  Check
+  Check,
+  HelpCircle
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -67,7 +68,7 @@ export default function LandingPage() {
             <img 
               src="/Gemini_Generated_Image_dn5mf6dn5mf6dn5m.jpeg" 
               alt="famity.hu" 
-              className="h-28 sm:h-36 w-auto object-contain rounded-2xl" 
+              className="h-28 sm:h-36 w-auto object-contain rounded-2xl shadow-sm" 
             />
           </div>
 
@@ -142,7 +143,7 @@ export default function LandingPage() {
               <Sparkles className="w-3.5 h-3.5" /> Előfizetési rendszer
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Ingyenes vagy Családi Prémium?</h2>
-           
+            <p className="text-xs text-slate-500">Használjátok ingyen hirdetésekkel, vagy váltsatok prémiumra a teljes reklámmentességért.</p>
           </div>
 
           <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-3xl shadow-xl space-y-6">
@@ -160,7 +161,11 @@ export default function LandingPage() {
             <div className="space-y-3 text-xs border-t border-slate-800 pt-4">
               <div className="flex items-center gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span><strong>Teljes reklámmentesség</strong> minden családtag számára</span>
+                <span><strong>Teljes reklámmentesség</strong> minden családtag számára (az adminisztrátor fizet, az egész család mentesül)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Korlátlan szinkronizáció és prioritás támogatás</span>
               </div>
             </div>
 
@@ -251,6 +256,49 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* ÚJ: RÉSZLETES TUDNÁSTÁR / GYIK SZEKCIÓ (Az AdSense jóváhagyás támogatásához) */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Gyakran Ismételt Kérdések a Családi Szervezésről</h2>
+              <p className="text-xs text-slate-500">Minden, amit a famity.hu digitális vezérlőpult használatáról tudni érdemes.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 text-xs text-slate-600">
+            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm">Hogyan segíti a famity.hu a mindennapokat?</h3>
+              <p className="leading-relaxed">
+                A modern családok életében az egyik legnagyobb kihívás az időpontok, a teendők és a háztartási beszerzések összehangolása. A platform egyetlen közös digitális felületen egyesíti a naptárat, a listákat és az üzeneteket, így senki sem felejt el semmit.
+              </p>
+            </div>
+
+            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm">Biztonságban vannak a családi adatok?</h3>
+              <p className="leading-relaxed">
+                Igen. A legkorszerűbb titkosítási eljárásokat használjuk, és a családi adatok teljesen zártak: kizárólag a meghívókóddal csatlakozott családtagok férhetnek hozzá a saját információikhoz, kívülállók számára semmilyen adat nem látható.
+              </p>
+            </div>
+
+            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm">Hogyan működik a bevásárlólista szinkronizáció?</h3>
+              <p className="leading-relaxed">
+                Amikor az egyik családtag a boltban kihúz egy tételt a listáról, az a többi családtag telefonján is azonnal frissül. Így elkerülhető a duplán vásárlás vagy a lemaradt hozzávalók esete.
+              </p>
+            </div>
+
+            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm">Mi a különbség az ingyenes és a prémium mód között?</h3>
+              <p className="leading-relaxed">
+                Az ingyenes verzió teljes körű hozzáférést biztosít a modulokhoz diszkrét hirdetések mellett. A Családi Prémium előfizetéssel az adminisztrátor egyetlen mozdulattal egész családja számára teljes reklámmentességet vásárol.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* VIDEÓ BEMUTATÓ SZEKCIÓ */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4 text-center">
           <div className="max-w-md mx-auto space-y-1">
@@ -290,8 +338,8 @@ export default function LandingPage() {
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
               <CheckCircle2 className="w-4 h-4 text-blue-400" />
-              <h4 className="font-bold text-slate-200">Zéró Reklám & Adatértékesítés</h4>
-              <p className="text-slate-400 leading-relaxed">Soha nem adjuk el a családi adataitokat, és nem jelenítünk meg semmilyen reklámot.</p>
+              <h4 className="font-bold text-slate-200">Rugalmas Modell & Adatvédelem</h4>
+              <p className="text-slate-400 leading-relaxed">Soha nem adjuk el a családi adataitokat. Választhattok hirdetéses ingyenes vagy tiszta prémium élményt.</p>
             </div>
 
             <div className="space-y-1.5 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
