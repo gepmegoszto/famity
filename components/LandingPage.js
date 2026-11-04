@@ -20,7 +20,10 @@ import {
   Sparkles,
   Check,
   HelpCircle,
-  BookOpen
+  BookOpen,
+  Heart,
+  Clock,
+  CheckSquare
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -36,7 +39,7 @@ export default function LandingPage() {
             <img 
               src="/icon.png" 
               alt="famity.hu" 
-              className="h-9 w-9 object-contain rounded-xl" 
+              className="h-9 w-9 object-contain rounded-xl shadow-sm" 
             />
             <span className="text-xl font-black tracking-tight text-slate-900">famity<span className="text-blue-600">.hu</span></span>
           </div>
@@ -59,17 +62,20 @@ export default function LandingPage() {
       </header>
 
       {/* Fő tartalom */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 w-full space-y-16">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 pb-16 w-full space-y-16">
         
         {/* HERO SZEKCIÓ */}
         <div className="text-center max-w-2xl mx-auto space-y-6">
           
-          {/* Központi Logó Kép */}
+          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3.5 py-1.5 rounded-full text-xs font-extrabold border border-blue-100 shadow-sm animate-pulse">
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> A család digitális otthona
+          </div>
+
           <div className="flex justify-center">
             <img 
               src="/Gemini_Generated_Image_dn5mf6dn5mf6dn5m.jpeg" 
               alt="famity.hu" 
-              className="h-28 sm:h-36 w-auto object-contain rounded-2xl shadow-sm" 
+              className="h-32 sm:h-40 w-auto object-contain rounded-2xl shadow-md border border-slate-100" 
             />
           </div>
 
@@ -81,10 +87,10 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-xl mx-auto">
-            Anya, apa, a nagyszülők és a gyerekek — a <strong>famity.hu</strong> felületén mindenkinek megvan a maga szerepe. Egy átlátható, meleg hangulatú digitális otthon, amely összetartja a család mindennapi dinamikáját.
+            Anya, apa, a nagyszülők és a gyerekek — a <strong>famity.hu</strong> felületén mindenkinek megvan a maga szerepe. Felejtsétek el a kaotikus hűtőmágneses üzeneteket és az elfelejtett programokat!
           </p>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/login?mode=register"
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98]"
@@ -104,35 +110,35 @@ export default function LandingPage() {
         <AdBanner />
 
         {/* CSALÁDI DINAMIKA SZEKCIÓ */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
           <div className="text-center max-w-lg mx-auto space-y-2">
             <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Minden generációnak megvan a maga helye</span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Együtt működik a család</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Így működik a mindennapi harmónia</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
-              <div className="w-8 h-8 rounded-xl bg-pink-100 text-pink-700 font-bold flex items-center justify-center text-xs">Anya</div>
+            <div className="p-5 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2.5 transition hover:shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-pink-100 text-pink-700 font-bold flex items-center justify-center text-xs">Anya</div>
               <h3 className="font-bold text-xs text-slate-900">Menüterv & Áttekintés</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Heti étkezések és közös naptári időpontok átlátható koordinációja.</p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Heti étkezések és közös naptári időpontok átlátható koordinációja stressz nélkül.</p>
             </div>
 
-            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">Apa</div>
+            <div className="p-5 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2.5 transition hover:shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">Apa</div>
               <h3 className="font-bold text-xs text-slate-900">Bevásárlás & Szervezés</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Élő bevásárlólisták kezelése és adminisztratív feladatok átlátása.</p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Élő bevásárlólisták kezelése közvetlenül a szupermarket sorai közül frissítve.</p>
             </div>
 
-            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
-              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-xs">Mama</div>
+            <div className="p-5 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2.5 transition hover:shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-xs">Mama</div>
               <h3 className="font-bold text-xs text-slate-900">Üzenőfal & Programok</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Fontos családi információk, kapukódok és unokázós időpontok.</p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Fontos családi információk, kapukódok és unokázós délutánok naptárba téve.</p>
             </div>
 
-            <div className="p-4 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2">
-              <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">Gyerekek</div>
+            <div className="p-5 bg-[#FAF8F4] rounded-2xl border border-slate-100 space-y-2.5 transition hover:shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">Gyerekek</div>
               <h3 className="font-bold text-xs text-slate-900">Házimunka & Pontok</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Elvégzett teendők, pontgyűjtés és beváltás megbeszélt jutalmakra.</p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Elvégzett teendők, pontgyűjtés és beváltás izgalmas megbeszélt jutalmakra.</p>
             </div>
           </div>
         </div>
@@ -147,7 +153,7 @@ export default function LandingPage() {
             <p className="text-xs text-slate-500">Használjátok ingyen hirdetésekkel, vagy váltsatok prémiumra a teljes reklámmentességért.</p>
           </div>
 
-          <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 rounded-3xl shadow-xl space-y-6">
+          <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 to-blue-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
             <div className="flex justify-between items-baseline">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300">Egész családnak</span>
@@ -257,54 +263,69 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* TUDNÁSTÁR / GYIK & BLOG SZEKCIÓ (AdSense jóváhagyáshoz) */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+        {/* TUDNÁSTÁR / GYIK & BLOG SZEKCIÓ (Részletes tartalmak az AdSense jóváhagyáshoz) */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-8">
+          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900">Családi Szervezési Tudástár & Blog</h2>
-              <p className="text-xs text-slate-500">Szakmai tippek és útmutatók a harmonikusabb mindennapokért.</p>
+              <p className="text-xs text-slate-500">Szakmai tippek, útmutatók és módszertanok a harmonikusabb mindennapokért.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 text-xs text-slate-600">
-            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Hogyan szervezzük meg a család heti menüjét stressz nélkül?</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-600">
+            
+            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 4 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug">Hogyan szervezzük meg a család heti menüjét stressz nélkül?</h3>
               <p className="leading-relaxed">
-                A tudatos étkezéstervezés nemcsak pénztárcabarát megoldás, hanem óriási időmegtakarítás is a hétköznapokban. Ha előre tudjuk, mit főzünk, a bevásárlás célzottabbá válik, és elkerülhető a felesleges élelmiszer-pazarlás.
+                A tudatos étkezéstervezés nemcsak pénztárcabarát megoldás, hanem óriási időmegtakarítás is a hétköznapokban. Ha előre tudjuk, mit főzünk, a bevásárlás célzottabbá válik, és elkerülhető a felesleges élelmiszer-pazarlás. A famity.hu heti menütervezője segít abban, hogy a hiányzó hozzávalók egy kattintással átkerüljenek a közös bevásárlólistára.
               </p>
-            </div>
+            </article>
 
-            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">A közös családi naptár előnyei: Így ne felejtsetek el semmit</h3>
+            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 5 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug">A közös családi naptár előnyei: Így ne felejtsetek el semmit</h3>
               <p className="leading-relaxed">
-                A digitális szinkronizáció segít abban, hogy az iskolai szürak, az orvosi időpontok és a közös programok egyetlen helyen látszódjanak. Anya, apa és a nagyszülők is azonnal értesülnek a változásokról.
+                A digitális szinkronizáció segít abban, hogy az iskolai szünetek, az orvosi időpontok és a délutáni különórák egyetlen helyen látszódjanak. Anya, apa és a nagyszülők is azonnal értesülnek a változásokról, így soha többé nem fordul elő, hogy valaki ugyanarra az időpontra szervez két programot.
               </p>
-            </div>
+            </article>
 
-            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Házimunka gyerekeknek: Hogyan tegyük játékká a teendőket?</h3>
+            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 4 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug">Házimunka gyerekeknek: Hogyan tegyük játékká a teendőket?</h3>
               <p className="leading-relaxed">
-                A pontgyűjtő rendszer csodákra képes a motiváció terén. Ha a gyerekek látják a célokat és a jutalmakat, a kötelességek teljesítése sokkal gördülékenyebbé és örömtelibbé válik a családban.
+                A pontgyűjtő rendszer csodákra képes a motiváció terén. Ha a gyerekek látják a célokat és a jutalmakat, a kötelességek teljesítése sokkal gördülékenyebbé és örömtelibbé válik a családban. A felelősségvállalás játékosan is tanítható.
               </p>
-            </div>
+            </article>
 
-            <div className="space-y-2 p-4 rounded-2xl bg-[#FAF8F4] border border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Biztonság és adatok védelem a famity.hu-n</h3>
+            <article className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-slate-200 transition">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 3 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug">Biztonság és adatok védelme a famity.hu-n</h3>
               <p className="leading-relaxed">
-                A legkorszerűbb titkosítási eljárásokat alkalmazzuk, és a családi adatok teljesen zártak. Kizárólag a meghívókóddal csatlakozott tagok láthatják a belső tartalmakat, biztosítva a teljes magánszférát.
+                A legkorszerűbb titkosítási eljárásokat alkalmazzuk, és a családi adatok teljesen zártak. Kizárólag a meghívókóddal csatlakozott tagok láthatják a belső tartalmakat, így biztosítva a teljes magánszférát és a biztonságos digitális teret.
               </p>
-            </div>
+            </article>
+
           </div>
         </div>
 
         {/* VIDEÓ BEMUTATÓ SZEKCIÓ */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-4 text-center">
-          <div className="max-w-md mx-auto space-y-1">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-6 text-center">
+          <div className="max-w-md mx-auto space-y-2">
             <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Ismerd meg a platformot</span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Így működik a famity.hu</h2>
+            <p className="text-xs text-slate-500">Nézd meg rövid bemutató videónkat a felület működéséről.</p>
           </div>
           <div className="flex justify-center pt-2">
             <video 
@@ -313,7 +334,7 @@ export default function LandingPage() {
               autoPlay 
               loop 
               muted 
-              className="w-full max-w-2xl rounded-2xl shadow-lg border border-slate-200"
+              className="w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200"
             />
           </div>
         </div>
