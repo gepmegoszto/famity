@@ -22,8 +22,7 @@ import {
   BookOpen,
   Heart,
   Clock,
-  ChevronDown,
-  Star
+  ChevronDown
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -43,12 +42,6 @@ export default function LandingPage() {
     { q: 'Biztonságban vannak a családi adataink?', a: 'Igen. A legmodernebb európai felhőalapú infrastruktúrán (Firebase) futunk, erős SSL/TLS titkosítással. Soha nem adjuk el az adatokat harmadik félnek, és a fiók bármikor törölhető.' },
     { q: 'Hogyan működik a prémium csomag és a hirdetésmentesség?', a: 'Az ingyenes verziót diszkrét hirdetések tarthatják fenn. Ha előfizettek a Családi Prémiumra (1 990 Ft/hó), az adminisztrátor fizetésével a család MINDEN tagja teljes reklámmentességet élvez.' },
     { q: 'Szükséges-e letölteni alkalmazást az App Store-ból?', a: 'Nem szükséges! A famity.hu egy modern PWA webalkalmazás, ami közvetlenül a telefon böngészőjéből nyitható meg, és ikonként kirakható a kezdőképernyőre.' }
-  ];
-
-  const testimonials = [
-    { name: 'Kovács Eszter', role: 'Háromgyermekes édesanya', text: 'Vége a hűtőre ragasztott post-itek káoszának! Most már mindenki pontosan tudja, ki hova megy és mit kell hozni a boltból.' },
-    { name: 'Nagy Péter', role: 'Apa és logisztikai mindenes', text: 'A heti menütervező és a bevásárlólista összekötése óriási pénzt és időt spórol meg nekünk minden héten. Imádjuk!' },
-    { name: 'Szabó Mária (Mama)', role: 'Nagymama', text: 'Fantasztikus, hogy a telefonomon én is látom, mikor jönnek az unokák, és egy gombnyomással beírhatom a közös programokat.' }
   ];
 
   return (
@@ -380,36 +373,6 @@ export default function LandingPage() {
                   A digitális szinkronizáció segít abban, hogy az iskolai szünetek, az orvosi időpontok és a délutáni különórák egyetlen helyen látszódjanak. Anya, apa és a nagyszülők is azonnal értesülnek a változásokról.
                 </p>
               </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. ÖTLET: CSALÁDI VISSZAJELZÉSEK / SOCIAL PROOF SZEKCIÓ */}
-        <section className="w-full bg-[#FAF8F4] py-16 px-4 sm:px-8 border-t border-slate-200/60">
-          <div className="max-w-5xl mx-auto space-y-8">
-            <div className="text-center max-w-lg mx-auto space-y-2">
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Valódi családok tapasztalatai</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Mit mondanak rólunk?</h2>
-              <p className="text-xs sm:text-sm text-slate-500">Így vált a famity.hu a mindennapi élet nélkülözhetetlen részévé.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.map((t, idx) => (
-                <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex gap-1 text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400" />
-                      ))}
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed italic">"{t.text}"</p>
-                  </div>
-                  <div className="pt-4 border-t border-slate-100">
-                    <h4 className="font-bold text-xs sm:text-sm text-slate-900">{t.name}</h4>
-                    <span className="text-[11px] text-blue-600 font-medium">{t.role}</span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
