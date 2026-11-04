@@ -267,23 +267,49 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* BIZTATÁS A BLOG MEGTEKINTÉSÉRE (CTA) */}
-        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left max-w-xl">
-            <div className="inline-flex items-center gap-1.5 bg-white/10 text-blue-200 px-3 py-1 rounded-full text-xs font-bold">
-              <BookOpen className="w-3.5 h-3.5" /> Szakmai útmutatók
+        {/* TUDNÁSTÁR / BLOG SZEKCIÓ (Előnézet a főoldalon) */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/60 shadow-sm space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-slate-900">Családi Szervezési Tudástár & Blog</h2>
+                <p className="text-xs text-slate-500">Szakmai tippek, útmutatók és módszertanok a harmonikusabb mindennapokért.</p>
+              </div>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight">Olvasd el részletes cikkeinket!</h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Látogass el különálló Tudástár & Blog oldalunkra, ahol mélyreható, részletes cikkeket találsz a menütervezésről, a családi naptárról, a házimunka gamifikációról és az adatvédelemről.
-            </p>
+            <Link 
+              href="/blog" 
+              className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0"
+            >
+              Összes cikk megtekintése <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <Link
-            href="/blog"
-            className="px-8 py-4 bg-white text-blue-900 hover:bg-blue-50 font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition flex items-center gap-2 shrink-0 hover:scale-105"
-          >
-            Ugrás a Blogra <ArrowRight className="w-4 h-4" />
-          </Link>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-600">
+            
+            <Link href="/blog" className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-blue-200 transition group block">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 8 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug group-hover:text-blue-600 transition">Hogyan szervezzük meg a család heti menüjét stressz nélkül?</h3>
+              <p className="leading-relaxed line-clamp-3">
+                A tudatos étkezéstervezés nemcsak pénztárcabarát megoldás, hanem óriási időmegtakarítás is a hétköznapokban. Ha előre tudjuk, mit főzünk, a bevásárlás célzottabbá válik, és elkerülhető a felesleges élelmiszer-pazarlás.
+              </p>
+            </Link>
+
+            <Link href="/blog" className="space-y-2.5 p-5 rounded-2xl bg-[#FAF8F4] border border-slate-100 hover:border-blue-200 transition group block">
+              <div className="flex items-center gap-2 text-blue-600 font-bold text-[11px]">
+                <Clock className="w-3.5 h-3.5" /> 10 perces olvasmány
+              </div>
+              <h3 className="font-black text-slate-900 text-sm leading-snug group-hover:text-blue-600 transition">A közös családi naptár előnyei: Így ne felejtsetek el semmit</h3>
+              <p className="leading-relaxed line-clamp-3">
+                A digitális szinkronizáció segít abban, hogy az iskolai szünetek, az orvosi időpontok és a délutáni különórák egyetlen helyen látszódjanak. Anya, apa és a nagyszülők is azonnal értesülnek a változásokról.
+              </p>
+            </Link>
+
+          </div>
         </div>
 
         {/* VIDEÓ BEMUTATÓ SZEKCIÓ */}
