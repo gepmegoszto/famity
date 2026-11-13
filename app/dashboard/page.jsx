@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc, onSnapshot, addDoc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc, onSnapshot, addDoc, orderBy } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -131,6 +131,36 @@ export default function DashboardPage() {
     }
   };
 
+  // Chat archiválása
+  const handleArchiveChat = async (protocolId) => {
+    if (!confirm('Biztosan archiválni szeretnéd ezt a beszélgetést?')) return;
+    try {
+      await updateDoc(doc(db, 'lending_protocols', protocolId), { chatArchived: true });
+      if (selectedChatProtocol?.id === protocolId) {
+        setSelectedChatProtocol(null);
+      }
+      window.location.reload();
+    } catch (err) {
+      console.error("Hiba az archiválás során:", err);
+      alert('Nem sikerült archiválni a chatet.');
+    }
+  };
+
+  // Chat / protokoll törlése
+  const handleDeleteChat = async (protocolId) => {
+    if (!confirm('Biztosan véglegesen törölni szeretnéd ezt a beszélgetést és a kapcsolódó jegyzőkönyvet? Ez a művelet nem vonható vissza!')) return;
+    try {
+      await deleteDoc(doc(db, 'lending_protocols', protocolId));
+      if (selectedChatProtocol?.id === protocolId) {
+        setSelectedChatProtocol(null);
+      }
+      window.location.reload();
+    } catch (err) {
+      console.error("Hiba a törlés során:", err);
+      alert('Nem sikerült törölni a chatet.');
+    }
+  };
+
   const handleApproveRequest = async (reqId) => {
     await updateDoc(doc(db, 'access_requests', reqId), { status: 'approved' });
   };
@@ -215,10 +245,12 @@ export default function DashboardPage() {
 
   const activeLenderProtocols = protocolsAsLender.filter(p => p && p.status !== 'Lezárva');
   const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p && p.status !== 'Lezárva');
-  const allProtocolsForChat = [...protocolsAsLender, ...protocolsAsBorrower];
+  
+  // Csak azok a chatek jelennek meg, amik nincsenek archiválva
+  const allProtocolsForChat = [...protocolsAsLender, ...protocolsAsBorrower].filter(p => p && !p.chatArchived);
 
-  // Pénzügyi adatok biztonságos számítása (Firestore Timestamp kezeléssel)
-  const allProtsUnique = Array.from(new Map(allProtocolsForChat.filter(p => p).map(p => [p.id, p])).values());
+  // Pénzügyi adatok biztonságos számítása
+  const allProtsUnique = Array.from(new Map([...protocolsAsLender, ...protocolsAsBorrower].filter(p => p).map(p => [p.id, p])).values());
   let totalIncome = 0;
   let totalExpense = 0;
   let transactionCount = 0;
@@ -226,8 +258,6 @@ export default function DashboardPage() {
 
   allProtsUnique.forEach(p => {
     const price = Number(p.rentalTerms?.price || p.price || 0);
-    
-    // Biztonságos dátum kiolvasás (Firestore Timestamp, Date vagy string kezelése)
     let rawDate = p.createdAt || p.rentalTerms?.startDate;
     let dateStr = new Date().toISOString();
     
@@ -532,13 +562,15 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* CHAT FÜL */}
+          {/* CHAT FÜL (ARCHIVÁLHATÓ ÉS TÖRÖLHETŐ) */}
           {activeTab === 'chat' && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm h-[75vh] flex flex-col md:flex-row overflow-hidden">
               <div className="w-full md:w-80 border-r border-slate-200 bg-slate-50 flex flex-col">
-                <div className="p-4 border-b border-slate-200 bg-white">
-                  <h3 className="font-bold text-slate-900 text-sm">Beszélgetések</h3>
-                  <p className="text-xs text-slate-500">Aktív és lezárt bérlések chatei</p>
+                <div className="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm">Beszélgetések</h3>
+                    <p className="text-xs text-slate-500">Aktív és lezárt bérlések chatei</p>
+                  </div>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
                   {allProtocolsForChat.length === 0 ? (
@@ -551,20 +583,39 @@ export default function DashboardPage() {
                         ? `${p.borrowerData?.lastName || ''} ${p.borrowerData?.firstName || ''}`
                         : `${p.lenderData?.lastName || ''} ${p.lenderData?.firstName || ''}`;
                       return (
-                        <button
+                        <div
                           key={p.id}
-                          onClick={() => setSelectedChatProtocol(p)}
-                          className={`w-full text-left p-4 transition flex flex-col gap-1 ${isSelected ? 'bg-emerald-50 border-l-4 border-[#0f4c40]' : 'hover:bg-slate-100'}`}
+                          className={`w-full text-left p-4 transition flex flex-col gap-1 relative group ${isSelected ? 'bg-emerald-50 border-l-4 border-[#0f4c40]' : 'hover:bg-slate-100'}`}
                         >
-                          <div className="flex justify-between items-center">
-                            <div className="font-bold text-slate-900 text-sm truncate">{p.itemDetails?.name}</div>
-                            {isClosed && <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">Lezárt</span>}
+                          <button onClick={() => setSelectedChatProtocol(p)} className="w-full text-left space-y-1">
+                            <div className="flex justify-between items-center pr-12">
+                              <div className="font-bold text-slate-900 text-sm truncate">{p.itemDetails?.name}</div>
+                              {isClosed && <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">Lezárt</span>}
+                            </div>
+                            <div className="text-xs text-slate-500 flex justify-between">
+                              <span>Partner: {partnerName || 'Partner'}</span>
+                              <span className="font-mono text-[10px]">#{p.id.slice(0, 4)}</span>
+                            </div>
+                          </button>
+
+                          {/* Gyors gombok a chat listában (Archiválás / Törlés) */}
+                          <div className="absolute right-3 top-3 flex items-center gap-1 bg-white/80 backdrop-blur-sm px-1.5 py-1 rounded-lg border shadow-sm opacity-0 group-hover:opacity-100 transition">
+                            <button 
+                              title="Chat archiválása" 
+                              onClick={(e) => { e.stopPropagation(); handleArchiveChat(p.id); }} 
+                              className="text-slate-500 hover:text-amber-600 p-1 text-xs"
+                            >
+                              📁
+                            </button>
+                            <button 
+                              title="Chat törlése" 
+                              onClick={(e) => { e.stopPropagation(); handleDeleteChat(p.id); }} 
+                              className="text-slate-500 hover:text-red-600 p-1 text-xs"
+                            >
+                              🗑️
+                            </button>
                           </div>
-                          <div className="text-xs text-slate-500 flex justify-between">
-                            <span>Partner: {partnerName || 'Partner'}</span>
-                            <span className="font-mono text-[10px]">#{p.id.slice(0, 4)}</span>
-                          </div>
-                        </button>
+                        </div>
                       );
                     })
                   )}
@@ -582,7 +633,21 @@ export default function DashboardPage() {
                         </h4>
                         <span className="text-xs text-slate-500 font-mono">ID: #{selectedChatProtocol.id}</span>
                       </div>
-                      <span className="text-xs bg-emerald-100 text-[#0f4c40] px-3 py-1 rounded-full font-bold">Biztonságos csatorna</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs bg-emerald-100 text-[#0f4c40] px-3 py-1 rounded-full font-bold">Biztonságos csatorna</span>
+                        <button 
+                          onClick={() => handleArchiveChat(selectedChatProtocol.id)} 
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-xl transition"
+                        >
+                          📁 Archiválás
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteChat(selectedChatProtocol.id)} 
+                          className="bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition"
+                        >
+                          🗑️ Törlés
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/50">
