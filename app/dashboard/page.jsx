@@ -12,14 +12,18 @@ export default function DashboardPage() {
   const [protocolsAsBorrower, setProtocolsAsBorrower] = useState([]);
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [pendingSignatures, setPendingSignatures] = useState([]);
+  const [pendingReturnSignatures, setPendingReturnSignatures] = useState([]); // ÚJ: Visszavételi aláírásra váróknak
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Partner adatok megtekintése modal
   const [selectedPartnerData, setSelectedPartnerData] = useState(null);
 
-  // Aláíró modal bérlőként
+  // Aláíró modal bérlőként (kezdeti bérlés)
   const [signingProtocolId, setSigningProtocolId] = useState(null);
+  // ÚJ: Aláíró modal bérlőként (visszavétel)
+  const [signingReturnProtocolId, setSigningReturnProtocolId] = useState(null);
+
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -37,12 +41,10 @@ export default function DashboardPage() {
             setHasProfile(true);
           }
 
-          // Jegyzőkönyvek lekérése bérbeadóként
           const qLender = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
           const snapLender = await getDocs(qLender);
           setProtocolsAsLender(snapLender.docs.map(d => ({ id: d.id, ...d.data() })));
 
-          // Jegyzőkönyvek lekérése bérlőként (uid alapján)
           const qBorrowerUid = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', currentUser.uid));
           const snapBorrowerUid = await getDocs(qBorrowerUid);
           setProtocolsAsBorrower(snapBorrowerUid.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -57,7 +59,7 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Adatkérések és aláírásra váró protokollok figyelése valós időben
+  // Valós idejű figyelés (kérelmek, aláírások, visszavételi aláírások)
   useEffect(() => {
     if (!user) return;
 
@@ -71,9 +73,16 @@ export default function DashboardPage() {
       setPendingSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
+    // ÚJ: Figyeljük a visszavételi aláírásra várókat is bérlőként
+    const qReturnSign = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', user.uid), where('status', '==', 'Vár a bérlő visszavételi aláírására'));
+    const unsubReturnSign = onSnapshot(qReturnSign, (snap) => {
+      setPendingReturnSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
     return () => {
       unsubReq();
       unsubSign();
+      unsubReturnSign();
     };
   }, [user]);
 
@@ -84,9 +93,9 @@ export default function DashboardPage() {
     await updateDoc(doc(db, 'access_requests', reqId), { status: 'rejected' });
   };
 
-  // Aláírás canvas kezelés bérlőként
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -98,6 +107,7 @@ export default function DashboardPage() {
   const draw = (e) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -108,10 +118,12 @@ export default function DashboardPage() {
   const stopDrawing = () => setIsDrawing(false);
   const clearCanvas = () => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  // Kezdeti bérleti aláírás mentése
   const handleBorrowerSignSubmit = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !signingProtocolId) return;
@@ -128,6 +140,26 @@ export default function DashboardPage() {
     } catch (err) {
       console.error(err);
       alert('Hiba történt az aláírás mentésekor.');
+    }
+  };
+
+  // ÚJ: Visszavételi aláírás mentése bérlőként -> Teljes lezárás
+  const handleBorrowerReturnSignSubmit = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !signingReturnProtocolId) return;
+    const signatureDataUrl = canvas.toDataURL();
+
+    try {
+      await updateDoc(doc(db, 'lending_protocols', signingReturnProtocolId), {
+        'signatures.returnBorrower': signatureDataUrl,
+        'signatures.returnBorrowerTimestamp': new Date().toISOString(),
+        status: 'Lezárva' // Mindketten aláírták a visszavételt is, ügylet lezárva!
+      });
+      setSigningReturnProtocolId(null);
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert('Hiba történt a visszavételi aláírás mentésekor.');
     }
   };
 
@@ -169,6 +201,7 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Kezdeti Aláírásra váró jegyzőkönyv */}
       {pendingSignatures.length > 0 && (
         <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
           <h3 className="font-bold text-lg text-amber-900 mb-2">✍️ Aláírásra váró bérleti jegyzőkönyv</h3>
@@ -181,6 +214,25 @@ export default function DashboardPage() {
               </div>
               <button onClick={() => setSigningProtocolId(proto.id)} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
                 Jegyzőkönyv aláírása →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ÚJ: Visszavételi aláírásra váró jegyzőkönyv */}
+      {pendingReturnSignatures.length > 0 && (
+        <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm">
+          <h3 className="font-bold text-lg text-emerald-900 mb-2">🔄 Eszköz visszavétel és elszámolás aláírása</h3>
+          <p className="text-sm text-emerald-700 mb-4">A bérbeadó rögzítette a visszavételt és az elszámolást. Kérjük, ellenőrizd és zárd le a bérlést:</p>
+          {pendingReturnSignatures.map(proto => (
+            <div key={proto.id} className="bg-white p-4 rounded-xl border flex justify-between items-center gap-4">
+              <div>
+                <p className="font-bold text-slate-900">{proto.itemDetails?.name}</p>
+                <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
+              </div>
+              <button onClick={() => setSigningReturnProtocolId(proto.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
+                Visszavétel aláírása és Lezárás →
               </button>
             </div>
           ))}
@@ -282,6 +334,7 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Kezdeti Bérlői Aláíró Modal */}
       {signingProtocolId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
@@ -300,6 +353,30 @@ export default function DashboardPage() {
               <div className="flex gap-2">
                 <button type="button" onClick={() => setSigningProtocolId(null)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
                 <button type="button" onClick={handleBorrowerSignSubmit} className="bg-emerald-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">Aláírás és Véglegesítés</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ÚJ: Bérlői Visszavételi / Lezárási Aláíró Modal */}
+      {signingReturnProtocolId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
+            <h3 className="text-lg font-bold text-slate-900">Visszavételi Aláírás és Elszámolási Nyilatkozat</h3>
+            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 space-y-2">
+              <p className="font-bold">✅ Pénzügyi és tárgyi elszámolási nyilatkozat:</p>
+              <p>Aláírásommal megerősítem, hogy a kaució elszámolása megtörtént, minden pénzügyi és tárgyi elszámolás lezárult, a felek egymással a bérlettel kapcsolatban elszámoltak, és az ügylet véglegesen lezárható.</p>
+            </div>
+            <p className="text-xs text-slate-600">Kérjük, rajzolja be az aláírását az alábbi mezőbe:</p>
+            <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
+              <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
+            </div>
+            <div className="flex justify-between gap-3 pt-2">
+              <button type="button" onClick={clearCanvas} className="bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setSigningReturnProtocolId(null)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
+                <button type="button" onClick={handleBorrowerReturnSignSubmit} className="bg-emerald-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">Aláírás és Ügylet Lezárása</button>
               </div>
             </div>
           </div>
