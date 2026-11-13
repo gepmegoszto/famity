@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [protocols, setProtocols] = useState([]);
+  const [incomingRequests, setIncomingRequests] = useState([]);
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -20,13 +21,13 @@ export default function DashboardPage() {
       } else {
         setUser(currentUser);
         try {
-          // Ellenőrizzük, hogy kitöltötte-e a profilját
+          // Ellenőrizzük a saját profilt
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists() && userDoc.data().lastName) {
             setHasProfile(true);
           }
 
-          // Kölcsönzések lekérése
+          // Saját kölcsönzések lekérése
           const q = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
           const querySnapshot = await getDocs(q);
           const list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -40,6 +41,48 @@ export default function DashboardPage() {
     });
     return () => unsubscribe();
   }, [router]);
+
+  // Beérkező adatkérések figyelése valós időben
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'access_requests'),
+      where('borrowerUid', '==', user.uid),
+      where('status', '==', 'pending')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reqs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setIncomingRequests(reqs);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Adatkérés engedélyezése
+  const handleApproveRequest = async (reqId) => {
+    try {
+      await updateDoc(doc(db, 'access_requests', reqId), {
+        status: 'approved'
+      });
+      alert('Sikeresen engedélyezted az adatkérést!');
+    } catch (err) {
+      console.error("Hiba az engedélyezéskor:", err);
+      alert('Hiba történt.');
+    }
+  };
+
+  // Adatkérés elutasítása
+  const handleRejectRequest = async (reqId) => {
+    try {
+      await updateDoc(doc(db, 'access_requests', reqId), {
+        status: 'rejected'
+      });
+    } catch (err) {
+      console.error("Hiba az elutasításkor:", err);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -81,6 +124,39 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* BEÉRKEZŐ ADATKÉRDÉSEK ÉRTESÍTÉSE (Bérlői oldal) */}
+      {incomingRequests.length > 0 && (
+        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
+          <h3 className="font-bold text-lg text-blue-900 mb-2">🔔 Beérkező adatkérési kérelmek</h3>
+          <p className="text-sm text-blue-700 mb-4">Az alábbi bérbeadó kérvényezi a személyes adataidat a kölcsönadási jegyzőkönyvhöz:</p>
+          
+          <div className="space-y-3">
+            {incomingRequests.map(req => (
+              <div key={req.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <p className="font-bold text-slate-800">{req.lenderEmail}</p>
+                  <p className="text-xs text-slate-500">Engedélyezed, hogy betöltse a profiladataidat a jegyzőkönyvbe?</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleApproveRequest(req.id)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"
+                  >
+                    Igen, engedélyezem
+                  </button>
+                  <button
+                    onClick={() => handleRejectRequest(req.id)}
+                    className="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold px-4 py-2 rounded-lg transition"
+                  >
+                    Elutasítás
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!hasProfile && (
         <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
           <h3 className="font-bold text-lg mb-1">Hiányzó személyes adatok!</h3>
@@ -109,7 +185,7 @@ export default function DashboardPage() {
             <div key={proto.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 className="font-bold text-lg text-slate-900">{proto.itemDetails?.name || 'Ismeretlen eszköz'}</h3>
-                <p className="text-xs text-slate-500">Bérlő / Átvevő: <span className="font-medium text-slate-700">{proto.borrowerData?.lastName} {proto.borrowerData?.firstName}</span></p>
+                <p className="text-xs text-slate-500">Bérlő: <span className="font-medium text-slate-700">{proto.borrowerData?.lastName} {proto.borrowerData?.firstName}</span></p>
               </div>
               <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full">
                 {proto.status || 'Aktív'}
