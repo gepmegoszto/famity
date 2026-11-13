@@ -97,7 +97,7 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [requestId]);
 
-  // Adatkérés küldése a bérlőnek (mentjük a bérbeadó nevét is)
+  // Adatkérés küldése a bérlőnek
   const handleSendAccessRequest = async (e) => {
     e.preventDefault();
     if (!borrowerEmail) return;
@@ -114,12 +114,12 @@ export default function NewProtocolPage() {
       }
 
       const borrowerUid = querySnapshot.docs[0].id;
+      const lenderFullName = lenderData ? `${lenderData.lastName} ${lenderData.firstName}` : user.email;
 
       const reqRef = await addDoc(collection(db, 'access_requests'), {
         lenderId: user.uid,
         lenderEmail: user.email,
-        lenderLastName: lenderData?.lastName || '',
-        lenderFirstName: lenderData?.firstName || '',
+        lenderName: lenderFullName, // Bérbeadó neve mentve
         borrowerEmail: borrowerEmail.trim(),
         borrowerUid: borrowerUid,
         status: 'pending',
