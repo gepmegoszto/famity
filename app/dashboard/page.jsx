@@ -213,12 +213,12 @@ export default function DashboardPage() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white font-medium">Betöltés...</div>;
 
-  const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
-  const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
+  const activeLenderProtocols = protocolsAsLender.filter(p => p && p.status !== 'Lezárva');
+  const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p && p.status !== 'Lezárva');
   const allProtocolsForChat = [...protocolsAsLender, ...protocolsAsBorrower];
 
-  // Pénzügyi adatok számítása
-  const allProtsUnique = Array.from(new Map(allProtocolsForChat.map(p => [p.id, p])).values());
+  // Pénzügyi adatok biztonságos számítása (Firestore Timestamp kezeléssel)
+  const allProtsUnique = Array.from(new Map(allProtocolsForChat.filter(p => p).map(p => [p.id, p])).values());
   let totalIncome = 0;
   let totalExpense = 0;
   let transactionCount = 0;
@@ -226,8 +226,22 @@ export default function DashboardPage() {
 
   allProtsUnique.forEach(p => {
     const price = Number(p.rentalTerms?.price || p.price || 0);
-    const dateStr = p.createdAt || p.rentalTerms?.startDate || new Date().toISOString();
-    const monthKey = dateStr.slice(0, 7);
+    
+    // Biztonságos dátum kiolvasás (Firestore Timestamp, Date vagy string kezelése)
+    let rawDate = p.createdAt || p.rentalTerms?.startDate;
+    let dateStr = new Date().toISOString();
+    
+    if (rawDate) {
+      if (typeof rawDate.toDate === 'function') {
+        dateStr = rawDate.toDate().toISOString();
+      } else if (rawDate instanceof Date) {
+        dateStr = rawDate.toISOString();
+      } else if (typeof rawDate === 'string') {
+        dateStr = rawDate;
+      }
+    }
+
+    const monthKey = typeof dateStr === 'string' && dateStr.length >= 7 ? dateStr.slice(0, 7) : new Date().toISOString().slice(0, 7);
 
     if (!monthlyData[monthKey]) {
       monthlyData[monthKey] = { income: 0, expense: 0, count: 0 };
