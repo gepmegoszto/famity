@@ -21,13 +21,11 @@ export default function DashboardPage() {
       } else {
         setUser(currentUser);
         try {
-          // Ellenőrizzük a saját profilt
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists() && userDoc.data().lastName) {
             setHasProfile(true);
           }
 
-          // Saját kölcsönzések lekérése
           const q = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
           const querySnapshot = await getDocs(q);
           const list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -42,7 +40,6 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Beérkező adatkérések figyelése valós időben
   useEffect(() => {
     if (!user) return;
 
@@ -60,7 +57,6 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [user]);
 
-  // Adatkérés engedélyezése
   const handleApproveRequest = async (reqId) => {
     try {
       await updateDoc(doc(db, 'access_requests', reqId), {
@@ -73,7 +69,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Adatkérés elutasítása
   const handleRejectRequest = async (reqId) => {
     try {
       await updateDoc(doc(db, 'access_requests', reqId), {
@@ -124,7 +119,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* BEÉRKEZŐ ADATKÉRDÉSEK ÉRTESÍTÉSE (Bérlői oldal) */}
       {incomingRequests.length > 0 && (
         <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
           <h3 className="font-bold text-lg text-blue-900 mb-2">🔔 Beérkező adatkérési kérelmek</h3>
@@ -134,7 +128,11 @@ export default function DashboardPage() {
             {incomingRequests.map(req => (
               <div key={req.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <p className="font-bold text-slate-800">{req.lenderEmail}</p>
+                  <p className="font-bold text-slate-800">
+                    {req.lenderLastName && req.lenderFirstName 
+                      ? `${req.lenderLastName} ${req.lenderFirstName}` 
+                      : 'Ismeretlen név'} ({req.lenderEmail})
+                  </p>
                   <p className="text-xs text-slate-500">Engedélyezed, hogy betöltse a profiladataidat a jegyzőkönyvbe?</p>
                 </div>
                 <div className="flex gap-2">
