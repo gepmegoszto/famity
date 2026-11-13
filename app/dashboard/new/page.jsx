@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -13,7 +13,9 @@ export default function NewProtocolPage() {
 
   // Bérlő adatok
   const [borrowerEmail, setBorrowerEmail] = useState('');
-  const [borrowerFound, setBorrowerFound] = useState(null); // null: nincs keresve, true: regisztrált, false: nem regisztrált
+  const [requestId, setRequestId] = useState(null);
+  const [requestStatus, setRequestStatus] = useState(null); // 'pending', 'approved', 'rejected'
+
   const [borrowerLastName, setBorrowerLastName] = useState('');
   const [borrowerFirstName, setBorrowerFirstName] = useState('');
   const [borrowerMothersName, setBorrowerMothersName] = useState('');
@@ -37,7 +39,7 @@ export default function NewProtocolPage() {
   const [conditionNotes, setConditionNotes] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [checkingBorrower, setCheckingBorrower] = useState(false);
+  const [sendingRequest, setSendingRequest] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -45,7 +47,6 @@ export default function NewProtocolPage() {
         router.push('/auth');
       } else {
         setUser(currentUser);
-        // Bérbeadó profil betöltése
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists()) {
@@ -62,42 +63,77 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Bérlő keresése email alapján
-  const handleCheckBorrower = async (e) => {
+  // Valós idejű figyelés, hogy a bérlő elfogadta-e a kérést
+  useEffect(() => {
+    if (!requestId) return;
+
+    const unsubscribe = onSnapshot(doc(db, 'access_requests', requestId), async (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setRequestStatus(data.status);
+
+        // Ha a bérlő elfogadta, húzzuk be az adatait
+        if (data.status === 'approved' && data.borrowerUid) {
+          const bUserDoc = await getDoc(doc(db, 'users', data.borrowerUid));
+          if (bUserDoc.exists()) {
+            const bData = bUserDoc.data();
+            setBorrowerLastName(bData.lastName || '');
+            setBorrowerFirstName(bData.firstName || '');
+            setBorrowerMothersName(bData.mothersName || '');
+            setBorrowerBirthPlace(bData.birthPlace || '');
+            setBorrowerBirthDate(bData.birthDate || '');
+            setBorrowerIdCard(bData.idCardNumber || '');
+            setBorrowerPhone(bData.phone || '');
+            setBZip(bData.address?.zip || '');
+            setBCity(bData.address?.city || '');
+            setBStreet(bData.address?.street || '');
+            setBHouseNumber(bData.address?.houseNumber || '');
+            setBFloor(bData.address?.floor || '');
+            setBDoor(bData.address?.door || '');
+          }
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [requestId]);
+
+  // Adatkérés küldése a bérlőnek
+  const handleSendAccessRequest = async (e) => {
     e.preventDefault();
     if (!borrowerEmail) return;
 
-    setCheckingBorrower(true);
-    setBorrowerFound(null);
-
+    setSendingRequest(true);
     try {
+      // Megkeressük, hogy létezik-e a bérlő
       const q = query(collection(db, 'users'), where('email', '==', borrowerEmail.trim()));
       const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        const bData = querySnapshot.docs[0].data();
-        setBorrowerLastName(bData.lastName || '');
-        setBorrowerFirstName(bData.firstName || '');
-        setBorrowerMothersName(bData.mothersName || '');
-        setBorrowerBirthPlace(bData.birthPlace || '');
-        setBorrowerBirthDate(bData.birthDate || '');
-        setBorrowerIdCard(bData.idCardNumber || '');
-        setBorrowerPhone(bData.phone || '');
-        setBZip(bData.address?.zip || '');
-        setBCity(bData.address?.city || '');
-        setBStreet(bData.address?.street || '');
-        setBHouseNumber(bData.address?.houseNumber || '');
-        setBFloor(bData.address?.floor || '');
-        setBDoor(bData.address?.door || '');
-        setBorrowerFound(true);
-      } else {
-        setBorrowerFound(false);
+      if (querySnapshot.empty) {
+        alert('Nincs regisztrált felhasználó ezzel az email címmel. Kérjük, add meg manuálisan az adatait!');
+        setSendingRequest(false);
+        return;
       }
+
+      const borrowerUid = querySnapshot.docs[0].id;
+
+      // Létrehozzuk a kérelmet
+      const reqRef = await addDoc(collection(db, 'access_requests'), {
+        lenderId: user.uid,
+        lenderEmail: user.email,
+        borrowerEmail: borrowerEmail.trim(),
+        borrowerUid: borrowerUid,
+        status: 'pending', // pending, approved, rejected
+        createdAt: new Date(),
+      });
+
+      setRequestId(reqRef.id);
+      setRequestStatus('pending');
     } catch (err) {
-      console.error("Hiba a bérlő keresésekor:", err);
-      alert('Hiba történt a bérlő keresése során.');
+      console.error("Hiba az adatkérés küldésekor:", err);
+      alert('Hiba történt a kérés elküldése során.');
     } finally {
-      setCheckingBorrower(false);
+      setSendingRequest(false);
     }
   };
 
@@ -171,10 +207,10 @@ export default function NewProtocolPage() {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
         
-        {/* Bérbeadó adatai (automatikus) */}
+        {/* Bérbeadó adatai */}
         <div>
-          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">1. Bérbeadó (Saját) adatai - Profilból behúzva</h2>
-          {lenderData ? (
+          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">1. Bérbeadó (Saját) adatai</h2>
+          {lenderData && (
             <div className="bg-slate-50 p-4 rounded-xl text-sm text-slate-700 grid sm:grid-cols-2 gap-2">
               <p><strong>Név:</strong> {lenderData.lastName} {lenderData.firstName}</p>
               <p><strong>Szem. ig. szám:</strong> {lenderData.idCardNumber}</p>
@@ -182,8 +218,6 @@ export default function NewProtocolPage() {
               <p><strong>Születési hely, idő:</strong> {lenderData.birthPlace}, {lenderData.birthDate}</p>
               <p className="sm:col-span-2"><strong>Lakcím:</strong> {lenderData.address?.zip} {lenderData.address?.city}, {lenderData.address?.street} {lenderData.address?.houseNumber}</p>
             </div>
-          ) : (
-            <p className="text-sm text-amber-600">Betöltés...</p>
           )}
         </div>
 
@@ -192,7 +226,7 @@ export default function NewProtocolPage() {
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">2. Bérlő / Átvevő adatai</h2>
           
           <div className="mb-4 p-4 bg-slate-50 border rounded-xl">
-            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Bérlő email címe (ha van fiókja a rendszerben)</label>
+            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Bérlő email címe (Adatkérés küldéséhez)</label>
             <div className="flex gap-2">
               <input 
                 type="email" 
@@ -203,22 +237,32 @@ export default function NewProtocolPage() {
               />
               <button 
                 type="button" 
-                onClick={handleCheckBorrower}
-                disabled={checkingBorrower || !borrowerEmail}
-                className="bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
+                onClick={handleSendAccessRequest}
+                disabled={sendingRequest || !borrowerEmail}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
               >
-                {checkingBorrower ? 'Keresés...' : 'Adatkérés / Keresés'}
+                {sendingRequest ? 'Küldés...' : 'Adatkérés küldése'}
               </button>
             </div>
 
-            {borrowerFound === true && (
-              <p className="mt-2 text-xs text-emerald-600 font-semibold">✓ A bérlő regisztrált felhasználó! Az adatai betöltődtek a rendszerből.</p>
+            {requestStatus === 'pending' && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg animate-pulse">
+                ⏳ Adatkérés elküldve. Várakozás a bérlő jóváhagyására a fiókjában...
+              </div>
             )}
-            {borrowerFound === false && (
-              <p className="mt-2 text-xs text-amber-600 font-semibold">ℹ️ Nincs regisztrált felhasználó ezzel az emillel. Kérjük, add meg manuálisan az adatait alább!</p>
+            {requestStatus === 'approved' && (
+              <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-semibold">
+                ✓ A bérlő jóváhagyta az adatkérést! Az adatai betöltődtek.
+              </div>
+            )}
+            {requestStatus === 'rejected' && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
+                ❌ A bérlő elutasította az adatkérést. Add meg az adatait manuálisan alább.
+              </div>
             )}
           </div>
 
+          {/* Manuális kitöltés / Betöltött adatok */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Vezetéknév</label>
