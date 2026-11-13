@@ -12,21 +12,16 @@ export default function DashboardPage() {
   const [protocolsAsBorrower, setProtocolsAsBorrower] = useState([]);
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [pendingSignatures, setPendingSignatures] = useState([]);
-  const [pendingReturnSignatures, setPendingReturnSignatures] = useState([]); // ÚJ: Visszavételi aláírásra váróknak
+  const [pendingReturnSignatures, setPendingReturnSignatures] = useState([]);
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Partner adatok megtekintése modal
   const [selectedPartnerData, setSelectedPartnerData] = useState(null);
-
-  // Aláíró modal bérlőként (kezdeti bérlés)
   const [signingProtocolId, setSigningProtocolId] = useState(null);
-  // ÚJ: Aláíró modal bérlőként (visszavétel)
   const [signingReturnProtocolId, setSigningReturnProtocolId] = useState(null);
 
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -59,7 +54,6 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Valós idejű figyelés (kérelmek, aláírások, visszavételi aláírások)
   useEffect(() => {
     if (!user) return;
 
@@ -73,7 +67,6 @@ export default function DashboardPage() {
       setPendingSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    // ÚJ: Figyeljük a visszavételi aláírásra várókat is bérlőként
     const qReturnSign = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', user.uid), where('status', '==', 'Vár a bérlő visszavételi aláírására'));
     const unsubReturnSign = onSnapshot(qReturnSign, (snap) => {
       setPendingReturnSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -123,7 +116,6 @@ export default function DashboardPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  // Kezdeti bérleti aláírás mentése
   const handleBorrowerSignSubmit = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !signingProtocolId) return;
@@ -143,7 +135,6 @@ export default function DashboardPage() {
     }
   };
 
-  // ÚJ: Visszavételi aláírás mentése bérlőként -> Teljes lezárás
   const handleBorrowerReturnSignSubmit = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !signingReturnProtocolId) return;
@@ -153,7 +144,7 @@ export default function DashboardPage() {
       await updateDoc(doc(db, 'lending_protocols', signingReturnProtocolId), {
         'signatures.returnBorrower': signatureDataUrl,
         'signatures.returnBorrowerTimestamp': new Date().toISOString(),
-        status: 'Lezárva' // Mindketten aláírták a visszavételt is, ügylet lezárva!
+        status: 'Lezárva'
       });
       setSigningReturnProtocolId(null);
       window.location.reload();
@@ -170,18 +161,25 @@ export default function DashboardPage() {
 
   if (loading) return <div className="flex-1 flex items-center justify-center p-12">Betöltés...</div>;
 
+  // Aktív vagy nem lezártak szűrése a fő pultra
+  const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
+  const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
+
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-slate-200 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kölcsönadási Vezérlőpult</h1>
+          <h1 className="text-2xl font-bold text-slate-900">famity.hu – Kölcsönadási Vezérlőpult</h1>
           <p className="text-sm text-slate-600">Bejelentkezve: {user?.email}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link href="/profile" className={`font-semibold px-4 py-2 rounded-lg shadow text-sm transition ${hasProfile ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}>
-            {hasProfile ? '⚙️ Saját adataim szerkesztése' : '⚠️ Add meg a személyes adataidat!'}
+          <Link href="/dashboard/closed" className="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2 rounded-lg shadow text-sm transition">
+            📁 Lezárt tranzakciók
           </Link>
-          {hasProfile && <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow text-sm transition">+ Új kölcsönzés indítása</Link>}
+          <Link href="/profile" className={`font-semibold px-4 py-2 rounded-lg shadow text-sm transition ${hasProfile ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}>
+            {hasProfile ? '⚙️ Saját adatok' : '⚠️ Add meg a személyes adataidat!'}
+          </Link>
+          {hasProfile && <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow text-sm transition">+ Új kölcsönzés</Link>}
           <button onClick={handleLogout} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm transition">Kilépés</button>
         </div>
       </div>
@@ -201,38 +199,34 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Kezdeti Aláírásra váró jegyzőkönyv */}
       {pendingSignatures.length > 0 && (
         <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
           <h3 className="font-bold text-lg text-amber-900 mb-2">✍️ Aláírásra váró bérleti jegyzőkönyv</h3>
-          <p className="text-sm text-amber-700 mb-4">Egy bérbeadó elküldte a jegyzőkönyvet, kérjük, ellenőrizd és írd alá:</p>
           {pendingSignatures.map(proto => (
             <div key={proto.id} className="bg-white p-4 rounded-xl border flex justify-between items-center gap-4">
               <div>
-                <p className="font-bold text-slate-900">{proto.itemDetails?.name}</p>
+                <p className="font-bold text-slate-900">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
                 <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
               </div>
               <button onClick={() => setSigningProtocolId(proto.id)} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
-                Jegyzőkönyv aláírása →
+                Aláírás →
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* ÚJ: Visszavételi aláírásra váró jegyzőkönyv */}
       {pendingReturnSignatures.length > 0 && (
         <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm">
-          <h3 className="font-bold text-lg text-emerald-900 mb-2">🔄 Eszköz visszavétel és elszámolás aláírása</h3>
-          <p className="text-sm text-emerald-700 mb-4">A bérbeadó rögzítette a visszavételt és az elszámolást. Kérjük, ellenőrizd és zárd le a bérlést:</p>
+          <h3 className="font-bold text-lg text-emerald-900 mb-2">🔄 Visszavétel aláírása szükséges</h3>
           {pendingReturnSignatures.map(proto => (
             <div key={proto.id} className="bg-white p-4 rounded-xl border flex justify-between items-center gap-4">
               <div>
-                <p className="font-bold text-slate-900">{proto.itemDetails?.name}</p>
+                <p className="font-bold text-slate-900">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
                 <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
               </div>
               <button onClick={() => setSigningReturnProtocolId(proto.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
-                Visszavétel aláírása és Lezárás →
+                Visszavétel aláírása →
               </button>
             </div>
           ))}
@@ -241,35 +235,30 @@ export default function DashboardPage() {
 
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-lg font-bold text-slate-800 mb-4">Indított bérléseim (Bérbeadóként)</h2>
-          {protocolsAsLender.length === 0 ? (
-            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nem indítottál bérlést.</p>
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Aktív indításaim (Bérbeadóként)</h2>
+          {activeLenderProtocols.length === 0 ? (
+            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Nincs aktív bérlésed.</p>
           ) : (
             <div className="space-y-3">
-              {protocolsAsLender.map(p => {
+              {activeLenderProtocols.map(p => {
                 const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                const uniqueId = p.id.slice(0, 8).toUpperCase();
                 return (
                   <div key={p.id} className="bg-white p-4 rounded-xl border flex flex-col justify-between gap-4">
                     <div>
-                      <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                        <span className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold">#{uniqueId}</span>
+                      </div>
                       <p className="text-xs text-slate-500 mt-1">Bérlő: <span className="font-medium text-slate-700">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
                       <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
-                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Lezárva' ? 'bg-slate-100 text-slate-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
                     </div>
                     <div className="flex flex-wrap gap-2 pt-2 border-t">
-                      <button 
-                        onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition"
-                      >
-                        👤 Bérlő adatai
-                      </button>
-                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition">
-                        Jegyzőkönyv →
-                      </Link>
+                      <button onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition">👤 Bérlő adatai</button>
+                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition">Jegyzőkönyv →</Link>
                       {p.status === 'Aktív' && (
-                        <Link href={`/dashboard/return/${p.id}`} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition ml-auto">
-                          Eszköz visszavétele →
-                        </Link>
+                        <Link href={`/dashboard/return/${p.id}`} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition ml-auto">Visszavétel →</Link>
                       )}
                     </div>
                   </div>
@@ -280,31 +269,28 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-slate-800 mb-4">Bérléseim (Bérlőként)</h2>
-          {protocolsAsBorrower.length === 0 ? (
-            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nincsenek bérléseid bérlőként.</p>
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Aktív bérléseim (Bérlőként)</h2>
+          {activeBorrowerProtocols.length === 0 ? (
+            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Nincs aktív bérlésed bérlőként.</p>
           ) : (
             <div className="space-y-3">
-              {protocolsAsBorrower.map(p => {
+              {activeBorrowerProtocols.map(p => {
                 const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                const uniqueId = p.id.slice(0, 8).toUpperCase();
                 return (
                   <div key={p.id} className="bg-white p-4 rounded-xl border flex flex-col justify-between gap-4">
                     <div>
-                      <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                        <span className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold">#{uniqueId}</span>
+                      </div>
                       <p className="text-xs text-slate-500 mt-1">Bérbeadó: <span className="font-medium text-slate-700">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
                       <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
-                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Lezárva' ? 'bg-slate-100 text-slate-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
                     </div>
                     <div className="flex flex-wrap gap-2 pt-2 border-t">
-                      <button 
-                        onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition"
-                      >
-                        👤 Bérbeadó adatai
-                      </button>
-                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition">
-                        Jegyzőkönyv →
-                      </Link>
+                      <button onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition">👤 Bérbeadó adatai</button>
+                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition">Jegyzőkönyv →</Link>
                     </div>
                   </div>
                 );
@@ -334,17 +320,10 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Kezdeti Bérlői Aláíró Modal */}
       {signingProtocolId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
-            <h3 className="text-lg font-bold text-slate-900">Bérlői Aláírás és Jogi Tájékoztató</h3>
-            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2 max-h-40 overflow-y-auto">
-              <p className="font-bold">⚠️ Fontos jogi nyilatkozat és felelősségvállalási útmutató:</p>
-              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért.</p>
-              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal.</p>
-              <p>3. <strong>Jogviták:</strong> Békés úton vagy bíróság előtt rendezendő.</p>
-            </div>
+            <h3 className="text-lg font-bold text-slate-900">famity.hu – Aláírás és Jogi Tájékoztató</h3>
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             </div>
@@ -359,16 +338,10 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ÚJ: Bérlői Visszavételi / Lezárási Aláíró Modal */}
       {signingReturnProtocolId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
-            <h3 className="text-lg font-bold text-slate-900">Visszavételi Aláírás és Elszámolási Nyilatkozat</h3>
-            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 space-y-2">
-              <p className="font-bold">✅ Pénzügyi és tárgyi elszámolási nyilatkozat:</p>
-              <p>Aláírásommal megerősítem, hogy a kaució elszámolása megtörtént, minden pénzügyi és tárgyi elszámolás lezárult, a felek egymással a bérlettel kapcsolatban elszámoltak, és az ügylet véglegesen lezárható.</p>
-            </div>
-            <p className="text-xs text-slate-600">Kérjük, rajzolja be az aláírását az alábbi mezőbe:</p>
+            <h3 className="text-lg font-bold text-slate-900">famity.hu – Visszavételi Aláírás</h3>
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             </div>
@@ -376,7 +349,7 @@ export default function DashboardPage() {
               <button type="button" onClick={clearCanvas} className="bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés</button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setSigningReturnProtocolId(null)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
-                <button type="button" onClick={handleBorrowerReturnSignSubmit} className="bg-emerald-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">Aláírás és Ügylet Lezárása</button>
+                <button type="button" onClick={handleBorrowerReturnSignSubmit} className="bg-emerald-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">Aláírás és Lezárás</button>
               </div>
             </div>
           </div>
