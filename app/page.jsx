@@ -21,12 +21,11 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero / Fő rész logóval a tetején középre igazítva */}
+      {/* Hero / Fő rész helyes logó hivatkozással */}
       <section className="max-w-5xl w-full mx-auto px-6 py-12 text-center space-y-6">
-        {/* LOGÓ MEGJELENÍTÉSE KÖZÉPEN */}
         <div className="flex justify-center mb-4">
           <img 
-            src="/logo full.jpeg" 
+            src="/logo-full.jpeg" 
             alt="famity.hu Logó" 
             className="h-24 sm:h-32 w-auto object-contain rounded-2xl shadow-sm border border-slate-200" 
           />
@@ -62,7 +61,6 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           
-          {/* 1. Lépés */}
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
             <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
               1
@@ -77,7 +75,6 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          {/* 2. Lépés */}
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
             <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
               2
@@ -92,7 +89,6 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          {/* 3. Lépés */}
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
             <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
               3
@@ -110,7 +106,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* RÉSZLETES KNOW-HOW ÉS MŰKÖDÉSI ÚTMUTATÓ SZEKCIÓ (Több mint 50-70 mondatnyi részletes tartalommal) */}
+      {/* Részletes Know-How és Működési Útmutató Szekció */}
       <section className="bg-white py-16 border-t border-slate-200 px-6">
         <div className="max-w-5xl mx-auto space-y-10">
           <div className="text-center space-y-3">
@@ -153,22 +149,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Jogi és Felelősségvállalási Információ */}
-      <section className="bg-slate-100 border-t border-slate-200 py-12">
-        <div className="max-w-4xl w-full mx-auto px-6 text-center space-y-3">
+      {/* Egyetlen, tiszta lábléc jogi nyilatkozattal és linkekkel */}
+      <footer className="bg-slate-100 border-t border-slate-200 py-12">
+        <div className="max-w-4xl w-full mx-auto px-6 text-center space-y-4">
           <h4 className="font-bold text-slate-800 text-sm">⚖️ Átlátható jogi háttér és felelősség</h4>
           <p className="text-xs text-slate-600 leading-relaxed">
             A <strong>famity.hu</strong> kizárólag technikai, adattárolási és biztonságos közvetítői felületet biztosít a felek közötti megállapodásokhoz a Polgári Törvénykönyvről szóló 2013. évi V. törvény (Ptk.) keretei szerint. A platform nem vállal felelősséget a tárgyak állapotáért vagy a pénzügyi teljesítésekért, de vitás esetekben hiteles adatszolgáltatást nyújt.
           </p>
-        </div>
-      </section>
-
-      {/* Lábléc */}
-      <footer className="max-w-6xl w-full mx-auto px-6 py-8 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-slate-200">
-        <p>© 2026 famity.hu – Minden jog fenntartva.</p>
-        <div className="flex gap-4">
-          <Link href="/dashboard" className="hover:underline">Vezérlőpult</Link>
-          <Link href="/auth" className="hover:underline">Bejelentkezés</Link>
+          <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+            <p>© 2026 famity.hu – Minden jog fenntartva.</p>
+            <div className="flex gap-4">
+              <Link href="/dashboard" className="hover:underline">Vezérlőpult</Link>
+              <Link href="/auth" className="hover:underline">Bejelentkezés</Link>
+            </div>
+          </div>
         </div>
       </footer>
 
