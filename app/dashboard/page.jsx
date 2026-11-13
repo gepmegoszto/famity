@@ -15,6 +15,9 @@ export default function DashboardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Partner adatok megtekintése modal
+  const [selectedPartnerData, setSelectedPartnerData] = useState(null);
+
   // Aláíró modal bérlőként
   const [signingProtocolId, setSigningProtocolId] = useState(null);
   const canvasRef = useRef(null);
@@ -58,13 +61,11 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Adatkérések
     const qReq = query(collection(db, 'access_requests'), where('borrowerUid', '==', user.uid), where('status', '==', 'pending'));
     const unsubReq = onSnapshot(qReq, (snap) => {
       setIncomingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    // Aláírásra váró jegyzőkönyvek (ahol a bérlő uid egyezik, de még nincs bérlői aláírás)
     const qSign = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', user.uid), where('status', '==', 'Vár a bérlő aláírására'));
     const unsubSign = onSnapshot(qSign, (snap) => {
       setPendingSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -120,7 +121,7 @@ export default function DashboardPage() {
       await updateDoc(doc(db, 'lending_protocols', signingProtocolId), {
         'signatures.borrower': signatureDataUrl,
         'signatures.borrowerTimestamp': new Date().toISOString(),
-        status: 'Aktív' // Mindketten aláírták, aktív bérlés!
+        status: 'Aktív'
       });
       setSigningProtocolId(null);
       window.location.reload();
@@ -196,15 +197,30 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nem indítottál bérlést.</p>
           ) : (
             <div className="space-y-3">
-              {protocolsAsLender.map(p => (
-                <div key={p.id} className="bg-white p-4 rounded-xl border flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+              {protocolsAsLender.map(p => {
+                const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                return (
+                  <div key={p.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">Bérlő: <span className="font-medium text-slate-700">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
+                      <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
+                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <button 
+                        onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })}
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition text-center"
+                      >
+                        👤 Bérlő adatai
+                      </button>
+                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition text-center">
+                        Jegyzőkönyv →
+                      </Link>
+                    </div>
                   </div>
-                  <Link href={`/dashboard/protocol/${p.id}`} className="text-blue-600 hover:underline text-sm font-semibold">Megtekintés →</Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -215,19 +231,62 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nincsenek bérléseid bérlőként.</p>
           ) : (
             <div className="space-y-3">
-              {protocolsAsBorrower.map(p => (
-                <div key={p.id} className="bg-white p-4 rounded-xl border flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+              {protocolsAsBorrower.map(p => {
+                const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                return (
+                  <div key={p.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">Bérbeadó: <span className="font-medium text-slate-700">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
+                      <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
+                      <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <button 
+                        onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })}
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition text-center"
+                      >
+                        👤 Bérbeadó adatai
+                      </button>
+                      <Link href={`/dashboard/protocol/${p.id}`} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-2 rounded-lg transition text-center">
+                        Jegyzőkönyv →
+                      </Link>
+                    </div>
                   </div>
-                  <Link href={`/dashboard/protocol/${p.id}`} className="text-blue-600 hover:underline text-sm font-semibold">Megtekintés →</Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       </div>
+
+      {/* PARTNER ADATAI MODAL */}
+      {selectedPartnerData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900 border-b pb-2">{selectedPartnerData.title}</h3>
+            
+            <div className="text-sm space-y-2 text-slate-700">
+              <p><strong>Név:</strong> {selectedPartnerData.data?.lastName} {selectedPartnerData.data?.firstName}</p>
+              <p><strong>Email:</strong> {selectedPartnerData.email || selectedPartnerData.data?.email || 'Nincs megadva'}</p>
+              <p><strong>Telefonszám:</strong> {selectedPartnerData.data?.phone || 'Nincs megadva'}</p>
+              <p><strong>Személyi igazolvány sz.:</strong> {selectedPartnerData.data?.idCardNumber || 'Nincs megadva'}</p>
+              <p><strong>Anyja neve:</strong> {selectedPartnerData.data?.mothersName || 'Nincs megadva'}</p>
+              <p><strong>Születési hely, idő:</strong> {selectedPartnerData.data?.birthPlace || ''}, {selectedPartnerData.data?.birthDate || ''}</p>
+              <p><strong>Lakcím:</strong> {selectedPartnerData.data?.address?.zip} {selectedPartnerData.data?.address?.city}, {selectedPartnerData.data?.address?.street} {selectedPartnerData.data?.address?.houseNumber}</p>
+            </div>
+
+            <div className="pt-4 flex justify-end">
+              <button 
+                onClick={() => setSelectedPartnerData(null)}
+                className="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-5 py-2 rounded-lg"
+              >
+                Bezárás
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bérlői Aláíró Modal és Jogi Tájékoztató */}
       {signingProtocolId && (
