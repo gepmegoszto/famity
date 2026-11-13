@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
@@ -8,10 +8,18 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
-  const [protocols, setProtocols] = useState([]);
+  const [protocolsAsLender, setProtocolsAsLender] = useState([]);
+  const [protocolsAsBorrower, setProtocolsAsBorrower] = useState([]);
   const [incomingRequests, setIncomingRequests] = useState([]);
+  const [pendingSignatures, setPendingSignatures] = useState([]);
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Aláíró modal bérlőként
+  const [signingProtocolId, setSigningProtocolId] = useState(null);
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -26,10 +34,16 @@ export default function DashboardPage() {
             setHasProfile(true);
           }
 
-          const q = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
-          const querySnapshot = await getDocs(q);
-          const list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setProtocols(list);
+          // Jegyzőkönyvek lekérése bérbeadóként
+          const qLender = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
+          const snapLender = await getDocs(qLender);
+          setProtocolsAsLender(snapLender.docs.map(d => ({ id: d.id, ...d.data() })));
+
+          // Jegyzőkönyvek lekérése bérlőként (email vagy uid alapján)
+          const qBorrowerUid = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', currentUser.uid));
+          const snapBorrowerUid = await getDocs(qBorrowerUid);
+          setProtocolsAsBorrower(snapBorrowerUid.docs.map(d => ({ id: d.id, ...d.data() })));
+
         } catch (err) {
           console.error("Hiba az adatok betöltésekor:", err);
         } finally {
@@ -40,42 +54,79 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [router]);
 
+  // Adatkérések és aláírásra váró protokollok figyelése valós időben
   useEffect(() => {
     if (!user) return;
 
-    const q = query(
-      collection(db, 'access_requests'),
-      where('borrowerUid', '==', user.uid),
-      where('status', '==', 'pending')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const reqs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setIncomingRequests(reqs);
+    // Adatkérések
+    const qReq = query(collection(db, 'access_requests'), where('borrowerUid', '==', user.uid), where('status', '==', 'pending'));
+    const unsubReq = onSnapshot(qReq, (snap) => {
+      setIncomingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    return () => unsubscribe();
+    // Aláírásra váró jegyzőkönyvek (ahol a bérlő uid egyezik, de még nincs bérlői aláírás)
+    const qSign = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', user.uid), where('status', '==', 'Vár a bérlő aláírására'));
+    const unsubSign = onSnapshot(qSign, (snap) => {
+      setPendingSignatures(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => {
+      unsubReq();
+      unsubSign();
+    };
   }, [user]);
 
   const handleApproveRequest = async (reqId) => {
-    try {
-      await updateDoc(doc(db, 'access_requests', reqId), {
-        status: 'approved'
-      });
-      alert('Sikeresen engedélyezted az adatkérést!');
-    } catch (err) {
-      console.error("Hiba az engedélyezéskor:", err);
-      alert('Hiba történt.');
-    }
+    await updateDoc(doc(db, 'access_requests', reqId), { status: 'approved' });
+  };
+  const handleRejectRequest = async (reqId) => {
+    await updateDoc(doc(db, 'access_requests', reqId), { status: 'rejected' });
   };
 
-  const handleRejectRequest = async (reqId) => {
+  // Aláírás canvas kezelés bérlőként
+  const startDrawing = (e) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches?.[0].clientY) - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+  };
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches?.[0].clientY) - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+  const stopDrawing = () => setIsDrawing(false);
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const handleBorrowerSignSubmit = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !signingProtocolId) return;
+    const signatureDataUrl = canvas.toDataURL();
+
     try {
-      await updateDoc(doc(db, 'access_requests', reqId), {
-        status: 'rejected'
+      await updateDoc(doc(db, 'lending_protocols', signingProtocolId), {
+        'signatures.borrower': signatureDataUrl,
+        'signatures.borrowerTimestamp': new Date().toISOString(),
+        status: 'Aktív' // Mindketten aláírták, aktív bérlés!
       });
+      setSigningProtocolId(null);
+      window.location.reload();
     } catch (err) {
-      console.error("Hiba az elutasításkor:", err);
+      console.error(err);
+      alert('Hiba történt az aláírás mentésekor.');
     }
   };
 
@@ -84,9 +135,7 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  if (loading) {
-    return <div className="flex-1 flex items-center justify-center p-12">Betöltés...</div>;
-  }
+  if (loading) return <div className="flex-1 flex items-center justify-center p-12">Betöltés...</div>;
 
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
@@ -96,96 +145,122 @@ export default function DashboardPage() {
           <p className="text-sm text-slate-600">Bejelentkezve: {user?.email}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link
-            href="/profile"
-            className={`font-semibold px-4 py-2 rounded-lg shadow text-sm transition ${hasProfile ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}
-          >
+          <Link href="/profile" className={`font-semibold px-4 py-2 rounded-lg shadow text-sm transition ${hasProfile ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}>
             {hasProfile ? '⚙️ Saját adataim szerkesztése' : '⚠️ Add meg a személyes adataidat!'}
           </Link>
-          {hasProfile && (
-            <Link
-              href="/dashboard/new"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow text-sm transition"
-            >
-              + Új kölcsönzés indítása
-            </Link>
-          )}
-          <button
-            onClick={handleLogout}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm transition"
-          >
-            Kilépés
-          </button>
+          {hasProfile && <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow text-sm transition">+ Új kölcsönzés indítása</Link>}
+          <button onClick={handleLogout} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm transition">Kilépés</button>
         </div>
       </div>
 
+      {/* Bérlői Értesítések: Adatkérés */}
       {incomingRequests.length > 0 && (
-        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
           <h3 className="font-bold text-lg text-blue-900 mb-2">🔔 Beérkező adatkérési kérelmek</h3>
-          <p className="text-sm text-blue-700 mb-4">Az alábbi bérbeadó kérvényezi a személyes adataidat a kölcsönadási jegyzőkönyvhöz:</p>
-          
-          <div className="space-y-3">
-            {incomingRequests.map(req => (
-              <div key={req.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <p className="font-bold text-slate-900 text-base">{req.lenderName || req.lenderEmail}</p>
-                  <p className="text-xs text-slate-500">Email: {req.lenderEmail} — Engedélyezed, hogy betöltse a profiladataidat a jegyzőkönyvbe?</p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleApproveRequest(req.id)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"
-                  >
-                    Igen, engedélyezem
-                  </button>
-                  <button
-                    onClick={() => handleRejectRequest(req.id)}
-                    className="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold px-4 py-2 rounded-lg transition"
-                  >
-                    Elutasítás
-                  </button>
-                </div>
+          {incomingRequests.map(req => (
+            <div key={req.id} className="bg-white p-4 rounded-xl border flex justify-between items-center gap-4">
+              <p className="font-bold text-slate-900">{req.lenderName || req.lenderEmail} kérvényezi az adataidat.</p>
+              <div className="flex gap-2">
+                <button onClick={() => handleApproveRequest(req.id)} className="bg-emerald-600 text-white text-xs px-4 py-2 rounded-lg">Engedélyezem</button>
+                <button onClick={() => handleRejectRequest(req.id)} className="bg-red-100 text-red-700 text-xs px-4 py-2 rounded-lg">Elutasítás</button>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {!hasProfile && (
-        <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
-          <h3 className="font-bold text-lg mb-1">Hiányzó személyes adatok!</h3>
-          <p className="text-sm mb-4">A kölcsönadási jegyzőkönyv kiállításához először töltsd ki a bérbeadói profilodat a személyes adataiddal és lakcímeddel.</p>
-          <Link href="/profile" className="inline-block bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">
-            Profil kitöltése most →
-          </Link>
-        </div>
-      )}
-
-      {protocols.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <p className="text-slate-600 mb-4">Még nincs rögzített kölcsönadási jegyzőkönyved.</p>
-          {hasProfile && (
-            <Link
-              href="/dashboard/new"
-              className="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg text-sm"
-            >
-              Első jegyzőkönyv rögzítése
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {protocols.map((proto) => (
-            <div key={proto.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 className="font-bold text-lg text-slate-900">{proto.itemDetails?.name || 'Ismeretlen eszköz'}</h3>
-                <p className="text-xs text-slate-500">Bérlő: <span className="font-medium text-slate-700">{proto.borrowerData?.lastName} {proto.borrowerData?.firstName}</span></p>
-              </div>
-              <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full">
-                {proto.status || 'Aktív'}
-              </span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Bérlői Értesítések: Aláírásra váró jegyzőkönyv */}
+      {pendingSignatures.length > 0 && (
+        <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
+          <h3 className="font-bold text-lg text-amber-900 mb-2">✍️ Aláírásra váró bérleti jegyzőkönyv</h3>
+          <p className="text-sm text-amber-700 mb-4">Egy bérbeadó elküldte a jegyzőkönyvet, kérjük, ellenőrizd és írd alá:</p>
+          {pendingSignatures.map(proto => (
+            <div key={proto.id} className="bg-white p-4 rounded-xl border flex justify-between items-center gap-4">
+              <div>
+                <p className="font-bold text-slate-900">{proto.itemDetails?.name}</p>
+                <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
+              </div>
+              <button onClick={() => setSigningProtocolId(proto.id)} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
+                Jegyzőkönyv aláírása →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Jegyzőkönyvek listái */}
+      <div className="grid md:grid-cols-2 gap-8">
+        <div>
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Indított bérléseim (Bérbeadóként)</h2>
+          {protocolsAsLender.length === 0 ? (
+            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nem indítottál bérlést.</p>
+          ) : (
+            <div className="space-y-3">
+              {protocolsAsLender.map(p => (
+                <div key={p.id} className="bg-white p-4 rounded-xl border flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                  </div>
+                  <Link href={`/dashboard/protocol/${p.id}`} className="text-blue-600 hover:underline text-sm font-semibold">Megtekintés →</Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Bérléseim (Bérlőként)</h2>
+          {protocolsAsBorrower.length === 0 ? (
+            <p className="text-sm text-slate-500 bg-white p-6 rounded-xl border">Még nincsenek bérléseid bérlőként.</p>
+          ) : (
+            <div className="space-y-3">
+              {protocolsAsBorrower.map(p => (
+                <div key={p.id} className="bg-white p-4 rounded-xl border flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-slate-900">{p.itemDetails?.name}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                  </div>
+                  <Link href={`/dashboard/protocol/${p.id}`} className="text-blue-600 hover:underline text-sm font-semibold">Megtekintés →</Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bérlői Aláíró Modal */}
+      {signingProtocolId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900">Bérlői Aláírás</h3>
+            <p className="text-xs text-slate-600">Kérjük, rajzold be az aláírásodat a bérleti szerződés jóváhagyásához.</p>
+            
+            <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
+              <canvas
+                ref={canvasRef}
+                width={450}
+                height={200}
+                className="cursor-crosshair touch-none"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+              />
+            </div>
+
+            <div className="flex justify-between gap-3 pt-2">
+              <button type="button" onClick={clearCanvas} className="bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setSigningProtocolId(null)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
+                <button type="button" onClick={handleBorrowerSignSubmit} className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">
+                  Aláírás és Véglegesítés
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </main>
