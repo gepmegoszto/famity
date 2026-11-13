@@ -1,7 +1,21 @@
 'use client';
+import { useState, useEffect } from 'react';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import Link from 'next/link';
 
 export default function LandingPage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
       
@@ -11,34 +25,38 @@ export default function LandingPage() {
           <span className="text-xl font-black text-blue-600 tracking-tight">famity.hu</span>
           <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full">Biztonságos Kölcsönzés</span>
         </div>
-        <div className="flex gap-3">
-          <Link href="/auth" className="text-sm font-semibold px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition">
-            Bejelentkezés
-          </Link>
-          <Link href="/dashboard" className="text-sm font-semibold px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">
-            Vezérlőpult →
-          </Link>
+        <div className="flex gap-3 items-center">
+          {!loading && (
+            <>
+              {user ? (
+                <Link href="/dashboard" className="text-sm font-semibold px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">
+                  Vezérlőpult →
+                </Link>
+              ) : (
+                <Link href="/auth" className="text-sm font-semibold px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition">
+                  Bejelentkezés
+                </Link>
+              )}
+            </>
+          )}
         </div>
       </header>
 
-      {/* Hero / Fő rész helyes logó hivatkozással */}
-      <section className="max-w-5xl w-full mx-auto px-6 py-12 text-center space-y-6">
-        <div className="flex justify-center mb-4">
-          <img 
-            src="/logo-full.jpeg" 
-            alt="famity.hu Logó" 
-            className="h-24 sm:h-32 w-auto object-contain rounded-2xl shadow-sm border border-slate-200" 
-          />
+      {/* Hero / Fő rész: Kép helyett központi famity.hu felirat és szlogen */}
+      <section className="max-w-5xl w-full mx-auto px-6 py-16 text-center space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-5xl sm:text-7xl font-black text-blue-600 tracking-tight">famity.hu</h2>
+          <p className="text-lg sm:text-xl font-semibold text-slate-600 uppercase tracking-widest">Biztonságos Kölcsönzés</p>
         </div>
 
-        <div className="inline-block bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full">
+        <div className="inline-block bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full mt-4">
           Digitális Átadás-Átvételi Jegyzőkönyv & Elszámolás
         </div>
-        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           Biztonságos eszközbérbeadás és <span className="text-blue-600">tiszta elszámolás</span> magánszemélyeknek.
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Felejtsd el a papírozást, a elveszett cetliket és a felesleges vitákat! A <strong>famity.hu</strong> digitális platformján biztonságosan rögzítheted a bérbe adott tárgyakat, személyes adatokat, kauciókat és a visszavételi elszámolásokat.
+        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
+          Felejtsd el a papírozást, az elveszett cetliket és a felesleges vitákat! A <strong>famity.hu</strong> digitális platformján biztonságosan rögzítheted a bérbe adott tárgyakat, személyes adatokat, kauciókat és a visszavételi elszámolásokat.
         </p>
         <div className="pt-4 flex flex-wrap justify-center gap-4">
           <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition text-base">
@@ -149,7 +167,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Egyetlen, tiszta lábléc jogi nyilatkozattal és linkekkel */}
+      {/* Egyetlen, tiszta lábléc dinamikus gombokkal */}
       <footer className="bg-slate-100 border-t border-slate-200 py-12">
         <div className="max-w-4xl w-full mx-auto px-6 text-center space-y-4">
           <h4 className="font-bold text-slate-800 text-sm">⚖️ Átlátható jogi háttér és felelősség</h4>
@@ -158,9 +176,16 @@ export default function LandingPage() {
           </p>
           <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
             <p>© 2026 famity.hu – Minden jog fenntartva.</p>
-            <div className="flex gap-4">
-              <Link href="/dashboard" className="hover:underline">Vezérlőpult</Link>
-              <Link href="/auth" className="hover:underline">Bejelentkezés</Link>
+            <div className="flex gap-4 items-center">
+              {!loading && (
+                <>
+                  {user ? (
+                    <Link href="/dashboard" className="hover:underline font-semibold text-blue-600">Vezérlőpult</Link>
+                  ) : (
+                    <Link href="/auth" className="hover:underline font-semibold text-blue-600">Bejelentkezés</Link>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
