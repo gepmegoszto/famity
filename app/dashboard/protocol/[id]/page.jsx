@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { auth, db } from '../../../lib/firebase';
+import { auth, db } from '../../../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
@@ -160,7 +160,7 @@ export default function ProtocolDetailPage() {
               <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 space-y-3">
                 <h4 className="font-bold text-emerald-900 border-b border-emerald-200 pb-1">Pénzügyi Elszámolás Összegzése</h4>
                 <div className="text-sm space-y-1 text-emerald-950">
-                  <p>• Teljes bérleti díj (Bérbeadó kapta): <strong>{totalFee} HUF</strong></p>
+                  <p>• Teljes bérleti díj (Bérbeadót kapta): <strong>{totalFee} HUF</strong></p>
                   <p>• Eredetileg átvett kaució: <strong>{deposit} HUF</strong></p>
                   <p>• Visszatartott kaució: <strong>{returnDetails.withholdDeposit !== 'no' ? `${returnDetails.withheldAmount} HUF (${returnDetails.withholdReason})` : '0 HUF (Nincs visszatartás)'}</strong></p>
                   <p className="text-base font-bold pt-2 border-t border-emerald-200">
