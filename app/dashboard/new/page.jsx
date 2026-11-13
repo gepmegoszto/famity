@@ -194,7 +194,7 @@ export default function NewProtocolPage() {
           name: itemName,
           serialNumber: itemSerial,
           conditionNotes,
-          photos: photos.filter(p => p !== ''), // Csak a feltöltött képek mentése
+          photos: photos.filter(p => p !== ''),
         },
         rentalTerms: {
           expectedReturnDate,
@@ -203,7 +203,7 @@ export default function NewProtocolPage() {
           dailyFee: hasFee ? dailyFee : null,
           totalFee: hasFee ? totalFee : null,
         },
-        handoverTimestamp: new Date().toISOString(), // Aláírás rögzítésének pontos ideje
+        handoverTimestamp: new Date().toISOString(),
         status: 'Aktív',
         createdAt: new Date(),
       });
@@ -370,7 +370,7 @@ export default function NewProtocolPage() {
                   {photos[index] ? (
                     <div className="text-xs text-emerald-600 font-semibold">✓ Fénykép csatolva</div>
                   ) : (
-                    <div className="text-xs text-slate-400">{index +}. Kép (opcionális)</div>
+                    <div className="text-xs text-slate-400">{index + 1}. Kép (opcionális)</div>
                   )}
                 </div>
               ))}
