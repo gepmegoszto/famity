@@ -44,6 +44,7 @@ export default function ProtocolDetailPage() {
   const deposit = Number(rentalTerms.deposit || 0);
   const withheld = returnDetails.withholdDeposit && returnDetails.withholdDeposit !== 'no' ? Number(returnDetails.withheldAmount || 0) : 0;
   const refundDeposit = Math.max(0, deposit - withheld);
+  const uniqueId = protocol.id.slice(0, 8).toUpperCase();
 
   return (
     <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-8">
@@ -55,7 +56,17 @@ export default function ProtocolDetailPage() {
       </div>
 
       <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900 border-b pb-4">Kölcsönadási Jegyzőkönyv Részletei</h1>
+        {/* FEJLÉC famity.hu jelöléssel és egyedi azonosítóval */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">famity.hu platform jegyzőkönyv</span>
+            <h1 className="text-2xl font-bold text-slate-900 mt-1">Kölcsönadási és Elszámolási Jegyzőkönyv</h1>
+          </div>
+          <div className="text-right">
+            <span className="text-xs text-slate-500 block">Egyedi azonosító:</span>
+            <span className="text-sm font-mono font-bold bg-slate-100 px-3 py-1 rounded-lg text-slate-800">#{uniqueId}</span>
+          </div>
+        </div>
 
         {/* 1. Felek adatai */}
         <div className="grid md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border">
@@ -137,13 +148,13 @@ export default function ProtocolDetailPage() {
           </div>
         </div>
 
-        {/* 5. VISSZAVÉTELI ÉS ELSZÁMOLÁSI INFORMÁCIÓK */}
+        {/* 5. Visszavételi információk ha vannak */}
         {returnDetails.returnedAt && (
           <div className="border-t pt-6 space-y-4">
             <h3 className="text-lg font-bold text-slate-900 border-b pb-2">🔄 Visszavételi és Pénzügyi Elszámolási Adatok</h3>
             
             <div className="bg-slate-50 p-4 rounded-xl border space-y-2 text-sm">
-              <p><strong>Mikor zárult le / történt a visszavétel:</strong> {new Date(returnDetails.returnedAt).toLocaleString('hu-HU')}</p>
+              <p><strong>Mikor zárult le:</strong> {new Date(returnDetails.returnedAt).toLocaleString('hu-HU')}</p>
               <p><strong>Minden rendben volt az eszközzel:</strong> {returnDetails.isEverythingOk === 'yes' ? 'Igen, sérülésmentes' : 'Nem / Van észrevétel'}</p>
               {returnDetails.conditionNotes && (
                 <p><strong>Észrevétel / sérülés leírása:</strong> {returnDetails.conditionNotes}</p>
@@ -160,7 +171,7 @@ export default function ProtocolDetailPage() {
               <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 space-y-3">
                 <h4 className="font-bold text-emerald-900 border-b border-emerald-200 pb-1">Pénzügyi Elszámolás Összegzése</h4>
                 <div className="text-sm space-y-1 text-emerald-950">
-                  <p>• Teljes bérleti díj (Bérbeadót kapta): <strong>{totalFee} HUF</strong></p>
+                  <p>• Teljes bérleti díj (Bérbeadó kapta): <strong>{totalFee} HUF</strong></p>
                   <p>• Eredetileg átvett kaució: <strong>{deposit} HUF</strong></p>
                   <p>• Visszatartott kaució: <strong>{returnDetails.withholdDeposit !== 'no' ? `${returnDetails.withheldAmount} HUF (${returnDetails.withholdReason})` : '0 HUF (Nincs visszatartás)'}</strong></p>
                   <p className="text-base font-bold pt-2 border-t border-emerald-200">
@@ -170,7 +181,6 @@ export default function ProtocolDetailPage() {
               </div>
             )}
 
-            {/* Visszavételi aláírások */}
             <div className="pt-2">
               <h4 className="font-bold text-slate-800 mb-3">Visszavételi és lezárási aláírások</h4>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -200,6 +210,17 @@ export default function ProtocolDetailPage() {
             </div>
           </div>
         )}
+
+        {/* KÖTELEZŐ FELELŐSSÉGVÁLLALÁSI ÉS JOGI LÁBLÉC MINDEN STÁTUSZBAN */}
+        <div className="mt-8 pt-6 border-t border-slate-200 bg-slate-50 p-6 rounded-xl text-xs text-slate-600 space-y-2">
+          <p className="font-bold text-slate-800">⚖️ Jogi nyilatkozat, felelősségvállalás és törvényi hivatkozás:</p>
+          <p>
+            A felek (Bérbeadó és Bérlő) kifejezetten kijelentik és tudomásul veszik, hogy a jelen jegyzőkönyvben rögzített adatok valódiságáért, az eszköz állapotáért, valamint a felek közötti pénzügyi elszámolásért (beleértve a bérleti díjat és a kauciót) kizárólagosan és teljes körűen ők maguk felelnek a Polgári Törvénykönyvről szóló <strong>2013. évi V. törvény (Ptk.)</strong> szabályai szerint.
+          </p>
+          <p>
+            A <strong>famity.hu</strong> platform üzemeltetője semmilyen polgári jogi, büntetőjogi vagy anyagi felelősséget nem vállal a kölcsönbe adott tárgy károsodásáért, megsemmisüléséért, elvesztéséért, illetve a bérleti díjak vagy kauciók elmaradásáért vagy vitáiért. A platform kizárólag technikai, adattárolási és közvetítői felületet biztosít, és hatósági vagy bírósági megkeresés esetén a rögzített adatokat kizárólag hiteles bizonyítékként/adatszolgáltatásként bocsáthatja rendelkezésre az esetleges peres eljárásokban.
+          </p>
+        </div>
       </div>
     </main>
   );
