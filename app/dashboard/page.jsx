@@ -39,7 +39,7 @@ export default function DashboardPage() {
           const snapLender = await getDocs(qLender);
           setProtocolsAsLender(snapLender.docs.map(d => ({ id: d.id, ...d.data() })));
 
-          // Jegyzőkönyvek lekérése bérlőként (email vagy uid alapján)
+          // Jegyzőkönyvek lekérése bérlőként (uid alapján)
           const qBorrowerUid = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', currentUser.uid));
           const snapBorrowerUid = await getDocs(qBorrowerUid);
           setProtocolsAsBorrower(snapBorrowerUid.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -229,18 +229,26 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bérlői Aláíró Modal */}
+      {/* Bérlői Aláíró Modal és Jogi Tájékoztató */}
       {signingProtocolId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-slate-900">Bérlői Aláírás</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
+            <h3 className="text-lg font-bold text-slate-900">Bérlői Aláírás és Jogi Tájékoztató</h3>
+            
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2 max-h-40 overflow-y-auto">
+              <p className="font-bold">⚠️ Fontos jogi nyilatkozat és felelősségvállalási útmutató:</p>
+              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért és helyességéért. Az oldal kizárólag egy biztonságos digitális felületet és rögzítőeszközt biztosít a megállapodáshoz.</p>
+              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal a kölcsönbe adott tárgy állapotáért, esetleges károsodásáért, megsemmisüléséért, a bérleti díj vagy a kaució elmaradásáért.</p>
+              <p>3. <strong>Panaszkezelés és jogviták:</strong> Esetleges vitás kérdések, nem teljesítés vagy kár esetén a felek elsődlegesen békés úton, egymás között kötelesek eljárni. Amennyiben ez nem vezet eredményre, a felek a magyar jogszabályok szerint illetékes békéltető testülethez vagy bírósághoz fordulhatnak.</p>
+            </div>
+
             <p className="text-xs text-slate-600">Kérjük, rajzold be az aláírásodat a bérleti szerződés jóváhagyásához.</p>
             
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas
                 ref={canvasRef}
                 width={450}
-                height={200}
+                height={180}
                 className="cursor-crosshair touch-none"
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
