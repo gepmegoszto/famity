@@ -11,7 +11,6 @@ export default function NewProtocolPage() {
   const [lenderData, setLenderData] = useState(null);
   const router = useRouter();
 
-  // Bérlő adatok
   const [borrowerEmail, setBorrowerEmail] = useState('');
   const [requestId, setRequestId] = useState(null);
   const [requestStatus, setRequestStatus] = useState(null);
@@ -29,26 +28,23 @@ export default function NewProtocolPage() {
   const [bStreet, setBStreet] = useState('');
   const [bHouseNumber, setBHouseNumber] = useState('');
 
-  // Eszköz adatok
   const [itemName, setItemName] = useState('');
   const [itemSerial, setItemSerial] = useState('');
   const [conditionNotes, setConditionNotes] = useState('');
   const [photos, setPhotos] = useState(['', '', '']);
 
-  // Időtartam & Díjak
   const [expectedReturnDate, setExpectedReturnDate] = useState('');
   const [hasFee, setHasFee] = useState(false);
   const [deposit, setDeposit] = useState('');
   const [dailyFee, setDailyFee] = useState('');
   const [totalFee, setTotalFee] = useState('');
-  const [depositReceived, setDepositReceived] = useState(false); // ÚJ: Kaució átvétel checkbox
+  const [depositReceived, setDepositReceived] = useState(false);
 
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Aláírás modal állapota
   const [showSignModal, setShowSignModal] = useState(false);
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -75,7 +71,6 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Automatikus díjszámítás
   useEffect(() => {
     if (hasFee && dailyFee && expectedReturnDate) {
       const start = new Date();
@@ -89,7 +84,6 @@ export default function NewProtocolPage() {
     }
   }, [hasFee, dailyFee, expectedReturnDate]);
 
-  // Valós idejű figyelés az adatkérésre
   useEffect(() => {
     if (!requestId) return;
     const unsubscribe = onSnapshot(doc(db, 'access_requests', requestId), async (docSnap) => {
@@ -167,7 +161,6 @@ export default function NewProtocolPage() {
     reader.readAsDataURL(file);
   };
 
-  // Validálás magyar nyelvű visszajelzéssel
   const handlePreSubmit = (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -206,7 +199,6 @@ export default function NewProtocolPage() {
     setShowSignModal(true);
   };
 
-  // Canvas rajzolás kezelése
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -229,10 +221,7 @@ export default function NewProtocolPage() {
     ctx.stroke();
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
+  const stopDrawing = () => setIsDrawing(false);
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -317,8 +306,6 @@ export default function NewProtocolPage() {
       )}
 
       <form onSubmit={handlePreSubmit} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
-        
-        {/* 1. Bérbeadó adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">1. Bérbeadó (Saját) adatai</h2>
           {lenderData && (
@@ -332,7 +319,6 @@ export default function NewProtocolPage() {
           )}
         </div>
 
-        {/* 2. Bérlő adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">2. Bérlő / Átvevő adatai</h2>
           <div className="mb-4 p-4 bg-slate-50 border rounded-xl">
@@ -364,7 +350,6 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* 3. Eszköz adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">3. Eszköz adatai és állapota</h2>
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
@@ -388,7 +373,6 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* 4. Időtartam és Díjak */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">4. Bérleti időtartam és Díjak</h2>
           <div className="mb-6">
@@ -400,7 +384,6 @@ export default function NewProtocolPage() {
               <input type="checkbox" id="hasFee" checked={hasFee} onChange={e => setHasFee(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
               <label htmlFor="hasFee" className="text-sm font-bold text-slate-800 cursor-pointer">Bérleti díj és kaució alkalmazása</label>
             </div>
-
             {hasFee && (
               <div className="space-y-4 pt-2 border-t">
                 <div className="grid sm:grid-cols-3 gap-4">
@@ -408,13 +391,9 @@ export default function NewProtocolPage() {
                   <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Napi bérleti díj (HUF) *</label><input type="number" value={dailyFee} onChange={e => setDailyFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="2000" /></div>
                   <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (Automatikus)</label><input type="number" value={totalFee} readOnly className="w-full px-3 py-2 border rounded-lg bg-slate-100 font-bold text-blue-700" /></div>
                 </div>
-                
-                {/* ÚJ: Kaució átvétel checkbox */}
                 <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
                   <input type="checkbox" id="depositReceived" checked={depositReceived} onChange={e => setDepositReceived(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
-                  <label htmlFor="depositReceived" className="text-sm font-semibold text-blue-900 cursor-pointer">
-                    Kijelentem, hogy a fenti összegű kauciót a bérlőtől átvettem. *
-                  </label>
+                  <label htmlFor="depositReceived" className="text-sm font-semibold text-blue-900 cursor-pointer">Kijelentem, hogy a fenti összegű kauciót a bérlőtől átvettem. *</label>
                 </div>
               </div>
             )}
@@ -431,46 +410,24 @@ export default function NewProtocolPage() {
         </button>
       </form>
 
-      {/* BÉRBEADÓI ALÁÍRÓ MODAL + JOGI TÁJÉKOZTATÓ */}
       {showSignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
             <h3 className="text-lg font-bold text-slate-900">Bérbeadói Aláírás és Jogi Tájékoztató</h3>
-            
-            {/* Jogi tájékoztató szöveg */}
             <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2 max-h-40 overflow-y-auto">
               <p className="font-bold">⚠️ Fontos jogi nyilatkozat és felelősségvállalási útmutató:</p>
-              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért és helyességéért. Az oldal kizárólag egy biztonságos digitális felületet és rögzítőeszközt biztosít a megállapodáshoz.</p>
-              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal a kölcsönbe adott tárgy állapotáért, esetleges károsodásáért, megsemmisüléséért, a bérleti díj vagy a kaució elmaradásáért.</p>
-              <p>3. <strong>Panaszkezelés és jogviták:</strong> Esetleges vitás kérdések, nem teljesítés vagy kár esetén a felek elsődlegesen békés úton, egymás között kötelesek eljárni. Amennyiben ez nem vezet eredményre, a felek a magyar jogszabályok szerint illetékes békéltető testülethez vagy bírósághoz fordulhatnak.</p>
+              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért.</p>
+              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal.</p>
+              <p>3. <strong>Jogviták:</strong> Békés úton vagy bíróság előtt rendezendő.</p>
             </div>
-
-            <p className="text-xs text-slate-600">Kérjük, rajzold be az aláírásodat az alábbi mezőbe az egérrel vagy az ujjaddal.</p>
-            
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
-              <canvas
-                ref={canvasRef}
-                width={450}
-                height={180}
-                className="cursor-crosshair touch-none"
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-              />
+              <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             </div>
-
             <div className="flex justify-between gap-3 pt-2">
-              <button type="button" onClick={clearCanvas} className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">
-                Törlés / Újra
-              </button>
+              <button type="button" onClick={clearCanvas} className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés / Újra</button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setShowSignModal(false)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
-                <button type="button" onClick={handleFinalSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow disabled:opacity-50">
-                  {loading ? 'Mentés...' : 'Aláírás rögzítése és mentés'}
-                </button>
+                <button type="button" onClick={handleFinalSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow disabled:opacity-50">{loading ? 'Mentés...' : 'Aláírás rögzítése és mentés'}</button>
               </div>
             </div>
           </div>
