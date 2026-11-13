@@ -16,22 +16,19 @@ export default function DashboardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Aktív nézet a belső sávhoz ('active' | 'chat')
+  // Aktív nézet ('active' | 'chat')
   const [activeTab, setActiveTab] = useState('active');
 
-  // Kiválasztott chat
+  // Kiválasztott chat (mostantól bármilyen státuszú protokoll lehet)
   const [selectedChatProtocol, setSelectedChatProtocol] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const chatMessagesEndRef = useRef(null);
 
-  // Olvasatlan üzenetek száma
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Partner adatok modál
+  // Partner adatok & Kép nagyító
   const [selectedPartnerData, setSelectedPartnerData] = useState(null);
-
-  // Kép nagyító (Lightbox) modál állapota
   const [previewImage, setPreviewImage] = useState(null);
   
   // Aláírások
@@ -218,12 +215,14 @@ export default function DashboardPage() {
 
   const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
   const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
-  const allActiveProtocols = [...activeLenderProtocols, ...activeBorrowerProtocols];
+  
+  // Összes bérlés (aktívak ÉS lezártak is) a chathez, hogy lezárás után se vesszen el
+  const allProtocolsForChat = [...protocolsAsLender, ...protocolsAsBorrower];
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex">
       
-      {/* FIX BAL OLDALI OLDALSÁV */}
+      {/* BAL OLDALI SÁV */}
       <aside className="w-64 bg-[#0f4c40] text-slate-300 flex flex-col justify-between hidden md:flex border-r border-[#0d3b32] shrink-0 sticky top-0 h-screen">
         <div>
           <div className="p-6 flex items-center gap-3 border-b border-[#145d50]">
@@ -274,7 +273,7 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* JOBB OLDALI FŐ TARTALOM */}
+      {/* JOBB OLDALI TARTALOM */}
       <div className="flex-1 flex flex-col min-h-screen">
         
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center md:hidden">
@@ -393,7 +392,6 @@ export default function DashboardPage() {
                               <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
                             </div>
 
-                            {/* Csatolt fényképek külön megnyitható miniatűrjei */}
                             {p.itemDetails?.photos && p.itemDetails.photos.length > 0 && (
                               <div className="pt-2">
                                 <p className="text-[11px] font-bold text-slate-500 mb-1.5">Csatolt fényképek:</p>
@@ -451,7 +449,6 @@ export default function DashboardPage() {
                               <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
                             </div>
 
-                            {/* Csatolt fényképek külön megnyitható miniatűrjei */}
                             {p.itemDetails?.photos && p.itemDetails.photos.length > 0 && (
                               <div className="pt-2">
                                 <p className="text-[11px] font-bold text-slate-500 mb-1.5">Csatolt fényképek:</p>
@@ -486,20 +483,21 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* CHAT FÜL */}
+          {/* CHAT FÜL (MINDEN BÉRLÉSHEZ ELÉRHETŐ, AKÁR LEZÁRT IS) */}
           {activeTab === 'chat' && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm h-[75vh] flex flex-col md:flex-row overflow-hidden">
               <div className="w-full md:w-80 border-r border-slate-200 bg-slate-50 flex flex-col">
                 <div className="p-4 border-b border-slate-200 bg-white">
-                  <h3 className="font-bold text-slate-900 text-sm">Aktív Beszélgetések</h3>
-                  <p className="text-xs text-slate-500">Válassz eszközt a chathez</p>
+                  <h3 className="font-bold text-slate-900 text-sm">Beszélgetések</h3>
+                  <p className="text-xs text-slate-500">Aktív és lezárt bérlések chatei</p>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-                  {allActiveProtocols.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-slate-400">Nincs aktív bérlésed, így chat sem érhető el.</div>
+                  {allProtocolsForChat.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-slate-400">Nincs elérhető beszélgetés.</div>
                   ) : (
-                    allActiveProtocols.map(p => {
+                    allProtocolsForChat.map(p => {
                       const isSelected = selectedChatProtocol?.id === p.id;
+                      const isClosed = p.status === 'Lezárva';
                       const partnerName = p.lenderId === user?.uid 
                         ? `${p.borrowerData?.lastName || ''} ${p.borrowerData?.firstName || ''}`
                         : `${p.lenderData?.lastName || ''} ${p.lenderData?.firstName || ''}`;
@@ -509,7 +507,10 @@ export default function DashboardPage() {
                           onClick={() => setSelectedChatProtocol(p)}
                           className={`w-full text-left p-4 transition flex flex-col gap-1 ${isSelected ? 'bg-emerald-50 border-l-4 border-[#0f4c40]' : 'hover:bg-slate-100'}`}
                         >
-                          <div className="font-bold text-slate-900 text-sm truncate">{p.itemDetails?.name}</div>
+                          <div className="flex justify-between items-center">
+                            <div className="font-bold text-slate-900 text-sm truncate">{p.itemDetails?.name}</div>
+                            {isClosed && <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">Lezárt</span>}
+                          </div>
                           <div className="text-xs text-slate-500 flex justify-between">
                             <span>Partner: {partnerName || 'Partner'}</span>
                             <span className="font-mono text-[10px]">#{p.id.slice(0, 4)}</span>
@@ -526,7 +527,10 @@ export default function DashboardPage() {
                   <>
                     <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm">{selectedChatProtocol.itemDetails?.name}</h4>
+                        <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                          <span>{selectedChatProtocol.itemDetails?.name}</span>
+                          {selectedChatProtocol.status === 'Lezárva' && <span className="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-normal">Archivált bérlés</span>}
+                        </h4>
                         <span className="text-xs text-slate-500 font-mono">ID: #{selectedChatProtocol.id}</span>
                       </div>
                       <span className="text-xs bg-emerald-100 text-[#0f4c40] px-3 py-1 rounded-full font-bold">Biztonságos csatorna</span>
@@ -534,7 +538,7 @@ export default function DashboardPage() {
 
                     <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/50">
                       {messages.length === 0 ? (
-                        <div className="text-center text-slate-400 text-xs py-16">Még nincsenek üzenetek ehhez a bérléshez. Kezdjétek el a beszélgetést!</div>
+                        <div className="text-center text-slate-400 text-xs py-16">Még nincsenek üzenetek ehhez a bérléshez.</div>
                       ) : (
                         messages.map(msg => {
                           const isMe = msg.senderId === user?.uid;
@@ -567,7 +571,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-2">
                     <span className="text-4xl">💬</span>
-                    <p className="text-sm font-semibold">Válassz ki egy bérlést a bal oldali listából a chat megnyitásához.</p>
+                    <p className="text-sm font-semibold">Válassz ki egy beszélgetést a bal oldali listából.</p>
                   </div>
                 )}
               </div>
