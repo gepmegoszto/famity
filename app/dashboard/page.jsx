@@ -16,10 +16,10 @@ export default function DashboardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Aktív nézet ('active' | 'chat')
+  // Aktív nézet ('active' | 'chat' | 'finance')
   const [activeTab, setActiveTab] = useState('active');
 
-  // Kiválasztott chat (mostantól bármilyen státuszú protokoll lehet)
+  // Kiválasztott chat
   const [selectedChatProtocol, setSelectedChatProtocol] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -53,11 +53,11 @@ export default function DashboardPage() {
 
           const qLender = query(collection(db, 'lending_protocols'), where('lenderId', '==', currentUser.uid));
           const snapLender = await getDocs(qLender);
-          setProtocolsAsLender(snapLender.docs.map(d => ({ id: d.id, ...d.data() })));
+          setProtocolsAsLender(snapLender.docs.map(d => ({ id: d.id, role: 'lender', ...d.data() })));
 
           const qBorrowerUid = query(collection(db, 'lending_protocols'), where('borrowerUid', '==', currentUser.uid));
           const snapBorrowerUid = await getDocs(qBorrowerUid);
-          setProtocolsAsBorrower(snapBorrowerUid.docs.map(d => ({ id: d.id, ...d.data() })));
+          setProtocolsAsBorrower(snapBorrowerUid.docs.map(d => ({ id: d.id, role: 'borrower', ...d.data() })));
 
         } catch (err) {
           console.error("Hiba az adatok betöltésekor:", err);
@@ -215,9 +215,37 @@ export default function DashboardPage() {
 
   const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
   const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
-  
-  // Összes bérlés (aktívak ÉS lezártak is) a chathez, hogy lezárás után se vesszen el
   const allProtocolsForChat = [...protocolsAsLender, ...protocolsAsBorrower];
+
+  // Pénzügyi adatok számítása
+  const allProtsUnique = Array.from(new Map(allProtocolsForChat.map(p => [p.id, p])).values());
+  let totalIncome = 0;
+  let totalExpense = 0;
+  let transactionCount = 0;
+  let monthlyData = {};
+
+  allProtsUnique.forEach(p => {
+    const price = Number(p.rentalTerms?.price || p.price || 0);
+    const dateStr = p.createdAt || p.rentalTerms?.startDate || new Date().toISOString();
+    const monthKey = dateStr.slice(0, 7);
+
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { income: 0, expense: 0, count: 0 };
+    }
+
+    transactionCount++;
+    monthlyData[monthKey].count++;
+
+    if (p.role === 'lender') {
+      totalIncome += price;
+      monthlyData[monthKey].income += price;
+    } else {
+      totalExpense += price;
+      monthlyData[monthKey].expense += price;
+    }
+  });
+
+  const netBalance = totalIncome - totalExpense;
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex">
@@ -253,6 +281,12 @@ export default function DashboardPage() {
                 </span>
               )}
             </button>
+            <button 
+              onClick={() => setActiveTab('finance')} 
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${activeTab === 'finance' ? 'bg-[#145d50] text-white font-bold shadow-sm' : 'hover:bg-[#145d50]/50 text-slate-300'}`}
+            >
+              <span>📊</span> Pénzügyi Összesítő
+            </button>
             <Link href="/dashboard/closed" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#145d50]/50 text-slate-300 transition">
               <span>📁</span> Lezárt archívum
             </Link>
@@ -281,6 +315,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <button onClick={() => setActiveTab('active')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Aktívak</button>
             <button onClick={() => setActiveTab('chat')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Chat</button>
+            <button onClick={() => setActiveTab('finance')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Pénzügy</button>
             <Link href="/dashboard/closed" className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Archívum</Link>
             <button onClick={handleLogout} className="text-xs px-3 py-1.5 bg-red-100 text-red-700 rounded-lg font-semibold">Kilépés</button>
           </div>
@@ -483,7 +518,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* CHAT FÜL (MINDEN BÉRLÉSHEZ ELÉRHETŐ, AKÁR LEZÁRT IS) */}
+          {/* CHAT FÜL */}
           {activeTab === 'chat' && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm h-[75vh] flex flex-col md:flex-row overflow-hidden">
               <div className="w-full md:w-80 border-r border-slate-200 bg-slate-50 flex flex-col">
@@ -575,6 +610,113 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* PÉNZÜGYI ÖSSZESÍTŐ FÜL */}
+          {activeTab === 'finance' && (
+            <div className="space-y-8">
+              
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0f4c40] bg-emerald-50 px-3 py-1 rounded-full">Pénzügyi Statisztika</span>
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Bevételek & Kiadások Vizualizációja</h1>
+                  <p className="text-sm text-slate-600">Az összes eddigi bérbeadási és bérlési tranzakció összesítése.</p>
+                </div>
+                <button onClick={() => setActiveTab('active')} className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-3 rounded-2xl text-sm transition shadow">
+                  ← Vissza a vezérlőpultra
+                </button>
+              </div>
+
+              {/* Fő Kártyák */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 text-2xl opacity-10">📈</div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">Összes Bevétel</span>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {totalIncome.toLocaleString('hu-HU')} Ft
+                  </div>
+                  <p className="text-xs text-slate-500">Bérbeadóként realizált díjak</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 text-2xl opacity-10">📉</div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">Összes Kiadás</span>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {totalExpense.toLocaleString('hu-HU')} Ft
+                  </div>
+                  <p className="text-xs text-slate-500">Bérlőként kifizetett összegek</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 text-2xl opacity-10">💰</div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">Nettó Egyenleg</span>
+                  <div className={`text-2xl sm:text-3xl font-black tracking-tight ${netBalance >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                    {netBalance > 0 ? `+${netBalance.toLocaleString('hu-HU')}` : netBalance.toLocaleString('hu-HU')} Ft
+                  </div>
+                  <p className="text-xs text-slate-500">Bevételek és kiadások különbsége</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 text-2xl opacity-10">🧾</div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">Tranzakciók Száma</span>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {transactionCount} db
+                  </div>
+                  <p className="text-xs text-slate-500">Összes rögzített jegyzőkönyv</p>
+                </div>
+
+              </div>
+
+              {/* Havi Bontás / Oszlopdiagram */}
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                <h3 className="text-lg font-extrabold text-slate-900">Havi pénzügyi alakulás</h3>
+                
+                {Object.keys(monthlyData).length === 0 ? (
+                  <div className="text-center text-slate-400 py-12 text-sm">Még nincsenek rögzített tranzakciók az adatok vizualizálásához.</div>
+                ) : (
+                  <div className="space-y-6">
+                    {Object.entries(monthlyData).map(([month, data]) => {
+                      const maxVal = Math.max(...Object.values(monthlyData).map(d => Math.max(d.income, d.expense))) || 1;
+                      const incWidth = Math.round((data.income / maxVal) * 100);
+                      const expWidth = Math.round((data.expense / maxVal) * 100);
+
+                      return (
+                        <div key={month} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                          <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                            <span className="font-mono bg-white px-3 py-1 rounded-lg border shadow-sm">📅 {month}</span>
+                            <span>Tranzakciók ebben a hónapban: <strong className="text-slate-900">{data.count} db</strong></span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs">
+                                <span className="text-emerald-700 font-semibold">Bevétel:</span>
+                                <span className="font-bold text-slate-900">{data.income.toLocaleString('hu-HU')} Ft</span>
+                              </div>
+                              <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div className="bg-emerald-600 h-full rounded-full transition-all duration-500" style={{ width: `${incWidth}%` }}></div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs">
+                                <span className="text-amber-700 font-semibold">Kiadás:</span>
+                                <span className="font-bold text-slate-900">{data.expense.toLocaleString('hu-HU')} Ft</span>
+                              </div>
+                              <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div className="bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${expWidth}%` }}></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
             </div>
           )}
 
