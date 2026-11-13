@@ -14,7 +14,7 @@ export default function NewProtocolPage() {
   // Bérlő adatok
   const [borrowerEmail, setBorrowerEmail] = useState('');
   const [requestId, setRequestId] = useState(null);
-  const [requestStatus, setRequestStatus] = useState(null); // 'pending', 'approved', 'rejected'
+  const [requestStatus, setRequestStatus] = useState(null);
 
   const [borrowerLastName, setBorrowerLastName] = useState('');
   const [borrowerFirstName, setBorrowerFirstName] = useState('');
@@ -35,8 +35,18 @@ export default function NewProtocolPage() {
   // Eszköz adatok
   const [itemName, setItemName] = useState('');
   const [itemSerial, setItemSerial] = useState('');
-  const [itemValue, setItemValue] = useState('');
   const [conditionNotes, setConditionNotes] = useState('');
+  const [photos, setPhotos] = useState(['', '', '']); // 3 db fénykép Base64
+
+  // Bérlés időpontjai
+  const [expectedReturnDate, setExpectedReturnDate] = useState('');
+
+  // Opcionális bérleti díj és kaució
+  const [hasFee, setHasFee] = useState(false);
+  const [deposit, setDeposit] = useState('');
+  const [dailyFee, setDailyFee] = useState('');
+  const [totalFee, setTotalFee] = useState('');
+
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sendingRequest, setSendingRequest] = useState(false);
@@ -63,7 +73,7 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // Valós idejű figyelés, hogy a bérlő elfogadta-e a kérést
+  // Valós idejű figyelés a bérlői adatkérésre
   useEffect(() => {
     if (!requestId) return;
 
@@ -97,7 +107,6 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [requestId]);
 
-  // Adatkérés küldése a bérlőnek
   const handleSendAccessRequest = async (e) => {
     e.preventDefault();
     if (!borrowerEmail) return;
@@ -119,7 +128,7 @@ export default function NewProtocolPage() {
       const reqRef = await addDoc(collection(db, 'access_requests'), {
         lenderId: user.uid,
         lenderEmail: user.email,
-        lenderName: lenderFullName, // Bérbeadó neve mentve
+        lenderName: lenderFullName,
         borrowerEmail: borrowerEmail.trim(),
         borrowerUid: borrowerUid,
         status: 'pending',
@@ -134,6 +143,20 @@ export default function NewProtocolPage() {
     } finally {
       setSendingRequest(false);
     }
+  };
+
+  // Fénykép feltöltés és konvertálás Base64 formátumba
+  const handlePhotoUpload = (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const newPhotos = [...photos];
+      newPhotos[index] = reader.result;
+      setPhotos(newPhotos);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -170,10 +193,17 @@ export default function NewProtocolPage() {
         itemDetails: {
           name: itemName,
           serialNumber: itemSerial,
-          value: itemValue,
+          conditionNotes,
+          photos: photos.filter(p => p !== ''), // Csak a feltöltött képek mentése
         },
-        conditionNotes,
-        handoverDate: new Date().toISOString(),
+        rentalTerms: {
+          expectedReturnDate,
+          hasFee,
+          deposit: hasFee ? deposit : null,
+          dailyFee: hasFee ? dailyFee : null,
+          totalFee: hasFee ? totalFee : null,
+        },
+        handoverTimestamp: new Date().toISOString(), // Aláírás rögzítésének pontos ideje
         status: 'Aktív',
         createdAt: new Date(),
       });
@@ -204,6 +234,8 @@ export default function NewProtocolPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+        
+        {/* 1. Bérbeadó adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">1. Bérbeadó (Saját) adatai</h2>
           {lenderData && (
@@ -217,6 +249,7 @@ export default function NewProtocolPage() {
           )}
         </div>
 
+        {/* 2. Bérlő adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">2. Bérlő / Átvevő adatai</h2>
           
@@ -308,36 +341,85 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
+        {/* 3. Eszköz adatai, állapot, fényképek */}
         <div>
-          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">3. Kölcsönadott eszköz adatai</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Eszköz megnevezése</label>
+          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">3. Eszköz adatai és állapota</h2>
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Megnevezés</label>
               <input type="text" required value={itemName} onChange={e => setItemName(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Pl. Bosch Fúrógép" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Gyári szám</label>
-              <input type="text" value={itemSerial} onChange={e => setItemSerial(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="SN-987654" />
-            </div>
-            <div className="sm:col-span-3">
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Becsült piaci érték (HUF)</label>
-              <input type="number" required value={itemValue} onChange={e => setItemValue(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="50000" />
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Gyártási szám (Sorozatszám)</label>
+              <input type="text" required value={itemSerial} onChange={e => setItemSerial(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="SN-987654" />
             </div>
           </div>
-        </div>
 
-        <div>
-          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">4. Műszaki állapot és tartozékok</h2>
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Állapotleírás (meglévő karcok, tartozékok)</label>
+            <textarea rows={3} required value={conditionNotes} onChange={e => setConditionNotes(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Pl. Használati karcok a burkolaton, kofferrel és 1 db akkumulátorral." />
+          </div>
+
+          {/* 3 db fényképfeltöltés */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Meglévő karcok, sérülések, tartozékok leírása</label>
-            <textarea rows={3} value={conditionNotes} onChange={e => setConditionNotes(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Pl. Használati karcok, kofferrel együtt átadva." />
+            <label className="block text-xs font-semibold text-slate-700 uppercase mb-2">Fényképek az eszközről (max. 3 db)</label>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {[0, 1, 2].map((index) => (
+                <div key={index} className="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
+                  <input type="file" accept="image/*" onChange={e => handlePhotoUpload(index, e)} className="text-xs w-full mb-2" />
+                  {photos[index] ? (
+                    <div className="text-xs text-emerald-600 font-semibold">✓ Fénykép csatolva</div>
+                  ) : (
+                    <div className="text-xs text-slate-400">{index +}. Kép (opcionális)</div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* 4. Visszahozatali időpont & Opcionális díjak */}
+        <div>
+          <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">4. Bérleti időtartam és Díjak</h2>
+          
+          <div className="mb-6">
+            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Mikor kell visszaadni az eszközt? (Tervezett visszahozatal)</label>
+            <input type="datetime-local" required value={expectedReturnDate} onChange={e => setExpectedReturnDate(e.target.value)} className="w-full sm:w-1/2 px-3 py-2 border rounded-lg" />
+            <p className="text-xs text-slate-500 mt-1">A bérlés kezdő időpontja automatikusan a jegyzőkönyv véglegesítésének pillanata lesz.</p>
+          </div>
+
+          <div className="bg-slate-50 p-4 rounded-xl border">
+            <div className="flex items-center gap-3 mb-4">
+              <input type="checkbox" id="hasFee" checked={hasFee} onChange={e => setHasFee(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
+              <label htmlFor="hasFee" className="text-sm font-bold text-slate-800 cursor-pointer">
+                Bérleti díj és kaució alkalmazása
+              </label>
+            </div>
+
+            {hasFee && (
+              <div className="grid sm:grid-cols-3 gap-4 pt-2 border-t">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Kaució (HUF)</label>
+                  <input type="number" required={hasFee} value={deposit} onChange={e => setDeposit(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="20000" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Napi bérleti díj (HUF)</label>
+                  <input type="number" required={hasFee} value={dailyFee} onChange={e => setDailyFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="2000" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (HUF)</label>
+                  <input type="number" required={hasFee} value={totalFee} onChange={e => setTotalFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="10000" />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Elfogadás */}
         <div className="flex items-center gap-3 pt-2">
           <input type="checkbox" id="accept" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
           <label htmlFor="accept" className="text-sm text-slate-700">
-            Kijelentem, hogy a fenti adatok a valóságot tükrözik, és a személyes iratokat ellenőriztük.
+            Kijelentem, hogy a fenti adatok a valóságot tükrözik, a személyes iratokat ellenőriztük, és a jegyzőkönyvet hitelesnek tekintem.
           </label>
         </div>
 
