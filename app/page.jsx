@@ -42,7 +42,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero / Fő rész: Kép helyett központi famity.hu felirat és szlogen */}
+      {/* Hero / Fő rész: Központi famity.hu felirat és szlogen */}
       <section className="max-w-5xl w-full mx-auto px-6 py-16 text-center space-y-6">
         <div className="space-y-2">
           <h2 className="text-5xl sm:text-7xl font-black text-blue-600 tracking-tight">famity.hu</h2>
@@ -78,7 +78,6 @@ export default function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
             <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
               1
@@ -120,13 +119,12 @@ export default function LandingPage() {
               <li>✓ Lezárt tranzakciók archívuma</li>
             </ul>
           </div>
-
         </div>
       </section>
 
       {/* Részletes Know-How és Működési Útmutató Szekció */}
       <section className="bg-white py-16 border-t border-slate-200 px-6">
-        <div className="max-w-5xl mx-auto space-y-10">
+        <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full">Szakmai Tudástár & Működési Know-How</span>
             <h2 className="text-3xl font-extrabold text-slate-900">Minden, amit a biztonságos eszközbérlésről tudni kell</h2>
@@ -136,34 +134,136 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 text-sm text-slate-700 leading-relaxed">
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2">1. A digitális jegyzőkönyv előnyei a hagyományos papírral szemben</h3>
+            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                <span>📄</span> 1. A digitális jegyzőkönyv előnyei
+              </h3>
               <p>
-                A hagyományos kézzel írott papírok idejét múlták, mivel gyakran olvashatatlanok, elvesznek, vagy nem tartalmaznak elegendő részletet az eszköz pontos állapotáról. Ezzel szemben a famity.hu elektronikus rendszere pillanatok alatt generál hiteles dokumentumokat, amelyek megakadályozzák a későbbi vitákat. A bérbeadó pontosan rögzítheti a gép vagy szerszám sorozatszámát, esetleges külsérelmi nyomait, valamint meglévő tartozékait. A rendszerbe feltöltött fényképek megváltoztathatatlan bizonyítékként szolgálnak az átadás pillanatában. Mindkét fél biztonságban érezheti magát, mert a jogi felelősségvállalás határozottan lehatárolásra kerül. A digitalizáció felgyorsítja a folyamatokat, hiszen a feleknek nem kell fizikailag egyidejűleg papírokat aláírniuk az adatkérés és az online jóváhagyás révén. A dokumentumok bármikor visszakereshetők a rendszerben, így az archívum mindig áttekinthető marad. A bérleti díjak és a kauciók összegzése automatikusan kiszámításra kerül a megadott naptári napok alapján. Ezzel elkerülhetőek a számítási hibák és a félreértések a pénzügyi elszámolás során. A platform kialakítása kifejezetten a magánszemélyek közötti bizalom erősítését célozza meg modern eszközökkel.
+                A hagyományos kézzel írott papírok idejét múlták, mivel gyakran olvashatatlanok, elvesznek, vagy nem tartalmaznak elegendő részletet az eszköz pontos állapotáról. Ezzel szemben a famity.hu elektronikus rendszere pillanatok alatt generál hiteles dokumentumokat, amelyek megakadályozzák a későbbi vitákat. A bérbeadó pontosan rögzítheti a gép vagy szerszám sorozatszámát, esetleges külsérelmi nyomait, valamint meglévő tartozékait. A rendszerbe feltöltött fényképek megváltoztathatatlan bizonyítékként szolgálnak az átadás pillanatában. Mindkét fél biztonságban érezheti magát, mert a jogi felelősségvállalás határozottan lehatárolásra kerül. A digitalizáció felgyorsítja a folyamatokat, hiszen a feleknek nem kell fizikailag egyidejűleg papírokat aláírniuk az adatkérés és az online jóváhagyás révén.
               </p>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2">2. Kauciókezelés, díjszámítás és pénzügyi átláthatóság</h3>
+            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                <span>💰</span> 2. Kauciókezelés és díjszámítás
+              </h3>
               <p>
-                A bérbeadás legkényesebb pontja szinte minden esetben a kaució és a bérleti díjak elszámolása a visszavételkor. A famity.hu ezen a területen maximális átláthatóságot biztosít a beépített kalkulátor és elszámolási modul révén. A bérbeadó a kölcsönzés indításakor rögzíti a kaució összegét, valamint a napi bérleti díjat. A rendszer a tervezett visszavételi dátum alapján automatikusan kiszámítja a teljes fizetendő bérleti díjat. Visszavételkor a bérbeadó nyilatkozik az eszköz sértetlenségéről, és ha bármilyen hiba vagy hiányosság merül fel, jogában áll a kaucióból részben vagy egészben összeget visszatartani. Minden egyes visszatartott összeghez kötelező részletes indoklást és bizonyító fényképet csatolni. A bérlő ezután ellenőrzi az elszámolást, és a visszavételi aláírásával jóváhagyja azt. Így a pénzügyi tranzakciók nyomon követhetőek, és pontosan dokumentálva marad, hogy mennyi pénz járt vissza a bérlőnek. Ez a strukturált folyamat teljesen transzparenssé teszi a felek közötti pénzmozgásokat.
+                A bérbeadás legkényesebb pontja szinte minden esetben a kaució és a bérleti díjak elszámolása a visszavételkor. A famity.hu ezen a területen maximális átláthatóságot biztosít a beépített kalkulátor és elszámolási modul révén. A bérbeadó a kölcsönzés indításakor rögzíti a kaució összegét, valamint a napi bérleti díjat. A rendszer a tervezett visszavételi dátum alapján automatikusan kiszámítja a teljes fizetendő bérleti díjat. Visszavételkor a bérbeadó nyilatkozik az eszköz sértetlenségéről, és ha bármilyen hiba vagy hiányosság merül fel, jogában áll a kaucióból részben vagy egészben összeget visszatartani. Minden egyes visszatartott összeghez kötelező részletes indoklást és bizonyító fényképet csatolni a teljes tisztaság érdekében.
               </p>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2">3. Adatvédelem, hitelesítés és a felek azonosítása</h3>
+            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                <span>🔒</span> 3. Adatvédelem és hitelesítés
+              </h3>
               <p>
-                A modern webes alkalmazások alapköve a szigorú adatvédelem és a felhasználók biztonsága. A famity.hu integrált fiókkezelése és Firebase alapú autentikációja garantálja, hogy illetéktelenek ne férhessenek hozzá a szenzitív dokumentumokhoz. A bérbeadók és a bérlők csak egymás jóváhagyásával tekinthetik meg a hivatalos személyes adataikat (személyi igazolvány száma, lakcím, anyja neve). Az adatkérési kérelem elküldése után a bérlő egyetlen kattintással engedélyezheti vagy elutasíthatja az adatok megosztását. Ez a kétlépcsős folyamat tökéletesen illeszkedik a hatályos adatvédelmi elvekhez. A rendszerben rögzített adatok titkosított csatornákon utaznak, és biztonságos felhőalapú adatbázisban tárolódnak. A digitális aláírások időbélyeggel vannak ellátva, ami igazolja az aláírás pontos pillanatát. Ezzel megakadályozható, hogy bárki utólagosan meghamisítsa a megállapodásokat. A platform ezáltal megbízható digitális közegként funkcionál a mindennapi kölcsönzési ügyletek lebonyolításához.
+                A modern webes alkalmazások alapköve a szigorú adatvédelem és a felhasználók biztonsága. A famity.hu integrált fiókkezelése és Firebase alapú autentikációja garantálja, hogy illetéktelenek ne férhessenek hozzá a szenzitív dokumentumokhoz. A bérbeadók és a bérlők csak egymás jóváhagyásával tekinthetik meg a hivatalos személyes adataikat (személyi igazolvány száma, lakcím, anyja neve). Az adatkérési kérelem elküldése után a bérlő egyetlen kattintással engedélyezheti vagy elutasíthatja az adatok megosztását. Ez a kétlépcsős folyamat tökéletesen illeszkedik a hatályos adatvédelmi elvekhez, míg a digitális aláírások időbélyeggel igazolják az ügyletek hitelességét.
               </p>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2">4. Jogi keretek és a platform felelősségkizárása</h3>
+            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                <span>⚖️</span> 4. Jogi keretek és felelősségkizárás
+              </h3>
               <p>
-                Alapvető fontosságú annak a tisztázása, hogy a famity.hu miként pozicionálja magát a jogi viták terén. A platform kizárólag technikai, adattárolási és közvetítői infrastruktúrát biztosít a felhasználók számára. Az oldal üzemeltetője nem részes fele a bérleti szerződéseknek, és nem vállal anyagi felelősséget a kölcsönbe adott tárgyak esetleges károsodásáért, megsemmisüléséért vagy elenyészéséért. A Polgári Törvénykönyvről szóló 2013. évi V. törvény (Ptk.) előírásai szerint a bérbeadó és a bérlő közvetlen polgári jogi viszonyban állnak egymással. A platform szerepe abban merül ki, hogy vitás helyzetek, elszámolási viták vagy esetleges jogi eljárások esetén hiteles, időbélyeggel ellátott dokumentumokat és adatszolgáltatást nyújtson a hatóságok vagy a bíróság felé. A felhasználók a regisztrációval és a jegyzőkönyv aláírásával kifejezetten elfogadják ezen felelősségkizárási feltételeket. Ezzel a transzparens felépítéssel minden felelősség ott marad, ahová való: a szerződő felek saját döntéseinél és megegyezéseinél.
+                Alapvető fontosságú annak a tisztázása, hogy a famity.hu miként pozicionálja magát a jogi viták terén. A platform kizárólag technikai, adattárolási és közvetítői infrastruktúrát biztosít a felhasználók számára. Az oldal üzemeltetője nem részes fele a bérleti szerződéseknek, és nem vállal anyagi felelősséget a kölcsönbe adott tárgyak esetleges károsodásáért vagy megsemmisüléséért. A Polgári Törvénykönyvről szóló 2013. évi V. törvény (Ptk.) előírásai szerint a felek közvetlen jogi viszonyban állnak. A platform szerepe abban merül ki, hogy vitás helyzetek vagy elszámolási viták esetén hiteles, időbélyeggel ellátott dokumentumokat és adatszolgáltatást nyújtson a hatóságok vagy bíróság felé.
               </p>
             </div>
           </div>
+
+          {/* INTEGRÁLT: Teljes bérlési folyamat részletes vizuális lépései */}
+          <div className="mt-16 pt-12 border-t border-slate-200 space-y-8">
+            <div className="text-center space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3.5 py-1 rounded-full">Részletes Lépésről Lépésre Útmutató</span>
+              <h3 className="text-2xl font-extrabold text-slate-900">A teljes bérlési és elszámolási folyamat áttekintése</h3>
+              <p className="text-sm text-slate-600 max-w-xl mx-auto">
+                Így néz ki a kölcsönzés az első regisztrációtól egészen a lezárt archívumig.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  1
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Regisztráció & Profil</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Email címmel történő fiókregisztráció, majd a hivatalos személyes adatok (név, lakcím, igazolványszám) kitöltése a profil menüpontban.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  2
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Adatkérés & Hitelesítés</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A bérbeadó a bérlő email címe alapján adatkérést indít, amit a bérlő a vezérlőpultján egy kattintással engedélyez vagy elutasít.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  3
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Jegyzőkönyv & Fotók</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Az eszköz adatainak, sorozatszámának, állapotának, fotóinak, valamint a bérleti díjnak és kauciónak a precíz rögzítése.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  4
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Bérbeadói Aláírás</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A kaució átvételének megerősítése, jogi nyilatkozat elfogadása, majd a bérbeadói digitális aláírás rögzítése a jegyzőkönyvön.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  5
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Bérlői Ellenőrzés & Aláírás</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A bérlő áttekinti a dokumentumot a vezérlőpulton, aláírja, amivel a kölcsönzés hivatalosan is **Aktív** státuszba lép.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  6
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Aktív Bérlési Időszak</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Az eszköz használata a megadott visszavételi határidőig, a partneri adatok és a lejárat folyamatos követésével a rendszerben.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  7
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Visszavétel & Elszámolás</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A bérbeadó rögzíti az állapotot, szükség esetén fényképez és kauciót tart vissza, majd a rendszer összesíti a pénzügyeket.
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
+                <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center font-bold text-base">
+                  8
+                </div>
+                <h4 className="font-bold text-slate-900 text-base">Lezárás & Archívum</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A bérlő is aláírja a visszavételt, a státusz **Lezárva** lesz, az ügylet pedig bármikor kereshető a lezárt archívumban.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
