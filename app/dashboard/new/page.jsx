@@ -73,6 +73,21 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [router]);
 
+  // Automatikus teljes bérleti díj számítás, ha változik a napi díj vagy a visszavételi dátum
+  useEffect(() => {
+    if (hasFee && dailyFee && expectedReturnDate) {
+      const start = new Date(); // Aktuális pillanat (bérlés kezdete)
+      const end = new Date(expectedReturnDate);
+
+      if (end > start) {
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Napokra kerekítve
+        const calculatedTotal = diffDays * Number(dailyFee);
+        setTotalFee(calculatedTotal.toString());
+      }
+    }
+  }, [hasFee, dailyFee, expectedReturnDate]);
+
   // Valós idejű figyelés a bérlői adatkérésre
   useEffect(() => {
     if (!requestId) return;
@@ -145,7 +160,6 @@ export default function NewProtocolPage() {
     }
   };
 
-  // Fénykép feltöltés és konvertálás Base64 formátumba
   const handlePhotoUpload = (index, e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -378,7 +392,7 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* 4. Visszahozatali időpont & Opcionális díjak */}
+        {/* 4. Visszahozatali időpont & Automatikus díjak */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">4. Bérleti időtartam és Díjak</h2>
           
@@ -407,8 +421,8 @@ export default function NewProtocolPage() {
                   <input type="number" required={hasFee} value={dailyFee} onChange={e => setDailyFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="2000" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (HUF)</label>
-                  <input type="number" required={hasFee} value={totalFee} onChange={e => setTotalFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="10000" />
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (Automatikus)</label>
+                  <input type="number" required={hasFee} value={totalFee} onChange={e => setTotalFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-slate-100 font-bold text-blue-700" placeholder="Automatikusan számolva" />
                 </div>
               </div>
             )}
