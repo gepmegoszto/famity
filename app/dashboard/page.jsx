@@ -234,23 +234,24 @@ export default function DashboardPage() {
       </header>
 
       {/* Fő tartalom */}
-      <main className="max-w-6xl w-full mx-auto px-6 py-10 space-y-8 flex-1">
+      <main className="max-w-6xl w-full mx-auto px-6 py-10 space-y-10 flex-1">
         
-        {/* Üdvözlő & Gyorsműveletek sáv */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
+        {/* Üdvözlő & Gyorsműveletek sáv (Videó stílusú prémium doboz) */}
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Aktív Munkaterület</span>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Üdvözlünk a Vezérlőpulton!</h1>
-            <p className="text-sm text-slate-600 mt-1">Kezeld aktív bérléseidet, jegyzőkönyveidet és partnereidet biztonságosan.</p>
+            <p className="text-sm text-slate-600">Kezeld biztonságosan bérléseidet, jegyzőkönyveidet és partnereidet egy helyen.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/dashboard/closed" className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-5 py-3 rounded-2xl text-sm transition flex items-center gap-2">
+            <Link href="/dashboard/closed" className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-5 py-3 rounded-2xl text-sm transition flex items-center gap-2 shadow-sm">
               <span>📁 Lezárt archívum</span>
             </Link>
             <Link href="/profile" className={`font-semibold px-5 py-3 rounded-2xl text-sm transition shadow-sm ${hasProfile ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'}`}>
               {hasProfile ? '⚙️ Saját adatok' : '⚠️ Profil kitöltése szükséges'}
             </Link>
             {hasProfile && (
-              <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-blue-600/20 transition text-sm flex items-center gap-2">
+              <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-blue-600/25 transition text-sm flex items-center gap-2">
                 <span>+ Új kölcsönzés indítása</span>
               </Link>
             )}
@@ -318,12 +319,18 @@ export default function DashboardPage() {
           
           {/* Bérbeadóként indított */}
           <div className="space-y-4">
-            <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <span>📤</span> Aktív indításaim (Bérbeadóként)
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <span>📤</span> Aktív indításaim (Bérbeadóként)
+              </h2>
+              <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">{activeLenderProtocols.length} aktív</span>
+            </div>
+
             {activeLenderProtocols.length === 0 ? (
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500 text-sm">
-                Nincs aktív bérlésed bérbeadóként.
+              <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
+                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">📦</div>
+                <p className="text-slate-600 text-sm font-semibold">Nincs aktív bérlésed bérbeadóként.</p>
+                <p className="text-xs text-slate-400 max-w-xs mx-auto">Kezdj új kölcsönzést a fenti gombra kattintva a biztonságos rögzítéshez.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -331,17 +338,19 @@ export default function DashboardPage() {
                   const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
                   const uniqueId = p.id.slice(0, 8).toUpperCase();
                   return (
-                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-4 hover:shadow-md transition">
-                      <div>
+                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-5 hover:shadow-md transition">
+                      <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                          <h3 className="font-bold text-slate-900 text-base">{p.itemDetails?.name}</h3>
+                          <h3 className="font-extrabold text-slate-900 text-base">{p.itemDetails?.name}</h3>
                           <span className="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded-xl text-slate-600 font-semibold">#{uniqueId}</span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">Bérlő: <span className="font-semibold text-slate-700">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
-                        <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
-                        <span className={`inline-block mt-3 text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                        <div className="text-xs text-slate-600 space-y-1">
+                          <p>Bérlő: <span className="font-semibold text-slate-900">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
+                          <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
+                        </div>
+                        <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100 items-center">
+                      <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center">
                         <button onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition">👤 Bérlő adatai</button>
                         <button onClick={() => { setChatProtocolId(p.id); setChatProtocolItemName(p.itemDetails?.name); }} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
                           <span>💬 Chat</span>
@@ -360,12 +369,18 @@ export default function DashboardPage() {
 
           {/* Bérlőként indított */}
           <div className="space-y-4">
-            <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <span>📥</span> Aktív bérléseim (Bérlőként)
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <span>📥</span> Aktív bérléseim (Bérlőként)
+              </h2>
+              <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">{activeBorrowerProtocols.length} aktív</span>
+            </div>
+
             {activeBorrowerProtocols.length === 0 ? (
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500 text-sm">
-                Nincs aktív bérlésed bérlőként.
+              <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
+                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">🔑</div>
+                <p className="text-slate-600 text-sm font-semibold">Nincs aktív bérlésed bérlőként.</p>
+                <p className="text-xs text-slate-400 max-w-xs mx-auto">Amikor egy bérbeadó meghív, itt jelenik meg az aláírásra váró eszköz.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -373,17 +388,19 @@ export default function DashboardPage() {
                   const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
                   const uniqueId = p.id.slice(0, 8).toUpperCase();
                   return (
-                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-4 hover:shadow-md transition">
-                      <div>
+                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-5 hover:shadow-md transition">
+                      <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                          <h3 className="font-bold text-slate-900 text-base">{p.itemDetails?.name}</h3>
+                          <h3 className="font-extrabold text-slate-900 text-base">{p.itemDetails?.name}</h3>
                           <span className="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded-xl text-slate-600 font-semibold">#{uniqueId}</span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">Bérbeadó: <span className="font-semibold text-slate-700">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
-                        <p className="text-xs text-slate-500">Lejárat: <span className="font-semibold text-slate-800">{returnDateStr}</span></p>
-                        <span className={`inline-block mt-3 text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
+                        <div className="text-xs text-slate-600 space-y-1">
+                          <p>Bérbeadó: <span className="font-semibold text-slate-900">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
+                          <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
+                        </div>
+                        <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100 items-center">
+                      <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center">
                         <button onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition">👤 Bérbeadó adatai</button>
                         <button onClick={() => { setChatProtocolId(p.id); setChatProtocolItemName(p.itemDetails?.name); }} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
                           <span>💬 Chat</span>
