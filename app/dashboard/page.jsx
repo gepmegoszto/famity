@@ -347,9 +347,9 @@ export default function DashboardPage() {
               {/* Üdvözlő & Új kölcsönzés sáv */}
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#0f4c40] bg-emerald-50 px-3 py-1 rounded-full">Hitelesített Munkaterület</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0f4c40] bg-emerald-50 px-3 py-1 rounded-full"></span>
                   <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Kölcsönzési Vezérlőpult</h1>
-                  <p className="text-sm text-slate-600">Kezeld eszközeidet és partnereidet biztonságosan a Ptk. szabályai szerint.</p>
+                  <p className="text-sm text-slate-600">Kezeld eszközeidet és partnereidet biztonságosan.</p>
                 </div>
                 <div>
                   {hasProfile ? (
