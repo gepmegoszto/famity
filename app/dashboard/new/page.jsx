@@ -72,7 +72,6 @@ export default function NewProtocolPage() {
         const data = docSnap.data();
         setRequestStatus(data.status);
 
-        // Ha a bérlő elfogadta, húzzuk be az adatait
         if (data.status === 'approved' && data.borrowerUid) {
           const bUserDoc = await getDoc(doc(db, 'users', data.borrowerUid));
           if (bUserDoc.exists()) {
@@ -98,14 +97,13 @@ export default function NewProtocolPage() {
     return () => unsubscribe();
   }, [requestId]);
 
-  // Adatkérés küldése a bérlőnek
+  // Adatkérés küldése a bérlőnek (mentjük a bérbeadó nevét is)
   const handleSendAccessRequest = async (e) => {
     e.preventDefault();
     if (!borrowerEmail) return;
 
     setSendingRequest(true);
     try {
-      // Megkeressük, hogy létezik-e a bérlő
       const q = query(collection(db, 'users'), where('email', '==', borrowerEmail.trim()));
       const querySnapshot = await getDocs(q);
 
@@ -117,13 +115,14 @@ export default function NewProtocolPage() {
 
       const borrowerUid = querySnapshot.docs[0].id;
 
-      // Létrehozzuk a kérelmet
       const reqRef = await addDoc(collection(db, 'access_requests'), {
         lenderId: user.uid,
         lenderEmail: user.email,
+        lenderLastName: lenderData?.lastName || '',
+        lenderFirstName: lenderData?.firstName || '',
         borrowerEmail: borrowerEmail.trim(),
         borrowerUid: borrowerUid,
-        status: 'pending', // pending, approved, rejected
+        status: 'pending',
         createdAt: new Date(),
       });
 
@@ -194,7 +193,6 @@ export default function NewProtocolPage() {
         <h1 className="text-xl font-bold text-slate-900">Új Kölcsönadási Jegyzőkönyv</h1>
       </div>
 
-      {/* Biztonsági figyelmeztetés */}
       <div className="mb-6 p-4 bg-sky-50 border border-sky-200 rounded-xl text-sky-900 flex gap-3 items-start">
         <span className="text-xl">🛡️</span>
         <div>
@@ -206,8 +204,6 @@ export default function NewProtocolPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
-        
-        {/* Bérbeadó adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">1. Bérbeadó (Saját) adatai</h2>
           {lenderData && (
@@ -221,7 +217,6 @@ export default function NewProtocolPage() {
           )}
         </div>
 
-        {/* Bérlő adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">2. Bérlő / Átvevő adatai</h2>
           
@@ -262,7 +257,6 @@ export default function NewProtocolPage() {
             )}
           </div>
 
-          {/* Manuális kitöltés / Betöltött adatok */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Vezetéknév</label>
@@ -314,7 +308,6 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* Eszköz adatai */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">3. Kölcsönadott eszköz adatai</h2>
           <div className="grid sm:grid-cols-3 gap-4">
@@ -333,7 +326,6 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* Műszaki állapot */}
         <div>
           <h2 className="text-md font-bold text-slate-800 mb-3 border-b pb-2">4. Műszaki állapot és tartozékok</h2>
           <div>
@@ -342,7 +334,6 @@ export default function NewProtocolPage() {
           </div>
         </div>
 
-        {/* Elfogadás */}
         <div className="flex items-center gap-3 pt-2">
           <input type="checkbox" id="accept" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
           <label htmlFor="accept" className="text-sm text-slate-700">
