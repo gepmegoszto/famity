@@ -17,23 +17,29 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
       
-      {/* Fejléc */}
-      <header className="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-black text-blue-600 tracking-tight">famity.hu</span>
-          <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full">Biztonságos Kölcsönzés</span>
+      {/* Modern Fejléc */}
+      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-sm">
+            F
+          </div>
+          <div>
+            <span className="text-lg font-black text-slate-900 tracking-tight">famity.hu</span>
+            <span className="block text-[10px] font-bold text-blue-600 uppercase tracking-widest">Biztonságos Kölcsönzés</span>
+          </div>
         </div>
         <div className="flex gap-3 items-center">
           {!loading && (
             <>
               {user ? (
-                <Link href="/dashboard" className="text-sm font-semibold px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">
-                  Vezérlőpult →
+                <Link href="/dashboard" className="text-sm font-semibold px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center gap-2">
+                  <span>Vezérlőpult</span>
+                  <span>→</span>
                 </Link>
               ) : (
-                <Link href="/auth" className="text-sm font-semibold px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition">
+                <Link href="/auth" className="text-sm font-semibold px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-md transition">
                   Bejelentkezés
                 </Link>
               )}
@@ -42,232 +48,204 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero / Fő rész: Központi famity.hu felirat és szlogen */}
-      <section className="max-w-5xl w-full mx-auto px-6 py-16 text-center space-y-6">
-        <div className="space-y-2">
-          <h2 className="text-5xl sm:text-7xl font-black text-blue-600 tracking-tight">famity.hu</h2>
-          <p className="text-lg sm:text-xl font-semibold text-slate-600 uppercase tracking-widest">Biztonságos Kölcsönzés</p>
+      {/* Hero / Fő rész */}
+      <section className="max-w-5xl w-full mx-auto px-6 py-16 sm:py-24 text-center space-y-8">
+        <div className="space-y-3">
+          <h1 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tight">
+            famity<span className="text-blue-600">.hu</span>
+          </h1>
+          <p className="text-sm sm:text-base font-bold text-slate-500 uppercase tracking-widest">
+            Digitális Átadás-Átvételi Jegyzőkönyv & Pénzügyi Elszámolás
+          </p>
         </div>
 
-        <div className="inline-block bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full mt-4">
-          Digitális Átadás-Átvételi Jegyzőkönyv & Elszámolás
+        <div className="max-w-2xl mx-auto space-y-4">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+            Biztonságos eszközbérbeadás és <span className="text-blue-600">tiszta elszámolás</span> magánszemélyeknek.
+          </h2>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+            Felejtsd el a papírozást, az elveszett cetliket és a felesleges vitákat! Rögzítsd biztonságosan a bérbe adott tárgyakat, személyes adatokat, kauciókat és visszavételi elszámolásokat egy helyen.
+          </p>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          Biztonságos eszközbérbeadás és <span className="text-blue-600">tiszta elszámolás</span> magánszemélyeknek.
-        </h1>
-        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
-          Felejtsd el a papírozást, az elveszett cetliket és a felesleges vitákat! A <strong>famity.hu</strong> digitális platformján biztonságosan rögzítheted a bérbe adott tárgyakat, személyes adatokat, kauciókat és a visszavételi elszámolásokat.
-        </p>
+
         <div className="pt-4 flex flex-wrap justify-center gap-4">
-          <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition text-base">
-            + Új Kölcsönzés Indítása Most
+          <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition text-base flex items-center gap-2">
+            <span>+ Új Kölcsönzés Indítása</span>
           </Link>
-          <Link href="/dashboard" className="bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold px-8 py-4 rounded-2xl transition text-base">
+          <Link href="/dashboard" className="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold px-8 py-4 rounded-2xl transition text-base shadow-sm">
             Ugrás a Vezérlőpultra
           </Link>
         </div>
       </section>
 
-      {/* Részletes Útmutató / Hogyan működik? */}
+      {/* Interaktív / Áttekinthető Főfunkciók */}
       <section className="max-w-6xl w-full mx-auto px-6 py-16 border-t border-slate-200">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full">Egyszerű folyamat</span>
           <h2 className="text-3xl font-extrabold text-slate-900">Hogyan működik a platform?</h2>
           <p className="text-slate-600 text-sm">
-            Részletes útmutató a zökkenőmentes, átlátható és jogilag szabályozott kölcsönzési folyamathoz.
+            Három egyszerű lépés a tökéletes jogi és pénzügyi biztonságért.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
-            <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-lg">
               1
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Profil és Adatkezelés</h3>
+            <h3 className="text-xl font-bold text-slate-900">Profil & Adatkezelés</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Regisztráció után add meg a személyes adataidat (név, lakcím, személyi igazolvány száma, elérhetőségek). A rendszer ezeket biztonságosan kezeli, és adatkérés során hitelesíti a feleket.
+              Add meg a hivatalos személyes adataidat. Adatkérés során a partnerek biztonságosan, kétlépcsős jóváhagyással férhetnek hozzá a szükséges információkhoz.
             </p>
-            <ul className="text-xs text-slate-500 space-y-1.5 pt-2 border-t">
-              <li>✓ Biztonságos adattárolás</li>
-              <li>✓ Gyors partnerazonosítás</li>
-            </ul>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
-            <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-lg">
               2
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Jegyzőkönyv és Aláírás</h3>
+            <h3 className="text-xl font-bold text-slate-900">Jegyzőkönyv & Aláírás</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Indíts új kölcsönzést az eszköz adataival, fotóival, bérleti díjával és kauciójával. A bérlő megkapja a kérelmet, majd a digitális felületen mindketten áttekintik és aláírják a dokumentumot.
+              Rögzítsd az eszközt, állapotot, kauciót és bérleti díjat. Mindkét fél digitális aláírással hitelesíti a dokumentumot az átvétel pillanatában.
             </p>
-            <ul className="text-xs text-slate-500 space-y-1.5 pt-2 border-t">
-              <li>✓ Kaució átvétel megerősítése</li>
-              <li>✓ Kétoldalú digitális aláírás</li>
-            </ul>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 relative">
-            <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-md">
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-lg">
               3
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Visszavétel és Lezárás</h3>
+            <h3 className="text-xl font-bold text-slate-900">Visszavétel & Lezárás</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              A bérlés végén a bérbeadó rögzíti az állapotfelmérést, fényképelheti az esetleges hibákat, elszámolja a kauciót és a díjakat. Utolsó lépésként mindkét fél véglegesíti a lezárást.
+              A bérlés végén állapotfelmérés, kaució-elszámolás és kétoldalú lezárás történik. Minden tranzakció kereshetően archiválásra kerül.
             </p>
-            <ul className="text-xs text-slate-500 space-y-1.5 pt-2 border-t">
-              <li>✓ Pénzügyi összegzés & kaució visszatérítés</li>
-              <li>✓ Lezárt tranzakciók archívuma</li>
-            </ul>
           </div>
         </div>
       </section>
 
-      {/* Részletes Know-How és Működési Útmutató Szekció */}
+      {/* Részletes Tudástár & Know-How (MARADÉKTALANUL TELJES TARTALOMMAL) */}
       <section className="bg-white py-16 border-t border-slate-200 px-6">
-        <div className="max-w-5xl mx-auto space-y-12">
+        <div className="max-w-5xl mx-auto space-y-16">
           <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full">Szakmai Tudástár & Működési Know-How</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full">Szakmai Tudástár & Know-How</span>
             <h2 className="text-3xl font-extrabold text-slate-900">Minden, amit a biztonságos eszközbérlésről tudni kell</h2>
-            <p className="text-slate-600 text-sm max-w-2xl mx-auto">
-              Átfogó útmutatónk bemutatja a platform mögött álló logikát, a jogi hátteret, valamint a legjobb gyakorlatokat bérbeadóknak és bérlőknek egyaránt.
+            <p className="text-slate-600 text-sm max-w-xl mx-auto">
+              A rendszer mögött álló jogi, technológiai háttér és a teljes részletességű bérlési folyamat.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 text-sm text-slate-700 leading-relaxed">
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                <span>📄</span> 1. A digitális jegyzőkönyv előnyei
-              </h3>
-              <p>
-                A hagyományos kézzel írott papírok idejét múlták, mivel gyakran olvashatatlanok, elvesznek, vagy nem tartalmaznak elegendő részletet az eszköz pontos állapotáról. Ezzel szemben a famity.hu elektronikus rendszere pillanatok alatt generál hiteles dokumentumokat, amelyek megakadályozzák a későbbi vitákat. A bérbeadó pontosan rögzítheti a gép vagy szerszám sorozatszámát, esetleges külsérelmi nyomait, valamint meglévő tartozékait. A rendszerbe feltöltött fényképek megváltoztathatatlan bizonyítékként szolgálnak az átadás pillanatában. Mindkét fél biztonságban érezheti magát, mert a jogi felelősségvállalás határozottan lehatárolásra kerül. A digitalizáció felgyorsítja a folyamatokat, hiszen a feleknek nem kell fizikailag egyidejűleg papírokat aláírniuk az adatkérés és az online jóváhagyás révén.
-              </p>
+          {/* RÉSZLETES BÉRLÉSI FOLYAMAT (MARADÉKTALANUL TELJES SZÖVEGGEL) */}
+          <div className="space-y-6">
+            <div className="border-b border-slate-200 pb-4">
+              <h3 className="text-2xl font-black text-slate-900">A bérlési és elszámolási folyamat részletes útmutatója</h3>
+              <p className="text-sm text-slate-600">Lépésről lépésre a regisztrációtól a lezárt archívumig.</p>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                <span>💰</span> 2. Kauciókezelés és díjszámítás
-              </h3>
-              <p>
-                A bérbeadás legkényesebb pontja szinte minden esetben a kaució és a bérleti díjak elszámolása a visszavételkor. A famity.hu ezen a területen maximális átláthatóságot biztosít a beépített kalkulátor és elszámolási modul révén. A bérbeadó a kölcsönzés indításakor rögzíti a kaució összegét, valamint a napi bérleti díjat. A rendszer a tervezett visszavételi dátum alapján automatikusan kiszámítja a teljes fizetendő bérleti díjat. Visszavételkor a bérbeadó nyilatkozik az eszköz sértetlenségéről, és ha bármilyen hiba vagy hiányosság merül fel, jogában áll a kaucióból részben vagy egészben összeget visszatartani. Minden egyes visszatartott összeghez kötelező részletes indoklást és bizonyító fényképet csatolni a teljes tisztaság érdekében.
-              </p>
-            </div>
-
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                <span>🔒</span> 3. Adatvédelem és hitelesítés
-              </h3>
-              <p>
-                A modern webes alkalmazások alapköve a szigorú adatvédelem és a felhasználók biztonsága. A famity.hu integrált fiókkezelése és Firebase alapú autentikációja garantálja, hogy illetéktelenek ne férhessenek hozzá a szenzitív dokumentumokhoz. A bérbeadók és a bérlők csak egymás jóváhagyásával tekinthetik meg a hivatalos személyes adataikat (személyi igazolvány száma, lakcím, anyja neve). Az adatkérési kérelem elküldése után a bérlő egyetlen kattintással engedélyezheti vagy elutasíthatja az adatok megosztását. Ez a kétlépcsős folyamat tökéletesen illeszkedik a hatályos adatvédelmi elvekhez, míg a digitális aláírások időbélyeggel igazolják az ügyletek hitelességét.
-              </p>
-            </div>
-
-            <div className="space-y-4 bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                <span>⚖️</span> 4. Jogi keretek és felelősségkizárás
-              </h3>
-              <p>
-                Alapvető fontosságú annak a tisztázása, hogy a famity.hu miként pozicionálja magát a jogi viták terén. A platform kizárólag technikai, adattárolási és közvetítői infrastruktúrát biztosít a felhasználók számára. Az oldal üzemeltetője nem részes fele a bérleti szerződéseknek, és nem vállal anyagi felelősséget a kölcsönbe adott tárgyak esetleges károsodásáért vagy megsemmisüléséért. A Polgári Törvénykönyvről szóló 2013. évi V. törvény (Ptk.) előírásai szerint a felek közvetlen jogi viszonyban állnak. A platform szerepe abban merül ki, hogy vitás helyzetek vagy elszámolási viták esetén hiteles, időbélyeggel ellátott dokumentumokat és adatszolgáltatást nyújtson a hatóságok vagy bíróság felé.
-              </p>
-            </div>
-          </div>
-
-          {/* INTEGRÁLT: Teljes bérlési folyamat részletes vizuális lépései */}
-          <div className="mt-16 pt-12 border-t border-slate-200 space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3.5 py-1 rounded-full">Részletes Lépésről Lépésre Útmutató</span>
-              <h3 className="text-2xl font-extrabold text-slate-900">A teljes bérlési és elszámolási folyamat áttekintése</h3>
-              <p className="text-sm text-slate-600 max-w-xl mx-auto">
-                Így néz ki a kölcsönzés az első regisztrációtól egészen a lezárt archívumig.
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  1
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              {/* 1. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">1</span>
+                  <h4 className="font-bold text-slate-900 text-base">Regisztráció és Profil Beállítás</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Regisztráció & Profil</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Email címmel történő fiókregisztráció, majd a hivatalos személyes adatok (név, lakcím, igazolványszám) kitöltése a profil menüpontban.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Regisztráció / Bejelentkezés:</strong> A felhasználók email címmel és jelszóval regisztrálhatnak, vagy bejelentkezhetnek a platformra.</li>
+                  <li className="leading-relaxed"><strong>Személyes adatok rögzítése:</strong> A bérbeadónak és a bérlőnek is ki kell töltenie a profilját a hivatalos adataival (név, anyja neve, születési hely és idő, személyi igazolvány száma, telefonszám és teljes lakcím), amelyek a jegyzőkönyv alapját képezik.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  2
+              {/* 2. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">2</span>
+                  <h4 className="font-bold text-slate-900 text-base">Adatkérés és Partner Hitelesítés</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Adatkérés & Hitelesítés</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A bérbeadó a bérlő email címe alapján adatkérést indít, amit a bérlő a vezérlőpultján egy kattintással engedélyez vagy elutasít.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Adatkérés küldése:</strong> Új bérlés indításakor a bérbeadó a bérlő email címe alapján adatkérési kérelmet indíthat.</li>
+                  <li className="leading-relaxed"><strong>Jóváhagyás:</strong> A bérlő a vezérlőpultján értesítést kap, és egy kattintással engedélyezheti vagy elutasíthatja, hogy a bérbeadó hozzáférjen a hivatalos adataihoz.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  3
+              {/* 3. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">3</span>
+                  <h4 className="font-bold text-slate-900 text-base">Jegyzőkönyv Létrehozása és Eszköz Rögzítése</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Jegyzőkönyv & Fotók</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Az eszköz adatainak, sorozatszámának, állapotának, fotóinak, valamint a bérleti díjnak és kauciónak a precíz rögzítése.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Eszköz adatok:</strong> A bérbeadó kitölti az eszköz megnevezését, gyártási/sorozatszámát, részletes állapotleírását (esetleges meglévő karcok, tartozékok), valamint legfeljebb 3 db fotót tölthet fel az átvételi állapotról.</li>
+                  <li className="leading-relaxed"><strong>Bérleti feltételek és Díjak:</strong> Megadásra kerül a tervezett visszavételi dátum és időpont. Opcionálisan bérleti díj (napi díj alapján automatikus kalkulációval) és kaució is beállítható.</li>
+                  <li className="leading-relaxed"><strong>Kaució átvétel megerősítése:</strong> Ha van kaució, a bérbeadónak kötelezően be kell pipálnia, hogy azt a bérlőtől átvette.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  4
+              {/* 4. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">4</span>
+                  <h4 className="font-bold text-slate-900 text-base">Bérbeadói Aláírás és Indítás</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Bérbeadói Aláírás</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A kaució átvételének megerősítése, jogi nyilatkozat elfogadása, majd a bérbeadói digitális aláírás rögzítése a jegyzőkönyvön.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Felelősségi nyilatkozat elfogadása:</strong> A bérbeadó ellenőrzi az adatokat, és elfogadja a Ptk. szerinti jogi nyilatkozatot.</li>
+                  <li className="leading-relaxed"><strong>Digitális aláírás:</strong> A bérbeadó a felületen rögzíti az aláírását, majd a jegyzőkönyv elindul, és átkerül a bérlőhöz aláírásra („Vár a bérlő aláírására” státusz).</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  5
+              {/* 5. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">5</span>
+                  <h4 className="font-bold text-slate-900 text-base">Bérlői Ellenőrzés és Aláírás</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Bérlői Ellenőrzés & Aláírás</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A bérlő áttekinti a dokumentumot a vezérlőpulton, aláírja, amivel a kölcsönzés hivatalosan is **Aktív** státuszba lép.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Jegyzőkönyv áttekintése:</strong> A bérlő a vezérlőpultján értesítést kap az aláírásra váró bérlésről, megtekintheti az eszköz adatait, a bérleti feltételeket és a bérbeadó adatait.</li>
+                  <li className="leading-relaxed"><strong>Bérlői aláírás:</strong> A bérlő ellenőrzés után beírja/berajzolja az aláírását a digitális mezőbe, amivel a bérlés hivatalosan Aktív státuszba lép.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  6
+              {/* 6. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">6</span>
+                  <h4 className="font-bold text-slate-900 text-base">Aktív Bérlési Időszak és Eszköz Használat</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Aktív Bérlési Időszak</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Az eszköz használata a megadott visszavételi határidőig, a partneri adatok és a lejárat folyamatos követésével a rendszerben.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Nyomon követés:</strong> A felek a vezérlőpulton keresztül bármikor ellenőrizhetik az aktív bérléseiket, a visszavételi határidőt, valamint a partner elérhetőségeit és adatait.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  7
+              {/* 7. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-amber-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">7</span>
+                  <h4 className="font-bold text-slate-900 text-base">Eszköz Visszavétele és Pénzügyi Elszámolás</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Visszavétel & Elszámolás</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A bérbeadó rögzíti az állapotot, szükség esetén fényképez és kauciót tart vissza, majd a rendszer összesíti a pénzügyeket.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Állapotfelmérés:</strong> A bérlés végén a bérbeadó indítja a visszavételt, és nyilatkozik, hogy minden rendben volt-e, vagy rögzíti az esetleges sérüléseket/hibákat (fotó csatolási lehetőséggel).</li>
+                  <li className="leading-relaxed"><strong>Kaució elszámolás:</strong> Díjköteles bérlésnél a bérbeadó dönthet a kaució teljes visszatérítéséről vagy részleges/teljes visszatartásáról (indoklással és összeg megadásával).</li>
+                  <li className="leading-relaxed"><strong>Pénzügyi összesítő:</strong> A rendszer automatikusan összesíti a bérleti díjat, az átvett kauciót, a visszatartott összeget és a bérlőnek visszajáró kauciót.</li>
+                </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center font-bold text-base">
-                  8
+              {/* 8. pont */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-amber-600 text-white rounded-xl flex items-center justify-center font-bold text-sm">8</span>
+                  <h4 className="font-bold text-slate-900 text-base">Kétoldalú Lezárás és Archívum</h4>
                 </div>
-                <h4 className="font-bold text-slate-900 text-base">Lezárás & Archívum</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A bérlő is aláírja a visszavételt, a státusz **Lezárva** lesz, az ügylet pedig bármikor kereshető a lezárt archívumban.
-                </p>
+                <ul className="text-xs text-slate-700 space-y-2 pl-2">
+                  <li className="leading-relaxed"><strong>Visszavételi aláírások:</strong> A bérbeadó rögzíti a visszavételi aláírását, majd a kérelem átkerül a bérlőhöz jóváhagyásra („Vár a bérlő visszavételi aláírására”).</li>
+                  <li className="leading-relaxed"><strong>Végleges lezárás:</strong> A bérlő ellenőrzi a visszavételi jegyzőkönyvet és a pénzügyi elszámolást, majd rárajzolja a visszavételi aláírását. Ezzel a tranzakció státusza Lezárva lesz.</li>
+                  <li className="leading-relaxed"><strong>Kereshető archívum:</strong> A lezárt ügyletek egy külön, kereshető és szűrhető felületen (név, eszköz, egyedi azonosító vagy szerepkör alapján) bármikor visszakereshetők jogi vagy elszámolási referenciaként.</li>
+                </ul>
               </div>
+
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Egyetlen, tiszta lábléc dinamikus gombokkal */}
+      {/* Lábléc */}
       <footer className="bg-slate-100 border-t border-slate-200 py-12">
         <div className="max-w-4xl w-full mx-auto px-6 text-center space-y-4">
           <h4 className="font-bold text-slate-800 text-sm">⚖️ Átlátható jogi háttér és felelősség</h4>
