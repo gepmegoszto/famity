@@ -161,12 +161,18 @@ export default function DashboardPage() {
 
   if (loading) return <div className="flex-1 flex items-center justify-center p-12">Betöltés...</div>;
 
-  // Aktív vagy nem lezártak szűrése a fő pultra
   const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
   const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
 
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
+      {/* Vissza a főoldalra link a tetején */}
+      <div className="mb-4">
+        <Link href="/" className="text-sm font-semibold text-blue-600 hover:underline">
+          ← Vissza a famity.hu főoldalára
+        </Link>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-slate-200 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">famity.hu – Kölcsönadási Vezérlőpult</h1>
