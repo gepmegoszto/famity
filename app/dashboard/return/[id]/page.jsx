@@ -13,16 +13,14 @@ export default function ReturnProtocolPage() {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  // Visszavételi űrlap mezők
   const [isEverythingOk, setIsEverythingOk] = useState('yes');
   const [conditionNotes, setConditionNotes] = useState('');
   const [returnPhoto, setReturnPhoto] = useState('');
   
-  const [withholdDeposit, setWithholdDeposit] = useState('no'); // 'no', 'partial', 'full'
+  const [withholdDeposit, setWithholdDeposit] = useState('no');
   const [withheldAmount, setWithheldAmount] = useState('');
   const [withholdReason, setWithholdReason] = useState('');
 
-  // Aláíró modal
   const [showSignModal, setShowSignModal] = useState(false);
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -73,6 +71,7 @@ export default function ReturnProtocolPage() {
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -85,6 +84,7 @@ export default function ReturnProtocolPage() {
   const draw = (e) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -96,6 +96,7 @@ export default function ReturnProtocolPage() {
   const stopDrawing = () => setIsDrawing(false);
   const clearCanvas = () => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
@@ -120,6 +121,7 @@ export default function ReturnProtocolPage() {
         },
         'signatures.returnLender': signatureDataUrl,
         'signatures.returnLenderTimestamp': new Date().toISOString(),
+        // ITT ÁLLÍTJUK BE A HELYES STÁTUSZT, HOGY A BÉRLŐ LÁSSA:
         status: protocol.borrowerUid ? 'Vár a bérlő visszavételi aláírására' : 'Lezárva',
       });
       router.push('/dashboard');
@@ -209,7 +211,6 @@ export default function ReturnProtocolPage() {
                 </div>
               )}
 
-              {/* ÖSSZEGZÉS */}
               <div className="bg-slate-50 p-4 rounded-xl border space-y-2 text-sm">
                 <h3 className="font-bold text-slate-900 border-b pb-1">Pénzügyi Összegzés</h3>
                 <p>Teljes bérleti díj: <strong>{totalFee} HUF</strong> (A bérbeadót illeti)</p>
