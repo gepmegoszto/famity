@@ -16,10 +16,10 @@ export default function DashboardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Aktív nézet váltása (dashboard vs chat)
-  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'chat' | 'requests'
+  // Aktív nézet a belső sávhoz ('active' | 'chat')
+  const [activeTab, setActiveTab] = useState('active');
 
-  // Kiválasztott chat a különálló chat nézethez
+  // Kiválasztott chat
   const [selectedChatProtocol, setSelectedChatProtocol] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -91,7 +91,6 @@ export default function DashboardPage() {
     };
   }, [user]);
 
-  // Különálló chat üzenetek valós idejű betöltése
   useEffect(() => {
     if (!selectedChatProtocol) return;
     const qMsg = query(
@@ -214,16 +213,16 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex">
       
-      {/* BAL OLDALI OLDALSÁV (A KÉPEN LÁTHATÓ SÖTÉT TÜRKIZ/ZÖLD DESIGN) */}
-      <aside className="w-64 bg-[#0f4c40] text-slate-300 flex flex-col justify-between hidden md:flex border-r border-[#0d3b32]">
+      {/* FIX BAL OLDALI OLDALSÁV (SZÍV NÉLKÜL, HIVATALOS DESIGN) */}
+      <aside className="w-64 bg-[#0f4c40] text-slate-300 flex flex-col justify-between hidden md:flex border-r border-[#0d3b32] shrink-0 sticky top-0 h-screen">
         <div>
-          {/* Logo / Márka */}
+          {/* Márka / Logó szív nélkül */}
           <div className="p-6 flex items-center gap-3 border-b border-[#145d50]">
             <div className="w-9 h-9 bg-white text-[#0f4c40] rounded-xl flex items-center justify-center font-black text-base shadow">
-              ❤
+              F
             </div>
             <div>
-              <span className="text-lg font-black text-white tracking-tight">famity.hu</span>
+              <Link href="/" className="text-lg font-black text-white tracking-tight hover:underline">famity.hu</Link>
               <span className="block text-[10px] font-bold text-emerald-300 uppercase tracking-widest">Biztonságos Kölcsönzés</span>
             </div>
           </div>
@@ -271,14 +270,13 @@ export default function DashboardPage() {
       {/* JOBB OLDALI FŐ TARTALOM TERÜLET */}
       <div className="flex-1 flex flex-col min-h-screen">
         
-        {/* Felső mobil / reszponzív léc */}
+        {/* Mobil fejléc */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center md:hidden">
-          <div className="flex items-center gap-2">
-            <span className="font-black text-[#0f4c40]">famity.hu</span>
-          </div>
+          <span className="font-black text-[#0f4c40]">famity.hu</span>
           <div className="flex items-center gap-2">
             <button onClick={() => setActiveTab('active')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Aktívak</button>
             <button onClick={() => setActiveTab('chat')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Chat</button>
+            <Link href="/dashboard/closed" className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Archívum</Link>
             <button onClick={handleLogout} className="text-xs px-3 py-1.5 bg-red-100 text-red-700 rounded-lg font-semibold">Kilépés</button>
           </div>
         </header>
@@ -286,7 +284,7 @@ export default function DashboardPage() {
         {/* Tartalom */}
         <main className="flex-1 p-6 sm:p-10 max-w-6xl w-full mx-auto space-y-8">
           
-          {/* Értesítések / Függőben lévő elemek */}
+          {/* Értesítések */}
           {incomingRequests.length > 0 && (
             <div className="p-6 bg-blue-50 border border-blue-200 rounded-3xl shadow-sm space-y-4">
               <h3 className="font-bold text-base text-blue-900 flex items-center gap-2">
@@ -446,10 +444,9 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* HA A CHAT FÜL VAN KIVÁLASZTVA (KÜLÖNÁLLÓ CHAT NÉZET) */}
+          {/* HA A CHAT FÜL VAN KIVÁLASZTVA */}
           {activeTab === 'chat' && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm h-[75vh] flex flex-col md:flex-row overflow-hidden">
-              {/* Bal oldali partner/eszköz lista a chathez */}
               <div className="w-full md:w-80 border-r border-slate-200 bg-slate-50 flex flex-col">
                 <div className="p-4 border-b border-slate-200 bg-white">
                   <h3 className="font-bold text-slate-900 text-sm">Aktív Beszélgetések</h3>
@@ -482,7 +479,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Jobb oldali üzenetváltó terület */}
               <div className="flex-1 flex flex-col bg-white">
                 {selectedChatProtocol ? (
                   <>
@@ -560,7 +556,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Aláíró Modál (Bérlőnek) */}
+      {/* Aláíró Modál */}
       {signingProtocolId && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-8 rounded-3xl max-w-lg w-full space-y-6 shadow-2xl my-8">
