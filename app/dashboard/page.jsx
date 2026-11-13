@@ -128,12 +128,8 @@ export default function DashboardPage() {
             {incomingRequests.map(req => (
               <div key={req.id} className="bg-white p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <p className="font-bold text-slate-800">
-                    {req.lenderLastName && req.lenderFirstName 
-                      ? `${req.lenderLastName} ${req.lenderFirstName}` 
-                      : 'Ismeretlen név'} ({req.lenderEmail})
-                  </p>
-                  <p className="text-xs text-slate-500">Engedélyezed, hogy betöltse a profiladataidat a jegyzőkönyvbe?</p>
+                  <p className="font-bold text-slate-900 text-base">{req.lenderName || req.lenderEmail}</p>
+                  <p className="text-xs text-slate-500">Email: {req.lenderEmail} — Engedélyezed, hogy betöltse a profiladataidat a jegyzőkönyvbe?</p>
                 </div>
                 <div className="flex gap-2">
                   <button
