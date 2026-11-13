@@ -121,7 +121,7 @@ export default function NewProtocolPage() {
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        alert('Nincs regisztrált felhasználó ezzel az email címmel. Kérjük, add meg manuálisan az adatait!');
+        alert('Nincs regisztrált felhasználó ezzel az email címmel.');
         setSendingRequest(false);
         return;
       }
@@ -201,6 +201,7 @@ export default function NewProtocolPage() {
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -213,6 +214,7 @@ export default function NewProtocolPage() {
   const draw = (e) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0].clientX) - rect.left;
@@ -224,6 +226,7 @@ export default function NewProtocolPage() {
   const stopDrawing = () => setIsDrawing(false);
   const clearCanvas = () => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
@@ -296,8 +299,10 @@ export default function NewProtocolPage() {
     <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">← Vissza a vezérlőpultra</Link>
-        <h1 className="text-xl font-bold text-slate-900">Új Kölcsönadási Jegyzőkönyv</h1>
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">famity.hu platform</span>
       </div>
+
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">Új Kölcsönadási Jegyzőkönyv Indítása</h1>
 
       {errorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl font-semibold">
@@ -413,21 +418,19 @@ export default function NewProtocolPage() {
       {showSignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
-            <h3 className="text-lg font-bold text-slate-900">Bérbeadói Aláírás és Jogi Tájékoztató</h3>
+            <h3 className="text-lg font-bold text-slate-900">famity.hu – Bérbeadói Aláírás és Jogi Tájékoztató</h3>
             <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2 max-h-40 overflow-y-auto">
-              <p className="font-bold">⚠️ Fontos jogi nyilatkozat és felelősségvállalási útmutató:</p>
-              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért.</p>
-              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal.</p>
-              <p>3. <strong>Jogviták:</strong> Békés úton vagy bíróság előtt rendezendő.</p>
+              <p className="font-bold">⚠️ Fontos jogi nyilatkozat (Ptk. 2013. évi V. tv.):</p>
+              <p>A felek maguk felelnek a megadott adatok helyességéért. A famity.hu platform kizárólag biztonságos digitális felületet biztosít, felelősséget nem vállal.</p>
             </div>
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             </div>
             <div className="flex justify-between gap-3 pt-2">
-              <button type="button" onClick={clearCanvas} className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés / Újra</button>
+              <button type="button" onClick={clearCanvas} className="bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés</button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setShowSignModal(false)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
-                <button type="button" onClick={handleFinalSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow disabled:opacity-50">{loading ? 'Mentés...' : 'Aláírás rögzítése és mentés'}</button>
+                <button type="button" onClick={handleFinalSubmit} disabled={loading} className="bg-blue-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">{loading ? 'Mentés...' : 'Aláírás rögzítése és mentés'}</button>
               </div>
             </div>
           </div>
