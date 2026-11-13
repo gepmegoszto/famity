@@ -121,7 +121,6 @@ export default function ReturnProtocolPage() {
         },
         'signatures.returnLender': signatureDataUrl,
         'signatures.returnLenderTimestamp': new Date().toISOString(),
-        // ITT ÁLLÍTJUK BE A HELYES STÁTUSZT, HOGY A BÉRLŐ LÁSSA:
         status: protocol.borrowerUid ? 'Vár a bérlő visszavételi aláírására' : 'Lezárva',
       });
       router.push('/dashboard');
@@ -139,13 +138,16 @@ export default function ReturnProtocolPage() {
   const deposit = Number(protocol.rentalTerms?.deposit || 0);
   const withheld = withholdDeposit !== 'no' ? Number(withheldAmount || 0) : 0;
   const refundDeposit = Math.max(0, deposit - withheld);
+  const uniqueId = protocol.id.slice(0, 8).toUpperCase();
 
   return (
     <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">← Vissza a vezérlőpultra</Link>
-        <h1 className="text-xl font-bold text-slate-900">Eszköz Visszavétele és Elszámolás</h1>
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">famity.hu platform</span>
       </div>
+
+      <h1 className="text-xl font-bold text-slate-900 mb-6">Eszköz Visszavétele és Elszámolás (#{uniqueId})</h1>
 
       <form onSubmit={handlePreSubmit} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
         <div>
@@ -206,7 +208,7 @@ export default function ReturnProtocolPage() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Visszatartás indoklása *</label>
-                    <input type="text" value={withholdReason} onChange={e => setWithholdReason(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Pl. Esetleges tisztítási költség / alkatrész kár" />
+                    <input type="text" value={withholdReason} onChange={e => setWithholdReason(e.target.value)} className="w-full px-3 py-2 border rounded-lg" placeholder="Pl. Esetleges tisztítási költség" />
                   </div>
                 </div>
               )}
@@ -230,12 +232,11 @@ export default function ReturnProtocolPage() {
       {showSignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
-            <h3 className="text-lg font-bold text-slate-900">Visszavételi Aláírás és Elszámolási Nyilatkozat</h3>
+            <h3 className="text-lg font-bold text-slate-900">famity.hu – Visszavételi Aláírás és Nyilatkozat</h3>
             <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 space-y-2">
               <p className="font-bold">✅ Pénzügyi és tárgyi elszámolási nyilatkozat:</p>
-              <p>Aláírásommal megerősítem, hogy a kaució elszámolása megtörtént, minden pénzügyi és tárgyi elszámolás lezárult, a felek egymással a bérlettel kapcsolatban elszámoltak, és az ügylet véglegesen lezárható.</p>
+              <p>Aláírásommal megerősítem, hogy a kaució elszámolása megtörtént, minden pénzügyi és tárgyi elszámolás lezárult, a felek egymással elszámoltak, és az ügylet lezárható.</p>
             </div>
-            <p className="text-xs text-slate-600">Kérjük, rajzolja be az aláírását az alábbi mezőbe:</p>
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas ref={canvasRef} width={450} height={180} className="cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             </div>
@@ -243,7 +244,7 @@ export default function ReturnProtocolPage() {
               <button type="button" onClick={clearCanvas} className="bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">Törlés</button>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setShowSignModal(false)} className="text-slate-600 px-3 py-2 text-sm">Mégse</button>
-                <button type="button" onClick={handleFinalSubmit} disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow disabled:opacity-50">{submitting ? 'Mentés...' : 'Véglegesítés és Lezárás'}</button>
+                <button type="button" onClick={handleFinalSubmit} disabled={submitting} className="bg-blue-600 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow">{submitting ? 'Mentés...' : 'Véglegesítés és Lezárás'}</button>
               </div>
             </div>
           </div>
