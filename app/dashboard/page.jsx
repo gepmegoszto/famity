@@ -16,19 +16,24 @@ export default function DashboardPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const [selectedPartnerData, setSelectedPartnerData] = useState(null);
-  const [signingProtocolId, setSigningProtocolId] = useState(null);
-  const [signingReturnProtocolId, setSigningReturnProtocolId] = useState(null);
+  // Aktív nézet váltása (dashboard vs chat)
+  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'chat' | 'requests'
 
-  // Belső chat állapota
-  const [chatProtocolId, setChatProtocolId] = useState(null);
-  const [chatProtocolItemName, setChatProtocolItemName] = useState('');
+  // Kiválasztott chat a különálló chat nézethez
+  const [selectedChatProtocol, setSelectedChatProtocol] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const chatMessagesEndRef = useRef(null);
 
+  // Partner adatok modál
+  const [selectedPartnerData, setSelectedPartnerData] = useState(null);
+  
+  // Aláírások
+  const [signingProtocolId, setSigningProtocolId] = useState(null);
+  const [signingReturnProtocolId, setSigningReturnProtocolId] = useState(null);
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -86,11 +91,11 @@ export default function DashboardPage() {
     };
   }, [user]);
 
-  // Chat üzenetek valós idejű betöltése
+  // Különálló chat üzenetek valós idejű betöltése
   useEffect(() => {
-    if (!chatProtocolId) return;
+    if (!selectedChatProtocol) return;
     const qMsg = query(
-      collection(db, 'lending_protocols', chatProtocolId, 'messages'),
+      collection(db, 'lending_protocols', selectedChatProtocol.id, 'messages'),
       orderBy('createdAt', 'asc')
     );
     const unsubMsg = onSnapshot(qMsg, (snap) => {
@@ -100,14 +105,14 @@ export default function DashboardPage() {
       }, 100);
     });
     return () => unsubMsg();
-  }, [chatProtocolId]);
+  }, [selectedChatProtocol]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !chatProtocolId || !user) return;
+    if (!newMessage.trim() || !selectedChatProtocol || !user) return;
 
     try {
-      await addDoc(collection(db, 'lending_protocols', chatProtocolId, 'messages'), {
+      await addDoc(collection(db, 'lending_protocols', selectedChatProtocol.id, 'messages'), {
         senderId: user.uid,
         senderEmail: user.email,
         text: newMessage.trim(),
@@ -200,222 +205,339 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-600 font-medium">Betöltés...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white font-medium">Betöltés...</div>;
 
   const activeLenderProtocols = protocolsAsLender.filter(p => p.status !== 'Lezárva');
   const activeBorrowerProtocols = protocolsAsBorrower.filter(p => p.status !== 'Lezárva');
+  const allActiveProtocols = [...activeLenderProtocols, ...activeBorrowerProtocols];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex">
       
-      {/* Prémium Fejléc */}
-      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex justify-between items-center bg-white/85 backdrop-blur-md sticky top-0 z-45 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-sm">
-            F
+      {/* BAL OLDALI OLDALSÁV (A KÉPEN LÁTHATÓ SÖTÉT TÜRKIZ/ZÖLD DESIGN) */}
+      <aside className="w-64 bg-[#0f4c40] text-slate-300 flex flex-col justify-between hidden md:flex border-r border-[#0d3b32]">
+        <div>
+          {/* Logo / Márka */}
+          <div className="p-6 flex items-center gap-3 border-b border-[#145d50]">
+            <div className="w-9 h-9 bg-white text-[#0f4c40] rounded-xl flex items-center justify-center font-black text-base shadow">
+              ❤
+            </div>
+            <div>
+              <span className="text-lg font-black text-white tracking-tight">famity.hu</span>
+              <span className="block text-[10px] font-bold text-emerald-300 uppercase tracking-widest">Biztonságos Kölcsönzés</span>
+            </div>
           </div>
-          <div>
-            <Link href="/" className="text-lg font-black text-slate-900 tracking-tight hover:text-blue-600 transition">famity.hu</Link>
-            <span className="block text-[10px] font-bold text-blue-600 uppercase tracking-widest">Vezérlőpult</span>
-          </div>
+
+          {/* Menüpontok */}
+          <nav className="p-4 space-y-1.5 text-sm font-medium">
+            <button 
+              onClick={() => setActiveTab('active')} 
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${activeTab === 'active' ? 'bg-[#145d50] text-white font-bold shadow-sm' : 'hover:bg-[#145d50]/50 text-slate-300'}`}
+            >
+              <span>📋</span> Új eszköz / Aktívak
+            </button>
+            <button 
+              onClick={() => setActiveTab('chat')} 
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${activeTab === 'chat' ? 'bg-[#145d50] text-white font-bold shadow-sm' : 'hover:bg-[#145d50]/50 text-slate-300'}`}
+            >
+              <span>💬</span> Belső Chat
+              {allActiveProtocols.length > 0 && (
+                <span className="ml-auto bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                  {allActiveProtocols.length}
+                </span>
+              )}
+            </button>
+            <Link href="/dashboard/closed" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#145d50]/50 text-slate-300 transition">
+              <span>📁</span> Lezárt archívum
+            </Link>
+            <Link href="/profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#145d50]/50 text-slate-300 transition">
+              <span>⚙️</span> Saját adatok / Profil
+            </Link>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link href="/" className="text-xs font-semibold px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition hidden sm:inline-block">
-            ← Főoldal
-          </Link>
-          <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl font-medium hidden md:inline-block">
-            {user?.email}
-          </span>
-          <button onClick={handleLogout} className="text-xs font-semibold px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-sm transition">
+        {/* Alsó fiók info & Kilépés */}
+        <div className="p-4 border-t border-[#145d50] space-y-3">
+          <div className="text-xs text-slate-300 px-3 truncate">
+            Bejelentkezve:<br/>
+            <strong className="text-white font-mono">{user?.email}</strong>
+          </div>
+          <button onClick={handleLogout} className="w-full bg-[#145d50] hover:bg-[#1a7463] text-white text-xs font-semibold py-2.5 rounded-xl transition shadow">
             Kilépés
           </button>
         </div>
-      </header>
+      </aside>
 
-      {/* Fő tartalom */}
-      <main className="max-w-6xl w-full mx-auto px-6 py-10 space-y-10 flex-1">
+      {/* JOBB OLDALI FŐ TARTALOM TERÜLET */}
+      <div className="flex-1 flex flex-col min-h-screen">
         
-        {/* Üdvözlő & Gyorsműveletek sáv (Videó stílusú prémium doboz) */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Aktív Munkaterület</span>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Üdvözlünk a Vezérlőpulton!</h1>
-            <p className="text-sm text-slate-600">Kezeld biztonságosan bérléseidet, jegyzőkönyveidet és partnereidet egy helyen.</p>
+        {/* Felső mobil / reszponzív léc */}
+        <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center md:hidden">
+          <div className="flex items-center gap-2">
+            <span className="font-black text-[#0f4c40]">famity.hu</span>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/dashboard/closed" className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-5 py-3 rounded-2xl text-sm transition flex items-center gap-2 shadow-sm">
-              <span>📁 Lezárt archívum</span>
-            </Link>
-            <Link href="/profile" className={`font-semibold px-5 py-3 rounded-2xl text-sm transition shadow-sm ${hasProfile ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'}`}>
-              {hasProfile ? '⚙️ Saját adatok' : '⚠️ Profil kitöltése szükséges'}
-            </Link>
-            {hasProfile && (
-              <Link href="/dashboard/new" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-blue-600/25 transition text-sm flex items-center gap-2">
-                <span>+ Új kölcsönzés indítása</span>
-              </Link>
-            )}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setActiveTab('active')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Aktívak</button>
+            <button onClick={() => setActiveTab('chat')} className="text-xs px-3 py-1.5 bg-slate-100 rounded-lg font-semibold">Chat</button>
+            <button onClick={handleLogout} className="text-xs px-3 py-1.5 bg-red-100 text-red-700 rounded-lg font-semibold">Kilépés</button>
           </div>
-        </div>
+        </header>
 
-        {/* Értesítések / Függőben lévő elemek */}
-        {incomingRequests.length > 0 && (
-          <div className="p-6 bg-blue-50 border border-blue-200 rounded-3xl shadow-sm space-y-4">
-            <h3 className="font-bold text-base text-blue-900 flex items-center gap-2">
-              <span>🔔</span> Beérkező adatkérési kérelmek
-            </h3>
-            {incomingRequests.map(req => (
-              <div key={req.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <p className="font-bold text-slate-900 text-sm">{req.lenderName || req.lenderEmail} hozzáférést kér a személyes adataihoz.</p>
-                <div className="flex gap-2">
-                  <button onClick={() => handleApproveRequest(req.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">Engedélyezem</button>
-                  <button onClick={() => handleRejectRequest(req.id)} className="bg-red-100 hover:bg-red-700 hover:text-white text-red-700 text-xs font-semibold px-4 py-2 rounded-xl transition">Elutasítás</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {pendingSignatures.length > 0 && (
-          <div className="p-6 bg-amber-50 border border-amber-200 rounded-3xl shadow-sm space-y-4">
-            <h3 className="font-bold text-base text-amber-900 flex items-center gap-2">
-              <span>✍️</span> Aláírásra váró bérleti jegyzőkönyv
-            </h3>
-            {pendingSignatures.map(proto => (
-              <div key={proto.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <p className="font-bold text-slate-900 text-sm">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
-                  <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
-                </div>
-                <button onClick={() => setSigningProtocolId(proto.id)} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
-                  Aláírás megtekintése →
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {pendingReturnSignatures.length > 0 && (
-          <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-3xl shadow-sm space-y-4">
-            <h3 className="font-bold text-base text-emerald-900 flex items-center gap-2">
-              <span>🔄</span> Visszavétel aláírása szükséges
-            </h3>
-            {pendingReturnSignatures.map(proto => (
-              <div key={proto.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <p className="font-bold text-slate-900 text-sm">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
-                  <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
-                </div>
-                <button onClick={() => setSigningReturnProtocolId(proto.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
-                  Visszavétel aláírása →
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Kétoszlopos elrendezés az aktív bérlésekhez */}
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Tartalom */}
+        <main className="flex-1 p-6 sm:p-10 max-w-6xl w-full mx-auto space-y-8">
           
-          {/* Bérbeadóként indított */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                <span>📤</span> Aktív indításaim (Bérbeadóként)
-              </h2>
-              <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">{activeLenderProtocols.length} aktív</span>
+          {/* Értesítések / Függőben lévő elemek */}
+          {incomingRequests.length > 0 && (
+            <div className="p-6 bg-blue-50 border border-blue-200 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-bold text-base text-blue-900 flex items-center gap-2">
+                <span>🔔</span> Beérkező adatkérési kérelmek
+              </h3>
+              {incomingRequests.map(req => (
+                <div key={req.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <p className="font-bold text-slate-900 text-sm">{req.lenderName || req.lenderEmail} hozzáférést kér a személyes adataihoz.</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleApproveRequest(req.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">Engedélyezem</button>
+                    <button onClick={() => handleRejectRequest(req.id)} className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white text-xs font-semibold px-4 py-2 rounded-xl transition">Elutasítás</button>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
 
-            {activeLenderProtocols.length === 0 ? (
-              <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
-                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">📦</div>
-                <p className="text-slate-600 text-sm font-semibold">Nincs aktív bérlésed bérbeadóként.</p>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">Kezdj új kölcsönzést a fenti gombra kattintva a biztonságos rögzítéshez.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {activeLenderProtocols.map(p => {
-                  const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
-                  const uniqueId = p.id.slice(0, 8).toUpperCase();
-                  return (
-                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-5 hover:shadow-md transition">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-extrabold text-slate-900 text-base">{p.itemDetails?.name}</h3>
-                          <span className="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded-xl text-slate-600 font-semibold">#{uniqueId}</span>
-                        </div>
-                        <div className="text-xs text-slate-600 space-y-1">
-                          <p>Bérlő: <span className="font-semibold text-slate-900">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
-                          <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
-                        </div>
-                        <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center">
-                        <button onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition">👤 Bérlő adatai</button>
-                        <button onClick={() => { setChatProtocolId(p.id); setChatProtocolItemName(p.itemDetails?.name); }} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-                          <span>💬 Chat</span>
-                        </button>
-                        <Link href={`/dashboard/protocol/${p.id}`} className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">Jegyzőkönyv →</Link>
-                        {p.status === 'Aktív' && (
-                          <Link href={`/dashboard/return/${p.id}`} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition ml-auto shadow">Visszavétel →</Link>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Bérlőként indított */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                <span>📥</span> Aktív bérléseim (Bérlőként)
-              </h2>
-              <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">{activeBorrowerProtocols.length} aktív</span>
+          {pendingSignatures.length > 0 && (
+            <div className="p-6 bg-amber-50 border border-amber-200 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-bold text-base text-amber-900 flex items-center gap-2">
+                <span>✍️</span> Aláírásra váró bérleti jegyzőkönyv
+              </h3>
+              {pendingSignatures.map(proto => (
+                <div key={proto.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <p className="font-bold text-slate-900 text-sm">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
+                    <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
+                  </div>
+                  <button onClick={() => setSigningProtocolId(proto.id)} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                    Aláírás megtekintése →
+                  </button>
+                </div>
+              ))}
             </div>
+          )}
 
-            {activeBorrowerProtocols.length === 0 ? (
-              <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
-                <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">🔑</div>
-                <p className="text-slate-600 text-sm font-semibold">Nincs aktív bérlésed bérlőként.</p>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">Amikor egy bérbeadó meghív, itt jelenik meg az aláírásra váró eszköz.</p>
+          {pendingReturnSignatures.length > 0 && (
+            <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-bold text-base text-emerald-900 flex items-center gap-2">
+                <span>🔄</span> Visszavétel aláírása szükséges
+              </h3>
+              {pendingReturnSignatures.map(proto => (
+                <div key={proto.id} className="bg-white p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <p className="font-bold text-slate-900 text-sm">{proto.itemDetails?.name} <span className="text-xs font-mono text-slate-400">({proto.id.slice(0, 8).toUpperCase()})</span></p>
+                    <p className="text-xs text-slate-500">Bérbeadó: {proto.lenderEmail}</p>
+                  </div>
+                  <button onClick={() => setSigningReturnProtocolId(proto.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                    Visszavétel aláírása →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* HA AZ AKTÍV FÜL VAN KIVÁLASZTVA */}
+          {activeTab === 'active' && (
+            <div className="space-y-10">
+              
+              {/* Üdvözlő & Új kölcsönzés sáv */}
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0f4c40] bg-emerald-50 px-3 py-1 rounded-full">Hitelesített Munkaterület</span>
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Kölcsönzési Vezérlőpult</h1>
+                  <p className="text-sm text-slate-600">Kezeld eszközeidet és partnereidet biztonságosan a Ptk. szabályai szerint.</p>
+                </div>
+                <div>
+                  {hasProfile ? (
+                    <Link href="/dashboard/new" className="bg-[#0f4c40] hover:bg-[#145d50] text-white font-bold px-6 py-3.5 rounded-2xl shadow-lg transition text-sm flex items-center gap-2">
+                      <span>+ Új kölcsönzés indítása</span>
+                    </Link>
+                  ) : (
+                    <Link href="/profile" className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3.5 rounded-2xl shadow transition text-sm animate-pulse">
+                      ⚠️ Először töltsd ki a profilod
+                    </Link>
+                  )}
+                </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {activeBorrowerProtocols.map(p => {
-                  const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
-                  const uniqueId = p.id.slice(0, 8).toUpperCase();
-                  return (
-                    <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between gap-5 hover:shadow-md transition">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-extrabold text-slate-900 text-base">{p.itemDetails?.name}</h3>
-                          <span className="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded-xl text-slate-600 font-semibold">#{uniqueId}</span>
-                        </div>
-                        <div className="text-xs text-slate-600 space-y-1">
-                          <p>Bérbeadó: <span className="font-semibold text-slate-900">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
-                          <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
-                        </div>
-                        <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold ${p.status === 'Aktív' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>{p.status}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center">
-                        <button onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition">👤 Bérbeadó adatai</button>
-                        <button onClick={() => { setChatProtocolId(p.id); setChatProtocolItemName(p.itemDetails?.name); }} className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-                          <span>💬 Chat</span>
-                        </button>
-                        <Link href={`/dashboard/protocol/${p.id}`} className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">Jegyzőkönyv →</Link>
-                      </div>
+
+              {/* Kétoszlopos bérlések */}
+              <div className="grid md:grid-cols-2 gap-8">
+                
+                {/* Bérbeadóként indított */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>📤</span> Aktív indításaim (Bérbeadóként)
+                  </h2>
+                  {activeLenderProtocols.length === 0 ? (
+                    <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500 text-sm">
+                      Nincs aktív bérlésed bérbeadóként.
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeLenderProtocols.map(p => {
+                        const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                        return (
+                          <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-bold text-slate-900 text-base">{p.itemDetails?.name}</h3>
+                              <span className="text-xs font-mono bg-emerald-50 text-[#0f4c40] px-2.5 py-1 rounded-xl font-semibold">Hitelesítve</span>
+                            </div>
+                            <div className="text-xs text-slate-600 space-y-1">
+                              <p>Bérlő: <span className="font-semibold text-slate-900">{p.borrowerData?.lastName} {p.borrowerData?.firstName}</span></p>
+                              <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100 items-center">
+                              <button onClick={() => setSelectedPartnerData({ title: 'Bérlő adatai', data: p.borrowerData, email: p.borrowerEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition">👤 Bérlő adatai</button>
+                              <button onClick={() => { setSelectedChatProtocol(p); setActiveTab('chat'); }} className="bg-emerald-50 hover:bg-emerald-100 text-[#0f4c40] text-xs font-semibold px-3 py-2 rounded-xl transition">💬 Chat</button>
+                              <Link href={`/dashboard/protocol/${p.id}`} className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">Jegyzőkönyv</Link>
+                              {p.status === 'Aktív' && (
+                                <Link href={`/dashboard/return/${p.id}`} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition ml-auto shadow">Visszavétel</Link>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
-        </div>
-      </main>
+                {/* Bérlőként indított */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>📥</span> Aktív bérléseim (Bérlőként)
+                  </h2>
+                  {activeBorrowerProtocols.length === 0 ? (
+                    <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500 text-sm">
+                      Nincs aktív bérlésed bérlőként.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeBorrowerProtocols.map(p => {
+                        const returnDateStr = p.rentalTerms?.expectedReturnDate ? new Date(p.rentalTerms.expectedReturnDate).toLocaleString('hu-HU') : 'Nincs megadva';
+                        return (
+                          <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-bold text-slate-900 text-base">{p.itemDetails?.name}</h3>
+                              <span className="text-xs font-mono bg-emerald-50 text-[#0f4c40] px-2.5 py-1 rounded-xl font-semibold">Hitelesítve</span>
+                            </div>
+                            <div className="text-xs text-slate-600 space-y-1">
+                              <p>Bérbeadó: <span className="font-semibold text-slate-900">{p.lenderData?.lastName} {p.lenderData?.firstName}</span></p>
+                              <p>Visszavételi határidő: <span className="font-semibold text-slate-900">{returnDateStr}</span></p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100 items-center">
+                              <button onClick={() => setSelectedPartnerData({ title: 'Bérbeadó adatai', data: p.lenderData, email: p.lenderEmail })} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition">👤 Bérbeadó adatai</button>
+                              <button onClick={() => { setSelectedChatProtocol(p); setActiveTab('chat'); }} className="bg-emerald-50 hover:bg-emerald-100 text-[#0f4c40] text-xs font-semibold px-3 py-2 rounded-xl transition">💬 Chat</button>
+                              <Link href={`/dashboard/protocol/${p.id}`} className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">Jegyzőkönyv</Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* HA A CHAT FÜL VAN KIVÁLASZTVA (KÜLÖNÁLLÓ CHAT NÉZET) */}
+          {activeTab === 'chat' && (
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm h-[75vh] flex flex-col md:flex-row overflow-hidden">
+              {/* Bal oldali partner/eszköz lista a chathez */}
+              <div className="w-full md:w-80 border-r border-slate-200 bg-slate-50 flex flex-col">
+                <div className="p-4 border-b border-slate-200 bg-white">
+                  <h3 className="font-bold text-slate-900 text-sm">Aktív Beszélgetések</h3>
+                  <p className="text-xs text-slate-500">Válassz eszközt a chathez</p>
+                </div>
+                <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                  {allActiveProtocols.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-slate-400">Nincs aktív bérlésed, így chat sem érhető el.</div>
+                  ) : (
+                    allActiveProtocols.map(p => {
+                      const isSelected = selectedChatProtocol?.id === p.id;
+                      const partnerName = p.lenderId === user?.uid 
+                        ? `${p.borrowerData?.lastName || ''} ${p.borrowerData?.firstName || ''}`
+                        : `${p.lenderData?.lastName || ''} ${p.lenderData?.firstName || ''}`;
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setSelectedChatProtocol(p)}
+                          className={`w-full text-left p-4 transition flex flex-col gap-1 ${isSelected ? 'bg-emerald-50 border-l-4 border-[#0f4c40]' : 'hover:bg-slate-100'}`}
+                        >
+                          <div className="font-bold text-slate-900 text-sm truncate">{p.itemDetails?.name}</div>
+                          <div className="text-xs text-slate-500 flex justify-between">
+                            <span>Partner: {partnerName || 'Partner'}</span>
+                            <span className="font-mono text-[10px]">#{p.id.slice(0, 4)}</span>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Jobb oldali üzenetváltó terület */}
+              <div className="flex-1 flex flex-col bg-white">
+                {selectedChatProtocol ? (
+                  <>
+                    <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">{selectedChatProtocol.itemDetails?.name}</h4>
+                        <span className="text-xs text-slate-500 font-mono">ID: #{selectedChatProtocol.id}</span>
+                      </div>
+                      <span className="text-xs bg-emerald-100 text-[#0f4c40] px-3 py-1 rounded-full font-bold">Biztonságos csatorna</span>
+                    </div>
+
+                    <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/50">
+                      {messages.length === 0 ? (
+                        <div className="text-center text-slate-400 text-xs py-16">Még nincsenek üzenetek ehhez a bérléshez. Kezdjétek el a beszélgetést!</div>
+                      ) : (
+                        messages.map(msg => {
+                          const isMe = msg.senderId === user?.uid;
+                          return (
+                            <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                              <span className="text-[10px] text-slate-400 mb-1 px-1">{msg.senderEmail}</span>
+                              <div className={`max-w-[75%] p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-[#0f4c40] text-white rounded-br-none shadow' : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'}`}>
+                                {msg.text}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                      <div ref={chatMessagesEndRef} />
+                    </div>
+
+                    <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 bg-white flex gap-3">
+                      <input 
+                        type="text" 
+                        value={newMessage} 
+                        onChange={e => setNewMessage(e.target.value)} 
+                        placeholder="Írd meg üzeneted a partnernek..." 
+                        className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c40]"
+                      />
+                      <button type="submit" className="bg-[#0f4c40] hover:bg-[#145d50] text-white font-bold px-6 py-3 rounded-xl text-xs sm:text-sm transition shadow">
+                        Küldés
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-2">
+                    <span className="text-4xl">💬</span>
+                    <p className="text-sm font-semibold">Válassz ki egy bérlést a bal oldali listából a chat megnyitásához.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
 
       {/* Partner Adatainak Modál */}
       {selectedPartnerData && (
@@ -434,56 +556,6 @@ export default function DashboardPage() {
             <div className="pt-4 border-t flex justify-end">
               <button onClick={() => setSelectedPartnerData(null)} className="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow">Bezárás</button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Belső Chat Modál */}
-      {chatProtocolId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl max-w-lg w-full h-[600px] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
-            {/* Chat Fejléc */}
-            <div className="p-5 bg-slate-900 text-white flex justify-between items-center">
-              <div>
-                <h3 className="font-extrabold text-base">Üzenetek: {chatProtocolItemName}</h3>
-                <span className="text-xs text-slate-400 font-mono">#{chatProtocolId.slice(0, 8).toUpperCase()}</span>
-              </div>
-              <button onClick={() => setChatProtocolId(null)} className="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
-            </div>
-
-            {/* Üzenetek listája */}
-            <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50">
-              {messages.length === 0 ? (
-                <div className="text-center text-slate-400 text-xs py-10">Még nincsenek üzenetek. Írd meg az elsőt!</div>
-              ) : (
-                messages.map(msg => {
-                  const isMe = msg.senderId === user?.uid;
-                  return (
-                    <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                      <span className="text-[10px] text-slate-400 mb-1 px-1">{msg.senderEmail}</span>
-                      <div className={`max-w-[80%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'}`}>
-                        {msg.text}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              <div ref={chatMessagesEndRef} />
-            </div>
-
-            {/* Üzenet küldő sáv */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-slate-200 flex gap-2">
-              <input 
-                type="text" 
-                value={newMessage} 
-                onChange={e => setNewMessage(e.target.value)} 
-                placeholder="Írj üzenetet a partnernek..." 
-                className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl text-xs sm:text-sm transition shadow">
-                Küldés
-              </button>
-            </form>
           </div>
         </div>
       )}
@@ -525,18 +597,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* Prémium Lábléc */}
-      <footer className="bg-slate-100 border-t border-slate-200 py-8 mt-12">
-        <div className="max-w-6xl w-full mx-auto px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p>© 2026 famity.hu – Minden jog fenntartva.</p>
-          <div className="flex gap-6">
-            <Link href="/" className="hover:underline">Főoldal</Link>
-            <Link href="/dashboard/closed" className="hover:underline">Lezárt archívum</Link>
-            <Link href="/profile" className="hover:underline">Profil</Link>
-          </div>
-        </div>
-      </footer>
 
     </div>
   );
