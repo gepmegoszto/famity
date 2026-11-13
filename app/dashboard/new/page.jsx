@@ -41,6 +41,7 @@ export default function NewProtocolPage() {
   const [deposit, setDeposit] = useState('');
   const [dailyFee, setDailyFee] = useState('');
   const [totalFee, setTotalFee] = useState('');
+  const [depositReceived, setDepositReceived] = useState(false); // ÚJ: Kaució átvétel checkbox
 
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,7 +50,6 @@ export default function NewProtocolPage() {
 
   // Aláírás modal állapota
   const [showSignModal, setShowSignModal] = useState(false);
-  const [lenderSignature, setLenderSignature] = useState('');
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -167,38 +167,42 @@ export default function NewProtocolPage() {
     reader.readAsDataURL(file);
   };
 
-  // Validálás ellenőrzés előtt
+  // Validálás magyar nyelvű visszajelzéssel
   const handlePreSubmit = (e) => {
     e.preventDefault();
     setErrorMessage('');
 
     if (!borrowerLastName || !borrowerFirstName || !borrowerIdCard || !borrowerPhone || !bZip || !bCity || !bStreet || !bHouseNumber) {
-      setErrorMessage('Kérjük, töltsd ki az összes kötelező bérlői adatot és a teljes lakcímet!');
+      setErrorMessage('Kérjük, töltsd ki az összes kötelező bérlői személyes adatot és a teljes lakcímet!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (!itemName || !itemSerial || !conditionNotes) {
-      setErrorMessage('Kérjük, add meg az eszköz megnevezését, sorozatszámát és állapotleírását!');
+      setErrorMessage('Kérjük, add meg az eszköz megnevezését, gyártási számát és állapotleírását!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (!expectedReturnDate) {
-      setErrorMessage('Kérjük, add meg a tervezett visszavételi dátumot és időt!');
+      setErrorMessage('Kérjük, add meg a tervezett visszavételi dátumot és időpontot!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (hasFee && (!deposit || !dailyFee)) {
-      setErrorMessage('Ha bérleti díjat adtál meg, a kaució és a napi díj kitöltése kötelező!');
+      setErrorMessage('Amennyiben bérleti díjat és kauciót alkalmaz, mindkét mező kitöltése kötelező!');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (hasFee && !depositReceived) {
+      setErrorMessage('A továbblépéshez meg kell erősítenie, hogy a kauciót átvette!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (!accepted) {
-      setErrorMessage('A folytatáshoz el kell fogadnod a nyilatkozatot!');
+      setErrorMessage('A folytatáshoz el kell fogadni a felelősségi nyilatkozatot!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // Ha minden ok, megnyitjuk az aláíró modalt
     setShowSignModal(true);
   };
 
@@ -235,16 +239,13 @@ export default function NewProtocolPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  // Végleges mentés a bérbeadó aláírásával
   const handleFinalSubmit = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const signatureDataUrl = canvas.toDataURL();
-    setLenderSignature(signatureDataUrl);
 
     setLoading(true);
     try {
-      // Megkeressük a bérlő UID-ját az email alapján (ha létezik)
       let borrowerUid = null;
       if (borrowerEmail) {
         const q = query(collection(db, 'users'), where('email', '==', borrowerEmail.trim()));
@@ -259,7 +260,7 @@ export default function NewProtocolPage() {
         lenderEmail: user.email,
         lenderData: lenderData,
         borrowerEmail: borrowerEmail.trim(),
-        borrowerUid: borrowerUid, // Itt mentjük, hogy a bérlő is lássa a vezérlőpultján
+        borrowerUid: borrowerUid,
         borrowerData: {
           lastName: borrowerLastName,
           firstName: borrowerFirstName,
@@ -282,6 +283,7 @@ export default function NewProtocolPage() {
           deposit: hasFee ? deposit : null,
           dailyFee: hasFee ? dailyFee : null,
           totalFee: hasFee ? totalFee : null,
+          depositReceived: hasFee ? depositReceived : false,
         },
         signatures: {
           lender: signatureDataUrl,
@@ -393,16 +395,27 @@ export default function NewProtocolPage() {
             <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Mikor kell visszaadni az eszközt? *</label>
             <input type="datetime-local" value={expectedReturnDate} onChange={e => setExpectedReturnDate(e.target.value)} className="w-full sm:w-1/2 px-3 py-2 border rounded-lg" />
           </div>
-          <div className="bg-slate-50 p-4 rounded-xl border">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="bg-slate-50 p-4 rounded-xl border space-y-4">
+            <div className="flex items-center gap-3">
               <input type="checkbox" id="hasFee" checked={hasFee} onChange={e => setHasFee(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
               <label htmlFor="hasFee" className="text-sm font-bold text-slate-800 cursor-pointer">Bérleti díj és kaució alkalmazása</label>
             </div>
+
             {hasFee && (
-              <div className="grid sm:grid-cols-3 gap-4 pt-2 border-t">
-                <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Kaució (HUF) *</label><input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="20000" /></div>
-                <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Napi bérleti díj (HUF) *</label><input type="number" value={dailyFee} onChange={e => setDailyFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="2000" /></div>
-                <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (Automatikus)</label><input type="number" value={totalFee} readOnly className="w-full px-3 py-2 border rounded-lg bg-slate-100 font-bold text-blue-700" /></div>
+              <div className="space-y-4 pt-2 border-t">
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Kaució (HUF) *</label><input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="20000" /></div>
+                  <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Napi bérleti díj (HUF) *</label><input type="number" value={dailyFee} onChange={e => setDailyFee(e.target.value)} className="w-full px-3 py-2 border rounded-lg bg-white" placeholder="2000" /></div>
+                  <div><label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Teljes bérleti díj (Automatikus)</label><input type="number" value={totalFee} readOnly className="w-full px-3 py-2 border rounded-lg bg-slate-100 font-bold text-blue-700" /></div>
+                </div>
+                
+                {/* ÚJ: Kaució átvétel checkbox */}
+                <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <input type="checkbox" id="depositReceived" checked={depositReceived} onChange={e => setDepositReceived(e.target.checked)} className="w-5 h-5 text-blue-600 rounded border-slate-300" />
+                  <label htmlFor="depositReceived" className="text-sm font-semibold text-blue-900 cursor-pointer">
+                    Kijelentem, hogy a fenti összegű kauciót a bérlőtől átvettem. *
+                  </label>
+                </div>
               </div>
             )}
           </div>
@@ -418,18 +431,27 @@ export default function NewProtocolPage() {
         </button>
       </form>
 
-      {/* ALÁÍRÓ MODAL (Bérbeadó) */}
+      {/* BÉRBEADÓI ALÁÍRÓ MODAL + JOGI TÁJÉKOZTATÓ */}
       {showSignModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-slate-900">Bérbeadói Aláírás</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white p-6 rounded-2xl max-w-lg w-full space-y-4 shadow-2xl my-8">
+            <h3 className="text-lg font-bold text-slate-900">Bérbeadói Aláírás és Jogi Tájékoztató</h3>
+            
+            {/* Jogi tájékoztató szöveg */}
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2 max-h-40 overflow-y-auto">
+              <p className="font-bold">⚠️ Fontos jogi nyilatkozat és felelősségvállalási útmutató:</p>
+              <p>1. <strong>Adatok helyessége:</strong> A felek felelnek a megadott adatok valódiságáért és helyességéért. Az oldal kizárólag egy biztonságos digitális felületet és rögzítőeszközt biztosít a megállapodáshoz.</p>
+              <p>2. <strong>Felelősség kizárása:</strong> A platform üzemeltetője semmilyen felelősséget nem vállal a kölcsönbe adott tárgy állapotáért, esetleges károsodásáért, megsemmisüléséért, a bérleti díj vagy a kaució elmaradásáért.</p>
+              <p>3. <strong>Panaszkezelés és jogviták:</strong> Esetleges vitás kérdések, nem teljesítés vagy kár esetén a felek elsődlegesen békés úton, egymás között kötelesek eljárni. Amennyiben ez nem vezet eredményre, a felek a magyar jogszabályok szerint illetékes békéltető testülethez vagy bírósághoz fordulhatnak.</p>
+            </div>
+
             <p className="text-xs text-slate-600">Kérjük, rajzold be az aláírásodat az alábbi mezőbe az egérrel vagy az ujjaddal.</p>
             
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex justify-center">
               <canvas
                 ref={canvasRef}
                 width={450}
-                height={200}
+                height={180}
                 className="cursor-crosshair touch-none"
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
